@@ -88,8 +88,8 @@ function zzzVM(av){
   const w = av.Weapon, wi = w && B.weapons[String(w.Id)];
   let weapon = null;
   if(w && wi){
-    const main = wi.main ? zWeaponMain(wi.main[1], w.Level || 1, w.BreakLevel || 0) : 0;
-    const sub = wi.sub ? zWeaponSub(wi.sub[1], w.BreakLevel || 0) : 0;
+    const main = wi.main ? (w._main != null ? w._main : zWeaponMain(wi.main[1], w.Level || 1, w.BreakLevel || 0)) : 0;
+    const sub = wi.sub ? (w._sub != null ? w._sub : zWeaponSub(wi.sub[1], w.BreakLevel || 0)) : 0;
     if(wi.main) base[wi.main[0]] = (base[wi.main[0]] || 0) + main;
     if(wi.sub) put(wi.sub[0], sub);
     weapon = { title:"Амплификатор", name: scItemName("nap", w.Id) || "#" + w.Id, img: wi.img, top: wi.r === 4, badge: wi.r === 4 ? "S" : wi.r === 3 ? "A" : "B",
@@ -145,6 +145,11 @@ function zzzVM(av){
   // у агентов «Разрушения» вместо энергии адреналин, и есть сила сквозной атаки: 30% силы атаки + 10% HP
   const rupture = info.pro === "Rupture";
   if(rupture) T.sheer = Math.floor(T.atk * 0.3 + T.hp * 0.1) + (base["12301"] || 0) + (add["12303"] || 0);
+  // из файла HoYoLAB — готовые итоговые характеристики
+  if(av._final){
+    const F = av._final;
+    [["hp",1],["atk",2],["def",3],["imp",4],["cr",5],["cd",6],["am",7],["ap",8],["penr",9],["er",11],["pen",232],["sheer",19],["rp",20]].forEach(([k, t]) => { if(F[t] !== undefined) T[k] = F[t]; });
+  }
   const stats = [
     row("HP", "11103", T.hp, base["11101"], "11101"), row(zProp("12101"), "12103", T.atk, base["12101"], "12101"), row(zProp("13101"), "13103", T.def, base["13101"], "13101"),
     row(zProp("12201"), "12203", T.imp, base["12201"], "12201"), row(zProp("20103"), "20103", T.cr, base["20101"], "20101"), row(zProp("21103"), "21103", T.cd, base["21101"], "21101"),
@@ -163,7 +168,7 @@ function zzzVM(av){
     .map(s => [ZZZ_SKILL[s.Index], (s.Level || 0) + boost, s.Index]);
   skills.push(["Ядро", core ? "ABCDEF".charAt(core - 1) : "—"]);
   const el = zzzElement(info.el);
-  return { name: scItemName("nap", id) || "#" + id, art: info.img, circle: info.circle || info.img, el: el.n, color: el.c, cls: ZZZ_PRO[info.pro] || info.pro, elIc: ZZZ_EL_IC[el.k] || "", proIc: ZZZ_PRO_IC[info.pro] || "", rank: ((itemsDb.nap && itemsDb.nap.items[id]) || {}).r === 3 ? "A" : "S", valuable,
+  return { name: scItemName("nap", id) || av._name || "#" + id, art: info.img, circle: info.circle || info.img, el: el.n, color: el.c, cls: ZZZ_PRO[info.pro] || info.pro, elIc: ZZZ_EL_IC[el.k] || "", proIc: ZZZ_PRO_IC[info.pro] || "", rank: ((itemsDb.nap && itemsDb.nap.items[id]) || {}).r === 3 ? "A" : "S", valuable,
     lvl, maxLvl: 60, cons:{ label:"M", title:"Кинограмма", n:m }, keys, skills, stats, weapon, sets, cv, slotsTitle:"Диски", setsWord:"дисков",
     slots: [1,2,3,4,5,6].map(i => slots.find(s => s.pos === i) || { pos:i, label:String(i), empty:true }),
     foot: "Характеристики посчитаны по формулам Enka: агент, амплификатор, диски и бонусы комплектов за 2 предмета. Пассивки амплификатора, эффекты за 4 предмета и баффы в бою не учитываются, поэтому цифры могут немного отличаться от окна агента в игре." };
@@ -275,7 +280,15 @@ function hsrVM(av){
     be: g("BreakDamageAddedRatioBase"), ohb: g("HealRatioBase"), err: 1 + g("SPRatioBase"), ehr: g("StatusProbabilityBase"), res: g("StatusResistanceBase")
   };
   const elKey = A.el === "Thunder" ? "Thunder" : A.el;
-  const dmg = g(elKey + "AddedRatio") + g("AllDamageTypeAddedRatio");
+  let dmg = g(elKey + "AddedRatio") + g("AllDamageTypeAddedRatio");
+  // из файла HoYoLAB — готовые итоговые характеристики (точнее расчёта по округлённым значениям реликвий)
+  if(av._final){
+    const F = av._final, fv = t => F[t] ? F[t].v : undefined;
+    [["hp",1],["atk",2],["def",3],["spd",4],["cr",5],["cd",6],["be",58],["ohb",7],["err",9],["ehr",10],["res",11]].forEach(([k, t]) => { if(fv(t) !== undefined) T[k] = fv(t); });
+    [["hp",1],["atk",2],["def",3],["spd",4]].forEach(([k, t]) => { if(F[t] && F[t].b) base[k] = F[t].b; });
+    const et = { Physical:12, Fire:14, Ice:16, Thunder:18, Wind:20, Quantum:22, Imaginary:24 }[elKey];
+    if(et && fv(et) !== undefined) dmg = fv(et);
+  }
   const hl = { Warrior:["Attack","CriticalChance","CriticalDamage"], Rogue:["Attack","CriticalChance","CriticalDamage"], Mage:["Attack","CriticalChance","CriticalDamage"],
     Memory:["MaxHP","CriticalChance","CriticalDamage"], Elation:["Attack","CriticalChance","CriticalDamage"], Warlock:["Attack","StatusProbability"],
     Shaman:["Speed","BreakDamageAddedRatio"], Priest:["MaxHP","HealRatio"], Knight:["Defence"] }[A.path] || [];
@@ -318,7 +331,7 @@ function hsrVM(av){
   slots.forEach(d => d.subs.forEach(su => { if(su.val){ useful[su.n] = (useful[su.n] || 0) + su.up + 1; } }));
   const el = HSR_EL[A.el] || [A.el, "#f0c264"];
   return { traces:{ skills: tSkills, majors, minors, bonus: treeBonus }, rankIcons: A.rankIcons || [], useful, valuable: Object.fromEntries(pathVal.map(k => [k, 1])),
-    name: scItemName("hkrpg", id) || "#" + id, art: A.img, circle: A.circle, el: el[0], color: el[1], cls: HSR_PATH[A.path] || A.path,
+    name: scItemName("hkrpg", id) || av._name || "#" + id, art: A.img, circle: A.circle, el: el[0], color: el[1], cls: HSR_PATH[A.path] || A.path,
     lvl, maxLvl: 80, cons:{ label:"E", title:"Эйдолон", n: rank }, keys, skills, stats, weapon, sets, cv: cv * 100, slotsTitle:"Реликвии", setsWord:"реликвий",
     slots: [1,2,3,4,5,6].map(i => slots.find(s => s.pos === i) || { pos:i, label: HSR_SLOT[i], empty:true }),
     foot: "Характеристики посчитаны по данным игры: персонаж, конус, следы, реликвии и постоянные бонусы комплектов. Пассивка конуса учитывается, только если её бонус постоянный и путь совпадает; баффы в бою не учитываются." };
@@ -348,6 +361,7 @@ function gIc(fp){
   return { HEALED_ADD:"heal" }[k] || (/ADD_HURT$/.test(k) ? "dmg" : "dot");
 }
 const GI_EL_IC = { Fire:"fire", Electric:"elec", Water:"water", Grass:"grass", Wind:"wind", Rock:"rock", Ice:"ice" };
+function giIcon(ic){ return !ic ? "" : /^https?:\/\//.test(ic) ? ic : "/ui/" + ic + ".png"; }
 function giVM(av){
   const B = SCB.hk4e, id = String(av.avatarId), A = B.avatars[id] || {};
   const pm = av.propMap || {}, f = av.fightPropMap || {};
@@ -376,7 +390,7 @@ function giVM(av){
     const fl = eq.flat || {};
     if(eq.weapon){
       const ref = (Object.values(eq.weapon.affixMap || {})[0] || 0) + 1;
-      weapon = { title:"Оружие", name: scItemName("hk4e", eq.itemId) || "#" + eq.itemId, img: fl.icon ? "/ui/" + fl.icon + ".png" : "", top: fl.rankLevel === 5,
+      weapon = { title:"Оружие", name: scItemName("hk4e", eq.itemId) || "#" + eq.itemId, img: giIcon(fl.icon), top: fl.rankLevel === 5,
         badge: (fl.rankLevel || "") + "★", lvl: eq.weapon.level || 1, refine:{ label:"R", n: ref },
         stats: (fl.weaponStats || []).map(s => [gLabel(s.appendPropId), gVal(s.appendPropId, s.statValue)]) };
       return;
@@ -384,16 +398,16 @@ function giVM(av){
     if(!eq.reliquary) return;
     const sl = GI_SLOT[fl.equipType] || [slots.length + 1, "—"];
     const hash = String(fl.setNameTextMapHash || "");
-    cnt[hash] = cnt[hash] || { n:0, icon: fl.icon };
+    cnt[hash] = cnt[hash] || { n:0, icon: fl.icon, name: fl.setName };
     cnt[hash].n++;
     const ids = (eq.reliquary.appendPropIdList || []).map(x => GI_FP[B.affix[String(x)]]);
     const ms = fl.reliquaryMainstat || {};
-    slots.push({ pos: sl[0], label: sl[1], set: scLoc(B.sets[hash]), icon: fl.icon ? "/ui/" + fl.icon + ".png" : "", lvl: Math.max(0, (eq.reliquary.level || 1) - 1), top: fl.rankLevel === 5,
+    slots.push({ pos: sl[0], label: sl[1], set: scLoc(B.sets[hash]) || fl.setName || "", icon: giIcon(fl.icon), lvl: Math.max(0, (eq.reliquary.level || 1) - 1), top: fl.rankLevel === 5,
       main: ms.mainPropId ? [gLabel(ms.mainPropId), gVal(ms.mainPropId, ms.statValue), gIc(ms.mainPropId)] : null, mainKey: ms.mainPropId || "",
       subs: (fl.reliquarySubstats || []).map(s => {
         if(s.appendPropId === "FIGHT_PROP_CRITICAL") cv += 2 * s.statValue;
         if(s.appendPropId === "FIGHT_PROP_CRITICAL_HURT") cv += s.statValue;
-        const rolls = ids.filter(x => x === s.appendPropId).length || 1;
+        const rolls = s._rolls || ids.filter(x => x === s.appendPropId).length || 1;
         return { n: gLabel(s.appendPropId), v: gVal(s.appendPropId, s.statValue), up: rolls - 1, val: !!valuable[s.appendPropId], ic: gIc(s.appendPropId), key: s.appendPropId, raw: s.statValue, fmt: x => gVal(s.appendPropId, x) };
       }) });
   });
@@ -404,7 +418,7 @@ function giVM(av){
     if(want && d.mainKey && want.indexOf(d.mainKey) === -1) d.mainBad = "Рекомендуется: " + want.map(gLabel).join(" или ");
   });
   const sets = Object.keys(cnt).filter(h => cnt[h].n >= 2).sort((a, b) => cnt[b].n - cnt[a].n)
-    .map(h => ({ name: scLoc(B.sets[h]) || "Комплект", icon: cnt[h].icon ? "/ui/" + cnt[h].icon + ".png" : "", full: cnt[h].n >= 4 }));
+    .map(h => ({ name: scLoc(B.sets[h]) || cnt[h].name || "Комплект", icon: giIcon(cnt[h].icon), full: cnt[h].n >= 4 }));
   const elDmg = GI_ELDMG[A.el];
   const row = (fp, total, base) => ({ n: gLabel(fp), v: gVal(fp, gPct(fp) ? total * 100 : total), base: base && total > base ? fInt(base) : "", add: base && total > base ? fInt(total - base) : "", hl: false, ic: gIc(fp) });
   const stats = [row("FIGHT_PROP_HP", F(2000), F(1)), row("FIGHT_PROP_ATTACK", F(2001), F(4)), row("FIGHT_PROP_DEFENSE", F(2002), F(7)),
@@ -435,7 +449,7 @@ function giVM(av){
   const el = GI_EL[A.el] || [A.el, "#f0c264"];
   const cons = (av.talentIdList || []).length;
   const it = itemsDb.hk4e && itemsDb.hk4e.items[id];
-  return { name: scItemName("hk4e", id) || "#" + id, art: A.img, circle: A.circle, el: el[0], color: el[1], cls: GI_WT[A.wt] || "", elKey: A.el || "",
+  return { name: scItemName("hk4e", id) || av._name || "#" + id, art: A.img, circle: A.circle, el: el[0], color: el[1], cls: GI_WT[A.wt] || "", elKey: A.el || "",
     talents, constIcons: A.consts || [], valuable,
     lvl, maxLvl: Math.max(90, lvl), cons:{ label:"C", title:"Созвездие", n: cons }, rarity: A.r || (it ? it.r : 5), friend: (av.fetterInfo || {}).expLevel || 0, keys, skills, stats, weapon, sets, cv: cv * 100, slotsTitle:"Артефакты", setsWord:"артефактов",
     slots: [1,2,3,4,5].map(i => slots.find(s => s.pos === i) || { pos:i, label: ["Цветок","Перо","Пески","Кубок","Корона"][i - 1], empty:true }),
@@ -569,7 +583,17 @@ function scFile(f){
   rd.onload = () => {
     const note = document.getElementById("scNote");
     try {
-      const res = scIngest(game, JSON.parse(rd.result), scUid());
+      const j = JSON.parse(rd.result);
+      if(j && j.source === "hoyolab"){
+        note.textContent = "Читаю файл HoYoLAB…";
+        scIngestHoyo(j).then(done => {
+          note.textContent = done.length ? "Из HoYoLAB загружено — " + done.join(", ") + "." : "В файле HoYoLAB не нашлось персонажей.";
+          document.getElementById("scHelp").classList.add("hidden");
+          renderShowcase();
+        });
+        return;
+      }
+      const res = scIngest(game, j, scUid());
       note.textContent = "Из файла загружено " + SCG[game].who + ": " + res.n + ".";
       document.getElementById("scHelp").classList.add("hidden");
       renderShowcase();
@@ -578,7 +602,8 @@ function scFile(f){
   rd.readAsText(f);
 }
 
-function scImg(path){ return path ? ENKA_HOST + path : ""; }
+// картинки Enka — путь от её сайта; картинки из файла HoYoLAB — уже полный адрес
+function scImg(path){ return !path ? "" : /^https?:\/\//.test(path) ? path : ENKA_HOST + path; }
 let scLastGame = null;
 function renderShowcase(){
   const game = scGame(), G = SCG[game];

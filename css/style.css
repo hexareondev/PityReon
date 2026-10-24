@@ -1721,3 +1721,7 @@ button.am:hover{color:var(--text);border-color:var(--edge)}
 .sc-tabs.col{cursor:grab}
 .sc-tabs.col.drag{cursor:grabbing}
 .sc-tabs.col.drag .sc-tab{pointer-events:none}
+.hoyosteps{margin:10px 0;padding-left:20px;font-size:13.5px;line-height:1.6;color:var(--muted)}
+.hoyosteps li{margin:4px 0}
+.hoyosteps code{font-size:12px;padding:1px 6px;border-radius:5px;background:rgba(255,255,255,.07);color:var(--text)}
+#hoyoOverlay a{color:var(--gold);text-underline-offset:2px}

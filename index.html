@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PityReon — трекер круток, наград и сборок</title>
-<link rel="icon" type="image/svg+xml" href="favicon.svg?v=65">
-<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=65">
+<link rel="icon" type="image/svg+xml" href="favicon.svg?v=67">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=67">
 <meta name="theme-color" content="#0a0a0c">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=65">
+<link rel="stylesheet" href="css/style.css?v=67">
 </head>
 <body>
 <div class="shell">
@@ -400,7 +400,8 @@
     <div class="sc-top">
       <input id="scUid" inputmode="numeric" placeholder="UID в ZZZ" autocomplete="off" maxlength="12">
       <button class="mark sm" id="scLoad">Обновить из витрины</button>
-      <button class="ghost sm" id="scPick" title="Ответ Enka, сохранённый как файл">Загрузить файл</button>
+      <button class="ghost sm" id="scPick" title="Ответ Enka или выгрузка HoYoLAB, сохранённые как файл">Загрузить файл</button>
+      <button class="ghost sm" id="scHoyo" title="Все персонажи сразу — через ваш аккаунт HoYoLAB">Из HoYoLAB</button>
       <input type="file" id="scFile" accept="application/json,.json" hidden>
     </div>
     <p class="hint" id="scNote">Сборки берутся из витрины профиля через Enka.Network — в игре выставьте агентов в витрину. Каждая загрузка сохраняется, так что со временем здесь копятся все агенты, которых вы показывали.</p>
@@ -632,6 +633,26 @@
   </div>
 </div>
 
+<div class="overlay" id="hoyoOverlay">
+  <div class="sheet" style="max-width:520px;max-height:calc(100vh - 32px);overflow:auto" role="dialog" aria-modal="true" aria-labelledby="hoyoTitle">
+    <h3 id="hoyoTitle">Все персонажи из HoYoLAB</h3>
+    <p class="sub">Витрина Enka показывает только тех, кого вы выставили в профиле игры. Через HoYoLAB можно выгрузить сразу всех персонажей Star Rail, Genshin и ZZZ — по тому же принципу, что выгрузка истории круток.</p>
+    <ol class="hoyosteps">
+      <li>На компьютере откройте <a href="https://act.hoyolab.com/app/community-game-records-sea/index.html" target="_blank" rel="noopener">Боевые хроники HoYoLAB</a> и войдите в аккаунт.</li>
+      <li>Скопируйте скрипт кнопкой ниже.</li>
+      <li>На странице HoYoLAB нажмите F12 → вкладка «Console», вставьте скрипт и нажмите Enter. Chrome при первой вставке попросит набрать <code>allow pasting</code>.</li>
+      <li>Скачается файл <b>pityreon_hoyolab.json</b> — загрузите его кнопкой «Выбрать файл».</li>
+    </ol>
+    <p class="hint">Скрипт работает только на странице HoYoLAB от вашего имени и обращается только к серверам HoYoLAB: cookie не покидают браузер, на сайт попадает лишь итоговый файл. Код открыт — <a href="https://github.com/hexareondev/PityReon/blob/main/tools/hoyolab-export.js" target="_blank" rel="noopener">tools/hoyolab-export.js</a>. Никогда не вставляйте в консоль код, которому не доверяете.</p>
+    <p class="hint" id="hoyoNote" style="margin:8px 0 0"></p>
+    <div class="row" style="margin-top:14px">
+      <button class="ghost" id="hoyoClose">Закрыть</button>
+      <button class="ghost" id="hoyoCopy">Скопировать скрипт</button>
+      <button class="mark" id="hoyoPick">Выбрать файл</button>
+    </div>
+  </div>
+</div>
+
 <div class="overlay" id="colOverlay">
   <div class="sheet colsheet" role="dialog" aria-modal="true" aria-labelledby="colItemName">
     <div class="colhead">
@@ -730,20 +751,21 @@
   <button class="mark sm" id="syncBarPull">Загрузить</button>
   <button class="ghost sm" id="syncBarClose" aria-label="Скрыть">✕</button>
 </div>
-<script src="js/core.js?v=65"></script>
-<script src="js/calendar.js?v=65"></script>
-<script src="js/history.js?v=65"></script>
-<script src="js/pools.js?v=65"></script>
-<script src="js/collection.js?v=65"></script>
-<script src="js/showcase-alt.js?v=65"></script>
-<script src="js/showcase.js?v=65"></script>
-<script src="js/backup.js?v=65"></script>
-<script src="js/settings.js?v=65"></script>
-<script src="js/pulls.js?v=65"></script>
-<script src="js/achievements.js?v=65"></script>
-<script src="js/odds.js?v=65"></script>
-<script src="js/share.js?v=65"></script>
-<script src="js/sync.js?v=65"></script>
-<script src="js/nav.js?v=65"></script>
+<script src="js/core.js?v=67"></script>
+<script src="js/calendar.js?v=67"></script>
+<script src="js/history.js?v=67"></script>
+<script src="js/pools.js?v=67"></script>
+<script src="js/collection.js?v=67"></script>
+<script src="js/showcase-alt.js?v=67"></script>
+<script src="js/showcase.js?v=67"></script>
+<script src="js/hoyolab.js?v=67"></script>
+<script src="js/backup.js?v=67"></script>
+<script src="js/settings.js?v=67"></script>
+<script src="js/pulls.js?v=67"></script>
+<script src="js/achievements.js?v=67"></script>
+<script src="js/odds.js?v=67"></script>
+<script src="js/share.js?v=67"></script>
+<script src="js/sync.js?v=67"></script>
+<script src="js/nav.js?v=67"></script>
 </body>
 </html>
