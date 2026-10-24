@@ -1666,3 +1666,48 @@ button.am:hover{color:var(--text);border-color:var(--edge)}
 .sc-diff .up b{color:#7fd88f}
 .sc-diff .dn b{color:#ff8f7a}
 @media (max-width:520px){ .sc-diff > div{grid-template-columns:1fr auto} .sc-diff em{grid-column:1 / -1;grid-row:2} }
+/* список персонажей: свернуть в одну строку */
+.sc-tabsw{display:flex;align-items:flex-start;gap:8px;margin:12px 0}
+.sc-tabsw .sc-tabs{flex:1;min-width:0;margin:0}
+.sc-tabs.col{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;padding-bottom:4px;scroll-behavior:smooth}
+.sc-tabs.col .sc-tab{flex:none}
+.sc-tabtog{flex:none;width:36px;height:36px;margin-top:9px;padding:0;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--raise);border:1px solid var(--edge-soft);color:var(--muted)}
+.sc-tabtog i{width:8px;height:8px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(-135deg) translate(-2px,-2px)}
+.sc-tabtog.on i{transform:rotate(45deg) translate(-2px,-2px)}
+.sc-tabtog:hover{color:var(--gold);border-color:rgba(240,194,100,.35)}
+
+/* заготовка карточки с бликом, пока грузятся справочники */
+.skel{display:block;border-radius:8px;background:linear-gradient(100deg,rgba(255,255,255,.035) 30%,rgba(255,255,255,.09) 50%,rgba(255,255,255,.035) 70%);background-size:300% 100%;animation:skel 1.5s ease-in-out infinite}
+@keyframes skel{0%{background-position:100% 0}100%{background-position:0 0}}
+@media (prefers-reduced-motion:reduce){ .skel{animation:none} }
+.sc-tab.skel{display:block;border:none;border-radius:50%}
+.sk-wrap{padding:14px;border-radius:var(--r);background:linear-gradient(180deg,var(--panel-2),var(--panel));border:1px solid var(--edge-soft)}
+.sk{display:grid;gap:14px}
+.sk-col{display:flex;flex-direction:column;gap:10px;min-width:0}
+.sk-wrap .art{height:440px}
+.sk-wrap .ttl{height:26px;width:45%}
+.sk-wrap .ln{height:14px;margin:6px 0}
+.sk-wrap .ln.w60{width:60%}
+.sk-wrap .box{height:110px}
+.sk-wrap .box.sm{height:70px}
+.sk-wrap .disc{height:58px}
+.sk-grid{display:grid;grid-template-columns:1fr 1fr;column-gap:24px;padding:6px 12px;border-radius:var(--rs);border:1px solid var(--edge-soft)}
+.sk-row{display:grid;grid-template-columns:1fr 1.4fr;gap:10px}
+.sk-tiles{display:grid;gap:8px}
+.sk-tiles.n5{grid-template-columns:repeat(5,minmax(0,1fr))}
+.sk-tiles.n6{grid-template-columns:repeat(3,minmax(0,1fr))}
+.sk-tile{padding:10px;border-radius:var(--rs);border:1px solid var(--edge-soft);background:rgba(255,255,255,.015)}
+.sk-gi{grid-template-columns:minmax(0,330px) minmax(0,1fr)}
+.sk-gi > .sk-tiles{grid-column:1 / -1}
+.sk-hx{grid-template-columns:minmax(0,330px) minmax(0,1fr)}
+.sk-hx .art{height:480px}
+.sk-zx{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) minmax(0,.8fr)}
+.sk-zx .art{height:420px}
+.sk-tr{grid-template-columns:minmax(0,280px) minmax(0,1fr);margin-bottom:14px}
+.sk-tr .art{height:300px}
+@media (max-width:900px){
+  .sk-gi,.sk-hx,.sk-zx,.sk-tr{grid-template-columns:1fr}
+  .sk-wrap .art{height:320px}
+  .sk-tiles.n5,.sk-tiles.n6{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+.sc-tabtog[hidden]{display:none}

@@ -599,8 +599,9 @@ function renderShowcase(){
   const cardBox = document.getElementById("scCard");
   if(cardBox.dataset.game !== game){
     cardBox.dataset.game = game;
-    cardBox.innerHTML = '<div class="sc-empty">Загружаю справочник…</div>';
-    document.getElementById("scTabs").innerHTML = "";
+    cardBox.innerHTML = scSkeleton(game);
+    document.getElementById("scTabs").innerHTML = '<span class="sc-tab skel"></span>'.repeat(6);
+    document.getElementById("scTabTog").hidden = true;
     document.getElementById("scLayout").innerHTML = "";
     document.getElementById("scPng").hidden = true; document.getElementById("scCopy").hidden = true;
     const pq = document.getElementById("scPrevQ"); if(pq) pq.hidden = true;
@@ -615,7 +616,7 @@ function renderShowcase(){
   document.getElementById("scTabs").classList.remove("prev");
 
   const tabs = document.getElementById("scTabs"), card = document.getElementById("scCard");
-  tabs.innerHTML = ""; card.innerHTML = "";
+  tabs.innerHTML = ""; card.innerHTML = ""; scTabsFit();
   document.getElementById("scPng").hidden = true; document.getElementById("scCopy").hidden = true;
   if(!u || !Object.keys(u.agents).length){
     card.innerHTML = '<div class="sc-empty">Здесь появятся сборки ' + G.who + ' из витрины вашего профиля: ' +
@@ -646,6 +647,7 @@ function renderShowcase(){
     b.onclick = () => { ui.scAgentG[game] = id; saveUI(); renderShowcase(); };
     tabs.appendChild(b);
   });
+  requestAnimationFrame(scTabsFit);
   const cur = ui.scAgentG[game], vm = vms[cur];
   if(!vm){ card.innerHTML = '<div class="sc-empty">Не удалось разобрать сборку этого персонажа — возможно, он новее справочника. Справочник обновляется раз в неделю.</div>'; return; }
   scLayoutSeg(game);
@@ -678,7 +680,8 @@ function scRenderPreview(game){
     q = document.createElement("input");
     q.id = "scPrevQ"; q.className = "sc-prevq"; q.type = "search"; q.placeholder = "Найти персонажа"; q.autocomplete = "off";
     q.addEventListener("input", () => renderShowcase());
-    tabs.parentNode.insertBefore(q, tabs);
+    const wrap = tabs.closest(".sc-tabsw") || tabs;
+    wrap.parentNode.insertBefore(q, wrap);
   }
   q.hidden = false;
   tabs.classList.add("prev");
@@ -698,6 +701,7 @@ function scRenderPreview(game){
     b.onclick = () => { ui.scPrevG[game] = id; saveUI(); renderShowcase(); };
     tabs.appendChild(b);
   });
+  requestAnimationFrame(scTabsFit);
   if(!cur){ card.innerHTML = '<div class="sc-empty">Справочник персонажей ещё не загрузился.</div>'; return; }
   let vm = null;
   try { vm = scBlank(SCG[game].vm(scStub(game, cur)), game); } catch(e){ console.error(e); }
@@ -745,6 +749,36 @@ document.addEventListener("click", e => {
   scHistSel[b.dataset.hk] = Number(b.dataset.hi);
   renderShowcase();
 });
+
+// заготовка карточки, пока грузятся справочники: та же раскладка, вместо данных — блоки с бликом
+function scSkeleton(game){
+  const k = (cls, st) => '<i class="skel' + (cls ? " " + cls : "") + '"' + (st ? ' style="' + st + '"' : "") + "></i>";
+  const lines = n => Array.from({ length: n }, () => k("ln")).join("");
+  const tiles = n => '<div class="sk-tiles n' + n + '">' + Array.from({ length: n }, () => '<div class="sk-tile">' + k("ln w60") + lines(4) + "</div>").join("") + "</div>";
+  let h;
+  if(!scAltWanted(game)) h = '<div class="sk sk-tr">' + k("art") + '<div class="sk-col">' + k("ttl") + lines(6) + "</div></div>" + tiles(game === "hk4e" ? 5 : 6);
+  else if(game === "nap") h = '<div class="sk sk-zx">' + k("art") + '<div class="sk-col">' + k("ttl") + lines(7) + k("box") + "</div>" + '<div class="sk-col">' + Array.from({ length: 6 }, () => k("disc")).join("") + "</div></div>";
+  else if(game === "hkrpg") h = '<div class="sk sk-hx"><div class="sk-col">' + k("art") + k("box") + k("box") + '</div><div class="sk-col">' + k("ttl") + '<div class="sk-grid">' + lines(14) + "</div>" + k("box sm") + tiles(6) + "</div></div>";
+  else h = '<div class="sk sk-gi">' + k("art") + '<div class="sk-col">' + k("ttl") + '<div class="sk-grid">' + lines(8) + '</div><div class="sk-row">' + k("box") + k("box") + "</div>" + k("box sm") + "</div>" + tiles(5) + "</div>";
+  return '<div class="sk-wrap" aria-busy="true" aria-label="Загрузка">' + h + "</div>";
+}
+// список персонажей можно свернуть в одну строку (прокручивается вбок)
+function scTabsFit(){
+  const tabs = document.getElementById("scTabs"), tog = document.getElementById("scTabTog");
+  if(!tabs || !tog) return;
+  const col = !!ui.scTabsCol && !tabs.classList.contains("prev");
+  tabs.classList.toggle("col", col);
+  tog.setAttribute("aria-expanded", !col);
+  tog.title = col ? "Показать весь список персонажей" : "Свернуть список персонажей в одну строку";
+  tog.classList.toggle("on", col);
+  // кнопка нужна, только если персонажи не помещаются в одну строку
+  const first = tabs.firstElementChild, last = tabs.lastElementChild;
+  const multi = col ? tabs.scrollWidth > tabs.clientWidth + 2 : !!(first && last && last.offsetTop > first.offsetTop + 4);
+  tog.hidden = tabs.classList.contains("prev") || !(multi || col && tabs.scrollWidth > tabs.clientWidth + 2);
+  if(col){ const on = tabs.querySelector(".sc-tab.on"); if(on) tabs.scrollLeft = Math.max(0, on.offsetLeft - tabs.clientWidth / 2 + on.offsetWidth / 2); }
+}
+document.getElementById("scTabTog").addEventListener("click", () => { ui.scTabsCol = !ui.scTabsCol; saveUI(); scTabsFit(); });
+window.addEventListener("resize", () => { clearTimeout(scTabsFit.t); scTabsFit.t = setTimeout(scTabsFit, 150); });
 
 function scPips(n, max){
   let h = '<span class="sc-pips p">';
