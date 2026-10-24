@@ -5,7 +5,8 @@
 (в GitHub — секреты репозитория с теми же именами). Без них скрипт ничего не делает.
 
   Star Rail — HoYoLAB отдаёт рекомендации сразу для всех персонажей игры;
-  Genshin   — только для персонажей, которые есть на аккаунте (накапливаются от запуска к запуску).
+  Genshin   — только для персонажей, которые есть на аккаунте (накапливаются от запуска к запуску);
+  ZZZ       — тоже только для агентов с аккаунта, по одному запросу на агента.
 
 Берутся рекомендации по умолчанию — одинаковые у всех игроков, а не свои настройки владельца аккаунта.
 Результат — items/data/rec_hoyo.json в формате витрины: { "hkrpg:1310": ["BreakDamageAddedRatio", ...], ... }.
@@ -22,7 +23,9 @@ HSR = {32: "MaxHP%", 33: "Attack%", 34: "Defence%", 51: "Speed", 52: "CriticalCh
        59: "BreakDamageAddedRatio", 56: "StatusProbability", 57: "StatusResistance"}
 GI = {20: "FIGHT_PROP_CRITICAL", 22: "FIGHT_PROP_CRITICAL_HURT", 6: "FIGHT_PROP_ATTACK_PERCENT", 3: "FIGHT_PROP_HP_PERCENT",
       9: "FIGHT_PROP_DEFENSE_PERCENT", 28: "FIGHT_PROP_ELEMENT_MASTERY", 23: "FIGHT_PROP_CHARGE_EFFICIENCY"}
-ORDER = {"hkrpg": list(HSR.values()), "hk4e": list(GI.values())}
+# ZZZ: номера характеристик HoYoLAB совпадают с номерами игры (и витрины)
+ZZZ = ["20103", "21103", "12102", "11102", "13102", "31203", "23203"]
+ORDER = {"hkrpg": list(HSR.values()), "hk4e": list(GI.values()), "nap": ZZZ}
 
 
 def norm(game, keys):
@@ -62,6 +65,17 @@ async def fetch(env):
                     keys = [GI[p] for p in (r.get("sub_property_list") or []) if p in GI]
                     if keys:
                         res["hk4e:" + str(c["base"]["id"])] = norm("hk4e", keys)
+        elif g == genshin.Game.ZZZ:
+            basic = await call("avatar/basic", g, params=base) or {}
+            for a in basic.get("avatar_list", []):
+                # список номеров HoYoLAB для ZZZ не принимает — только по одному агенту
+                d = await call("avatar/info", g, params={**base, "id_list[]": a["id"], "need_wiki": "true"}) or {}
+                for av in d.get("avatar_list", []):
+                    plan = (av.get("equip_plan_info") or {}).get("game_default") or {}
+                    keys = [str(p.get("id")) for p in (plan.get("property_list") or []) if str(p.get("id")) in ZZZ]
+                    if keys:
+                        res["nap:" + str(av["id"])] = norm("nap", keys)
+                await asyncio.sleep(0.3)
     return res
 
 
