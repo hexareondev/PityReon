@@ -595,6 +595,16 @@ function renderShowcase(){
   const uid = scUid();
   const u = enkaData[game + ":" + uid];
   document.getElementById("hSub").textContent = G.title + (u && u.nick ? " · " + u.nick + (u.level ? ", ур. " + u.level : "") : "");
+  // пока справочники другой игры грузятся, не показываем карточку прошлой игры
+  const cardBox = document.getElementById("scCard");
+  if(cardBox.dataset.game !== game){
+    cardBox.dataset.game = game;
+    cardBox.innerHTML = '<div class="sc-empty">Загружаю справочник…</div>';
+    document.getElementById("scTabs").innerHTML = "";
+    document.getElementById("scLayout").innerHTML = "";
+    document.getElementById("scPng").hidden = true; document.getElementById("scCopy").hidden = true;
+    const pq = document.getElementById("scPrevQ"); if(pq) pq.hidden = true;
+  }
   if(!SCB[game] || !itemsDb[game]){ ensureBuild(game, () => ensureItems(game, () => { if(scGame() === game) renderShowcase(); })); ensureItems(game); return; }
   if(!REC){ recLoad(() => { if(scGame() === game) renderShowcase(); }); return; }
   const prevBtn = document.getElementById("scPrev");
