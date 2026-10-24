@@ -71,7 +71,10 @@ function hoyoGi(g){
     });
     const skillLevelMap = {};
     (c.skills || []).filter(s => s.skill_type === 1).forEach(s => { skillLevelMap[String(s.skill_id)] = s.level; });
-    list.push({ _name: b.name, avatarId: b.id, propMap: { "4001": { val: String(b.level || 1) } }, fightPropMap: fp,
+    // Путешественник: стихию HoYoLAB переводим в номер набора навыков, как у Enka
+    const dk = { Anemo:4, Geo:6, Electro:7, Dendro:8, Hydro:3, Pyro:2, Cryo:5 }[b.element];
+    const depot = GI_TRAV[b.id] && dk ? dk + (String(b.id) === "10000007" ? 700 : 500) : undefined;
+    list.push({ _name: b.name, avatarId: b.id, skillDepotId: depot, propMap: { "4001": { val: String(b.level || 1) } }, fightPropMap: fp,
       talentIdList: Array.from({ length: b.actived_constellation_num || 0 }, (_, i) => i + 1),
       skillLevelMap, proudSkillExtraLevelMap: {}, fetterInfo: { expLevel: b.fetter || 0 }, equipList: equip });
   }));

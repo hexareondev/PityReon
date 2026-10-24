@@ -1738,3 +1738,4 @@ button.am:hover{color:var(--text);border-color:var(--edge)}
 .zx-hoyo b{font-family:var(--display);color:var(--gold-hot)}
 .zx-hoyo em{font-style:normal;color:var(--muted)}
 .dtip.scroll{overflow-y:auto;pointer-events:auto;overscroll-behavior:contain;scrollbar-width:thin}
+.zx.no-hoyo .zx-hoyo{display:none}

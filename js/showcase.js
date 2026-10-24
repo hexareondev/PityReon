@@ -10,6 +10,11 @@ if(!enkaData || typeof enkaData !== "object") enkaData = {};
 // раньше хранилась только ZZZ — ключом был голый UID
 Object.keys(enkaData).forEach(k => { if(/^\d+$/.test(k)){ enkaData["nap:" + k] = enkaData[k]; delete enkaData[k]; } });
 function enkaSave(){ enkaStore.save(enkaData); }
+// Путешественник раньше хранился одной записью — переносим в запись по стихии (номеру набора навыков)
+Object.keys(enkaData).filter(k => k.indexOf("hk4e:") === 0).forEach(k => {
+  const ag = (enkaData[k] || {}).agents || {};
+  ["10000005", "10000007"].forEach(t => { const r = ag[t]; if(r && r.a && r.a.skillDepotId && !ag[t + "-" + r.a.skillDepotId]){ ag[t + "-" + r.a.skillDepotId] = r; delete ag[t]; } });
+});
 
 const SCB = {}, scbLoading = {};
 function ensureBuild(game, cb){
@@ -361,9 +366,13 @@ function gIc(fp){
   return { HEALED_ADD:"heal" }[k] || (/ADD_HURT$/.test(k) ? "dmg" : "dot");
 }
 const GI_EL_IC = { Fire:"fire", Electric:"elec", Water:"water", Grass:"grass", Wind:"wind", Rock:"rock", Ice:"ice" };
+// Путешественник: стихия по набору навыков (skillDepotId), у Итэра 50x, у Люмин 70x
+const GI_TRAV_DEPOT = { 504:"Wind", 704:"Wind", 506:"Rock", 706:"Rock", 507:"Electric", 707:"Electric", 508:"Grass", 708:"Grass", 503:"Water", 703:"Water", 502:"Fire", 702:"Fire", 505:"Ice", 705:"Ice" };
+const GI_TRAV = { "10000005":1, "10000007":1 };
 function giIcon(ic){ return !ic ? "" : /^https?:\/\//.test(ic) ? ic : "/ui/" + ic + ".png"; }
 function giVM(av){
   const B = SCB.hk4e, id = String(av.avatarId), A = B.avatars[id] || {};
+  const AEL = GI_TRAV_DEPOT[av.skillDepotId] || A.el;   // у Путешественника стихия — по набору навыков
   const pm = av.propMap || {}, f = av.fightPropMap || {};
   const lvl = Number((pm["4001"] || {}).val || (pm["4001"] || {}).ival || 1);
   const F = k => Number(f[k] || 0);
@@ -419,7 +428,7 @@ function giVM(av){
   });
   const sets = Object.keys(cnt).filter(h => cnt[h].n >= 2).sort((a, b) => cnt[b].n - cnt[a].n)
     .map(h => ({ name: scLoc(B.sets[h]) || cnt[h].name || "Комплект", icon: giIcon(cnt[h].icon), full: cnt[h].n >= 4 }));
-  const elDmg = GI_ELDMG[A.el];
+  const elDmg = GI_ELDMG[AEL];
   const row = (fp, total, base) => ({ n: gLabel(fp), v: gVal(fp, gPct(fp) ? total * 100 : total), base: base && total > base ? fInt(base) : "", add: base && total > base ? fInt(total - base) : "", hl: false, ic: gIc(fp) });
   const stats = [row("FIGHT_PROP_HP", F(2000), F(1)), row("FIGHT_PROP_ATTACK", F(2001), F(4)), row("FIGHT_PROP_DEFENSE", F(2002), F(7)),
     row("FIGHT_PROP_ELEMENT_MASTERY", F(28)), row("FIGHT_PROP_CRITICAL", F(20)), row("FIGHT_PROP_CRITICAL_HURT", F(22)), row("FIGHT_PROP_CHARGE_EFFICIENCY", F(23))];
@@ -446,10 +455,10 @@ function giVM(av){
   // для карточки «как в игре»: иконки талантов, усиление от созвездий — золотом
   const talents = (A.skills || []).map((s, i) => ({ id: s, n: sn[i] || "Навык", lv: skills[i][1], icon: (A.sicons || [])[i] || "",
     boost: !!extra[String((A.proud || {})[String(s)])] }));
-  const el = GI_EL[A.el] || [A.el, "#f0c264"];
+  const el = GI_EL[AEL] || [AEL, "#f0c264"];
   const cons = (av.talentIdList || []).length;
   const it = itemsDb.hk4e && itemsDb.hk4e.items[id];
-  return { cid: id, name: scItemName("hk4e", id) || av._name || "#" + id, art: A.img, circle: A.circle, el: el[0], color: el[1], cls: GI_WT[A.wt] || "", elKey: A.el || "",
+  return { cid: id, name: scItemName("hk4e", id) || av._name || "#" + id, art: A.img, circle: A.circle, el: el[0], color: el[1], cls: GI_WT[A.wt] || "", elKey: AEL || "",
     talents, constIcons: A.consts || [], valuable,
     lvl, maxLvl: Math.max(90, lvl), cons:{ label:"C", title:"Созвездие", n: cons }, rarity: A.r || (it ? it.r : 5), friend: (av.fetterInfo || {}).expLevel || 0, keys, skills, stats, weapon, sets, cv: cv * 100, slotsTitle:"Артефакты", setsWord:"артефактов",
     slots: [1,2,3,4,5].map(i => slots.find(s => s.pos === i) || { pos:i, label: ["Цветок","Перо","Пески","Кубок","Корона"][i - 1], empty:true }),
@@ -522,7 +531,8 @@ const SCG = {
                list: list.filter(a => a && a.avatarId && !seen[a.avatarId] && (seen[a.avatarId] = 1)).map(a => [String(a.avatarId), a]) }; } },
   hk4e:  { title:"Genshin Impact", api:"uid", who:"персонажей", one:"персонажа", vm: giVM,
            parse(j){ const p = j.playerInfo || {};
-             return { uid: j.uid, nick: p.nickname, level: p.level, list: (j.avatarInfoList || []).map(a => [String(a.avatarId), a]) }; } }
+             // у Путешественника каждая стихия — своя сборка: храним их отдельно, а не поверх друг друга
+             return { uid: j.uid, nick: p.nickname, level: p.level, list: (j.avatarInfoList || []).map(a => [String(a.avatarId) + (GI_TRAV[a.avatarId] && a.skillDepotId ? "-" + a.skillDepotId : ""), a]) }; } }
 };
 function scGame(){ const g = histGameKey(); return SCG[g] ? g : "nap"; }
 function scUid(){ const inp = document.getElementById("scUid"); return (inp && inp.value || "").replace(/\D/g, ""); }
@@ -549,6 +559,8 @@ function scIngest(game, j, uidHint){
     }
     u.agents[x[0]] = rec;
   });
+  // старая общая запись Путешественника больше не нужна, если пришла запись по стихии
+  if(game === "hk4e") ["10000005", "10000007"].forEach(t => { if(u.agents[t] && Object.keys(u.agents).some(k => k.indexOf(t + "-") === 0)) delete u.agents[t]; });
   ui.scUidG = ui.scUidG || {}; ui.scUidG[game] = uid;
   document.getElementById("scUid").value = uid;
   ui.scAgentG = ui.scAgentG || {};

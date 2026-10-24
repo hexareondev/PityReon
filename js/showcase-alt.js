@@ -243,7 +243,7 @@ function zxCard(vm, uid, nick){
     '<i class="ic" title="' + esc(vm.el || "") + '">' + zImg(vm.elIc && "el_" + vm.elIc, "") + "</i>";
   const o = zxOpt(), gr = zxGrade(vm);
   const bgWord = { fire:"FIRE", ice:"ICE", electric:"ELECTRIC", physical:"PHYSICAL", ether:"ETHER", wind:"WIND", lumen:"LUMEN", frost:"FROST", auric:"AURIC", honed:"HONED" }[vm.elIc] || "ZZZ";
-  let h = '<div class="zx r' + (vm.rank || "S") + (o.uid ? "" : " no-uid") + (o.nick ? "" : " no-nick") + (o.bar ? "" : " no-bar") + (o.rolls ? "" : " no-rolls") + (o.grade ? "" : " no-grade") + '" style="--accent:' + esc(vm.color) + '">' +
+  let h = '<div class="zx r' + (vm.rank || "S") + (o.uid ? "" : " no-uid") + (o.nick ? "" : " no-nick") + (o.bar ? "" : " no-bar") + (o.rolls ? "" : " no-rolls") + (o.grade ? "" : " no-grade") + (o.hoyo ? "" : " no-hoyo") + '" style="--accent:' + esc(vm.color) + '">' +
     '<div class="zx-main"><div class="zx-art"><div class="zx-bgw">' + bgWord + '</div>' + (vm.art ? '<img class="pre" alt="" referrerpolicy="no-referrer" src="' + esc(scImg(vm.art)) + '" onerror="this.remove()">' : "") +
       '<div class="zx-uid">' + esc(uid || "") + '</div>' +
       '<div class="zx-id"><div class="zx-lv">Уровень <b>' + vm.lvl + '</b> / ' + vm.maxLvl + '</div><div class="zx-nm">' + esc(vm.name) + '</div></div></div>' +
@@ -314,7 +314,7 @@ document.addEventListener("click", e => {
   if(g) g.classList.toggle("no-" + k, !on);
 });
 // ZZZ: что показывать на карточке (и на картинке из неё)
-function zxOpt(){ return Object.assign({ uid:true, nick:true, bar:true, rolls:true, grade:true }, ui.zxOpt || {}); }
+function zxOpt(){ return Object.assign({ uid:true, nick:true, bar:true, rolls:true, grade:true, hoyo:true }, ui.zxOpt || {}); }
 // строка под карточкой: что показывать (ZZZ) и подгонка портрета (все игры)
 let recEdit = false;
 function scOptsHtml(game, vm, id){
@@ -323,7 +323,7 @@ function scOptsHtml(game, vm, id){
   const any = Object.keys(ui.artAdj || {}).length + Object.keys(ui.recAdj || {}).length;
   return '<div class="chips sc-opts">' +
     (game === "hk4e" ? '<button class="chip' + (giOpt().mains ? " on" : "") + '" data-go="mains" aria-pressed="' + giOpt().mains + '" title="Отмечать часы, кубок и корону с главной характеристикой не из рекомендованных HoYoLAB">Проверка главных статов</button><i class="sc-opts-sep"></i>' : "") +
-    (game === "nap" ? chip("uid", "UID") + chip("nick", "Ник") + chip("bar", "Сводка сабстатов") + chip("rolls", "Отметки усилений") + chip("grade", "Оценка") + '<i class="sc-opts-sep"></i>' : "") +
+    (game === "nap" ? chip("uid", "UID") + chip("nick", "Ник") + chip("bar", "Сводка сабстатов") + chip("rolls", "Отметки усилений") + chip("grade", "Оценка") + (vm && vm.hoyoRating ? chip("hoyo", "Оценка HoYoLAB") : "") + '<i class="sc-opts-sep"></i>' : "") +
     '<button class="chip" id="scArt" title="Подвинуть и увеличить портрет персонажа">Портрет</button>' +
     '<button class="chip' + (recEdit ? " on" : "") + '" id="scRec" title="Какие характеристики полезны персонажу — как «Рекомендуемые атрибуты» в HoYoLAB">Полезные характеристики</button>' +
     '<button class="chip" id="scArtExport"' + (any ? "" : " hidden") + ' title="Скопировать свои правки портретов и полезных характеристик">Экспорт настроек</button></div>' +
