@@ -4,20 +4,20 @@
   "game_title": "Zenless Zone Zero",
   "lang": "ru",
   "source": "stardb.gg",
-  "generated_at": "2026-10-08T17:19:40Z",
+  "generated_at": "2026-10-24T19:52:19Z",
   "currency": "polychrome",
-  "total": 969,
-  "total_reward": 7185,
+  "total": 987,
+  "total_reward": 7295,
   "series": [
     {
       "id": 1004,
       "name": "Доверие агентов",
-      "count": 76
+      "count": 78
     },
     {
       "id": 1005,
       "name": "Хроника Фаэтона",
-      "count": 38
+      "count": 39
     },
     {
       "id": 1006,
@@ -52,7 +52,7 @@
     {
       "id": 2003,
       "name": "Враждебные цели",
-      "count": 28
+      "count": 29
     },
     {
       "id": 2004,
@@ -67,7 +67,7 @@
     {
       "id": 2006,
       "name": "Энигма лабиринта",
-      "count": 24
+      "count": 28
     },
     {
       "id": 3001,
@@ -82,12 +82,12 @@
     {
       "id": 3003,
       "name": "Исследования в режиме разведки",
-      "count": 48
+      "count": 54
     },
     {
       "id": 4001,
       "name": "Бизнес прокси",
-      "count": 64
+      "count": 65
     },
     {
       "id": 4002,
@@ -112,7 +112,7 @@
     {
       "id": 4006,
       "name": "Розкелифер",
-      "count": 31
+      "count": 34
     },
     {
       "id": 1,
@@ -1103,7 +1103,7 @@
       "reward": 5,
       "hidden": false,
       "version": "3.2",
-      "gacha": false,
+      "gacha": true,
       "missable": false,
       "impossible": false
     },
@@ -1115,9 +1115,33 @@
       "reward": 5,
       "hidden": false,
       "version": "3.2",
-      "gacha": false,
+      "gacha": true,
       "missable": false,
       "impossible": false
+    },
+    {
+      "id": 1004078,
+      "series_id": 1004,
+      "name": "В какой стационар?!",
+      "description": "Доверие Феникс к прокси должно достичь 4 ур.",
+      "reward": 5,
+      "hidden": false,
+      "version": "3.3",
+      "gacha": true,
+      "missable": false,
+      "impossible": false
+    },
+    {
+      "id": 1004079,
+      "series_id": 1004,
+      "name": "Сокращение дистанции",
+      "description": "Доверие Севериана к прокси должно достичь 4 ур.",
+      "reward": 5,
+      "hidden": false,
+      "version": "3.3",
+      "gacha": true,
+      "missable": false,
+      "impossible": true
     },
     {
       "id": 1005001,
@@ -1613,6 +1637,18 @@
       "hidden": true,
       "version": "3.2",
       "set": 8,
+      "gacha": false,
+      "missable": false,
+      "impossible": false
+    },
+    {
+      "id": 1005040,
+      "series_id": 1005,
+      "name": "Затихает песня, затухает закат",
+      "description": "Завершите хроники Фаэтона «Возвращение в небеса».",
+      "reward": 20,
+      "hidden": true,
+      "version": "3.3",
       "gacha": false,
       "missable": false,
       "impossible": false
@@ -4715,6 +4751,18 @@
       "difficulty": "easy"
     },
     {
+      "id": 2003031,
+      "series_id": 2003,
+      "name": "Заря не должна быть превыше всего",
+      "description": "В бою с врагом {0} сбейте врага в воздухе, используя помощь в защите или совместный блок.",
+      "reward": 5,
+      "hidden": false,
+      "version": "3.3",
+      "gacha": false,
+      "missable": false,
+      "impossible": false
+    },
+    {
       "id": 2003023,
       "series_id": 2003,
       "name": "Ни на солнце, ни на смерть...",
@@ -6504,6 +6552,55 @@
       "impossible": false
     },
     {
+      "id": 2006025,
+      "series_id": 2006,
+      "name": "Пищевая цепочка",
+      "description": "Победите убегающего взломуравья-мутанта, когда вас преследует ищейка Улидим.",
+      "reward": 5,
+      "hidden": false,
+      "version": "3.3",
+      "gacha": false,
+      "missable": false,
+      "impossible": false,
+      "difficulty": "hard"
+    },
+    {
+      "id": 2006026,
+      "series_id": 2006,
+      "name": "С ищейкой жить...",
+      "description": "Отбросьте ищейку Улидима, когда на вас аксессуар «Шапка-улидимка».",
+      "reward": 5,
+      "hidden": false,
+      "version": "3.3",
+      "gacha": false,
+      "missable": false,
+      "impossible": false
+    },
+    {
+      "id": 2006027,
+      "series_id": 2006,
+      "name": "Мой ход! Слияние!",
+      "description": "Впервые создайте ценность из 3 миметических элементов.",
+      "reward": 10,
+      "hidden": false,
+      "version": "3.3",
+      "gacha": false,
+      "missable": false,
+      "impossible": false
+    },
+    {
+      "id": 2006028,
+      "series_id": 2006,
+      "name": "Всё страннее и чудесатее",
+      "description": "Получите ценность «Украшение: странная \"Морковка\"».",
+      "reward": 5,
+      "hidden": false,
+      "version": "3.3",
+      "gacha": false,
+      "missable": false,
+      "impossible": false
+    },
+    {
       "id": 1007001,
       "series_id": 3001,
       "name": "Кошки? Мышки?",
@@ -7738,6 +7835,78 @@
       "impossible": false
     },
     {
+      "id": 3003053,
+      "series_id": 3003,
+      "name": "Знаток аэропортов",
+      "description": "Исследуйте остров Безмятежности на 100%.",
+      "reward": 5,
+      "hidden": false,
+      "version": "3.3",
+      "gacha": false,
+      "missable": false,
+      "impossible": false
+    },
+    {
+      "id": 3003054,
+      "series_id": 3003,
+      "name": "Борьба с самим собой",
+      "description": "Победите меху «Покоритель», пилотируя другой «Покоритель».",
+      "reward": 5,
+      "hidden": false,
+      "version": "3.3",
+      "gacha": false,
+      "missable": false,
+      "impossible": false
+    },
+    {
+      "id": 3003055,
+      "series_id": 3003,
+      "name": "На тросах с ветерком",
+      "description": "Пересеките большие транспортные платформы на острове Безмятежности с помощью транспортных линий над ними.",
+      "reward": 5,
+      "hidden": false,
+      "version": "3.3",
+      "gacha": false,
+      "missable": false,
+      "impossible": false
+    },
+    {
+      "id": 3003056,
+      "series_id": 3003,
+      "name": "Где всего опаснее, там и безопаснее",
+      "description": "Найдите скрытую область на острове Безмятежности.",
+      "reward": 5,
+      "hidden": false,
+      "version": "3.3",
+      "gacha": false,
+      "missable": false,
+      "impossible": false
+    },
+    {
+      "id": 3003057,
+      "series_id": 3003,
+      "name": "Лезем, лезем, лезем",
+      "description": "Исследуйте главную башню управления воздушным пространством на 100%.",
+      "reward": 5,
+      "hidden": false,
+      "version": "3.3",
+      "gacha": false,
+      "missable": false,
+      "impossible": false
+    },
+    {
+      "id": 3003058,
+      "series_id": 3003,
+      "name": "Посторонним вход воспрещён",
+      "description": "Найдите все скрытые области в главной башне управления воздушным пространством.",
+      "reward": 5,
+      "hidden": false,
+      "version": "3.3",
+      "gacha": false,
+      "missable": false,
+      "impossible": false
+    },
+    {
       "id": 1001060,
       "series_id": 4001,
       "name": "Город вечности",
@@ -8569,6 +8738,19 @@
       "gacha": false,
       "missable": false,
       "impossible": false
+    },
+    {
+      "id": 4001024,
+      "series_id": 4001,
+      "name": "Мастер теоретического боя",
+      "description": "Посмотрите руководства по 20 агентам.",
+      "reward": 5,
+      "hidden": false,
+      "version": "3.3",
+      "gacha": false,
+      "missable": false,
+      "impossible": false,
+      "difficulty": "easy"
     },
     {
       "id": 1001001,
@@ -10641,6 +10823,42 @@
       "reward": 5,
       "hidden": false,
       "version": "3.2",
+      "gacha": false,
+      "missable": false,
+      "impossible": false
+    },
+    {
+      "id": 4006032,
+      "series_id": 4006,
+      "name": "Умнейшие мозги...",
+      "description": "Выполните все заказы Кроу и Хромоножки в событии «Приключения \"Хромой вороны\"».",
+      "reward": 5,
+      "hidden": false,
+      "version": "3.3",
+      "gacha": false,
+      "missable": false,
+      "impossible": true
+    },
+    {
+      "id": 4006033,
+      "series_id": 4006,
+      "name": "Черепашья скорость",
+      "description": "Выполните заказ «Особенный подарок на день рождения».",
+      "reward": 5,
+      "hidden": true,
+      "version": "3.3",
+      "gacha": false,
+      "missable": false,
+      "impossible": false
+    },
+    {
+      "id": 4006034,
+      "series_id": 4006,
+      "name": "«Да, режиссёр!»",
+      "description": "Выполните заказ «Да, режиссёр!».",
+      "reward": 5,
+      "hidden": true,
+      "version": "3.3",
       "gacha": false,
       "missable": false,
       "impossible": false
