@@ -56,25 +56,42 @@ function descTipHtml(spec){
   const tip = document.createElement("div");
   tip.className = "dtip"; tip.hidden = true; tip.setAttribute("role", "tooltip");
   document.body.appendChild(tip);
-  let cur = null;
-  const hide = () => { tip.hidden = true; cur = null; };
+  let cur = null, hideT = 0;
+  const hide = () => { clearTimeout(hideT); tip.hidden = true; cur = null; };
+  const hideSoon = () => { clearTimeout(hideT); hideT = setTimeout(hide, 180); };   // успеть перевести мышь на подсказку
+  tip.addEventListener("mouseenter", () => clearTimeout(hideT));
+  tip.addEventListener("mouseleave", hideSoon);
+  // подсказка всегда целиком в пределах экрана: шире для длинных текстов, со стороны, где больше места,
+  // а если не помещается и там — с прокруткой внутри (на неё можно навести мышь)
   const show = el => {
     const h = descTipHtml(el.dataset.tip);
     if(!h){ hide(); return; }
+    clearTimeout(hideT);
     cur = el; tip.innerHTML = h; tip.hidden = false;
-    const r = el.getBoundingClientRect(), w = Math.min(360, window.innerWidth - 24);
+    tip.style.maxHeight = ""; tip.classList.remove("scroll");
+    const VW = document.documentElement.clientWidth, VH = window.innerHeight, M = 8, GAP = 6;
+    const r = el.getBoundingClientRect();
+    let w = Math.min(360, VW - M * 2);
     tip.style.width = w + "px";
-    const th = tip.offsetHeight;
-    let x = r.left + r.width / 2 - w / 2, y = r.bottom + 8;
-    x = Math.max(12, Math.min(x, window.innerWidth - w - 12));
-    if(y + th > window.innerHeight - 8 && r.top - th - 8 > 8) y = r.top - th - 8;
-    tip.style.left = x + "px"; tip.style.top = Math.max(8, y) + "px";
+    if(tip.offsetHeight > VH * 0.5){ w = Math.min(560, VW - M * 2); tip.style.width = w + "px"; }
+    const th = tip.offsetHeight, below = VH - r.bottom - GAP - M, above = r.top - GAP - M;
+    let y;
+    if(th <= below) y = r.bottom + GAP;
+    else if(th <= above) y = r.top - GAP - th;
+    else {
+      const room = Math.max(below, above, 120);
+      tip.style.maxHeight = Math.min(room, VH - M * 2) + "px"; tip.classList.add("scroll");
+      y = below >= above ? r.bottom + GAP : Math.max(M, r.top - GAP - Math.min(room, VH - M * 2));
+    }
+    let x = r.left + r.width / 2 - w / 2;
+    x = Math.max(M, Math.min(x, VW - w - M));
+    tip.style.left = x + "px"; tip.style.top = Math.max(M, Math.min(y, VH - M - tip.offsetHeight)) + "px";
   };
   document.addEventListener("mouseover", e => {
     if(matchMedia("(hover:none)").matches) return;   // на сенсорных экранах — только по нажатию
     const el = e.target.closest && e.target.closest("[data-tip]");
     if(el && el !== cur) show(el);
-    else if(!el && cur && !tip.contains(e.target)) hide();
+    else if(!el && cur && !tip.contains(e.target)) hideSoon();
   });
   // на телефоне — по нажатию; повторное нажатие или нажатие мимо закрывает
   document.addEventListener("click", e => {
@@ -83,6 +100,6 @@ function descTipHtml(spec){
     if(el === cur && matchMedia("(hover:none)").matches){ hide(); return; }
     show(el);
   });
-  window.addEventListener("scroll", hide, { passive:true });
+  window.addEventListener("scroll", e => { if(!tip.contains(e.target)) hide(); }, { passive:true, capture:true });
   window.addEventListener("resize", hide);
 })();
