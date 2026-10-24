@@ -1669,7 +1669,11 @@ button.am:hover{color:var(--text);border-color:var(--edge)}
 /* список персонажей: свернуть в одну строку */
 .sc-tabsw{display:flex;align-items:flex-start;gap:8px;margin:12px 0}
 .sc-tabsw .sc-tabs{flex:1;min-width:0;margin:0}
-.sc-tabs.col{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;padding-bottom:4px;scroll-behavior:smooth}
+.sc-tabs.col{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;padding:3px 2px}
+.sc-tabs.col::-webkit-scrollbar{display:none}
+.sc-tabs.col.fr{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 48px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 48px),transparent)}
+.sc-tabs.col.fl{-webkit-mask-image:linear-gradient(90deg,transparent,#000 48px);mask-image:linear-gradient(90deg,transparent,#000 48px)}
+.sc-tabs.col.fl.fr{-webkit-mask-image:linear-gradient(90deg,transparent,#000 48px,#000 calc(100% - 48px),transparent);mask-image:linear-gradient(90deg,transparent,#000 48px,#000 calc(100% - 48px),transparent)}
 .sc-tabs.col .sc-tab{flex:none}
 .sc-tabtog{flex:none;width:36px;height:36px;margin-top:9px;padding:0;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--raise);border:1px solid var(--edge-soft);color:var(--muted)}
 .sc-tabtog i{width:8px;height:8px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(-135deg) translate(-2px,-2px)}

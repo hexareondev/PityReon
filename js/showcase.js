@@ -775,8 +775,33 @@ function scTabsFit(){
   const first = tabs.firstElementChild, last = tabs.lastElementChild;
   const multi = col ? tabs.scrollWidth > tabs.clientWidth + 2 : !!(first && last && last.offsetTop > first.offsetTop + 4);
   tog.hidden = tabs.classList.contains("prev") || !(multi || col && tabs.scrollWidth > tabs.clientWidth + 2);
-  if(col){ const on = tabs.querySelector(".sc-tab.on"); if(on) tabs.scrollLeft = Math.max(0, on.offsetLeft - tabs.clientWidth / 2 + on.offsetWidth / 2); }
+  // выбранный персонаж должен быть виден, но без лишнего сдвига: прокручиваем, только если он за краем
+  if(col){
+    const on = tabs.querySelector(".sc-tab.on");
+    if(on){
+      const l = on.offsetLeft - tabs.offsetLeft, r = l + on.offsetWidth;
+      if(l < tabs.scrollLeft) tabs.scrollLeft = Math.max(0, l - 8);
+      else if(r > tabs.scrollLeft + tabs.clientWidth) tabs.scrollLeft = r - tabs.clientWidth + 8;
+    }
+  }
+  scTabsEdges();
 }
+// в свёрнутом списке края затеняются, если за ними есть ещё персонажи
+function scTabsEdges(){
+  const t = document.getElementById("scTabs");
+  if(!t) return;
+  const col = t.classList.contains("col");
+  t.classList.toggle("fl", col && t.scrollLeft > 2);
+  t.classList.toggle("fr", col && t.scrollLeft + t.clientWidth < t.scrollWidth - 2);
+}
+document.getElementById("scTabs").addEventListener("scroll", scTabsEdges, { passive:true });
+// колесо мыши листает свёрнутый список вбок
+document.getElementById("scTabs").addEventListener("wheel", e => {
+  const t = e.currentTarget;
+  if(!t.classList.contains("col") || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+  e.preventDefault();
+  t.scrollLeft += e.deltaY;
+}, { passive:false });
 document.getElementById("scTabTog").addEventListener("click", () => { ui.scTabsCol = !ui.scTabsCol; saveUI(); scTabsFit(); });
 window.addEventListener("resize", () => { clearTimeout(scTabsFit.t); scTabsFit.t = setTimeout(scTabsFit, 150); });
 
