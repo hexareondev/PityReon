@@ -795,6 +795,28 @@ function scTabsEdges(){
   t.classList.toggle("fr", col && t.scrollLeft + t.clientWidth < t.scrollWidth - 2);
 }
 document.getElementById("scTabs").addEventListener("scroll", scTabsEdges, { passive:true });
+// свёрнутый список можно таскать мышкой, как пальцем на телефоне; после перетаскивания клик по персонажу не срабатывает
+(function(){
+  const t = document.getElementById("scTabs");
+  let x0 = 0, s0 = 0, drag = false, down = false, moved = false;
+  t.addEventListener("pointerdown", e => {
+    if(e.pointerType !== "mouse" || e.button !== 0 || !t.classList.contains("col")) return;
+    down = true; drag = false; x0 = e.clientX; s0 = t.scrollLeft;
+  });
+  window.addEventListener("pointermove", e => {
+    if(!down) return;
+    const dx = e.clientX - x0;
+    if(!drag && Math.abs(dx) > 5){ drag = true; t.classList.add("drag"); }
+    if(drag){ t.scrollLeft = s0 - dx; e.preventDefault(); }
+  });
+  window.addEventListener("pointerup", () => {
+    if(!down) return;
+    down = false; moved = drag; drag = false; t.classList.remove("drag");
+    setTimeout(() => { moved = false; }, 0);
+  });
+  t.addEventListener("click", e => { if(moved){ e.stopPropagation(); e.preventDefault(); } }, true);
+  t.addEventListener("dragstart", e => e.preventDefault());
+})();
 // колесо мыши листает свёрнутый список вбок
 document.getElementById("scTabs").addEventListener("wheel", e => {
   const t = e.currentTarget;

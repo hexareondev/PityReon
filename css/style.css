@@ -1715,3 +1715,9 @@ button.am:hover{color:var(--text);border-color:var(--edge)}
   .sk-tiles.n5,.sk-tiles.n6{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 .sc-tabtog[hidden]{display:none}
+/* персонажи в ряду: картинки не выделяются и не вытаскиваются; свёрнутый ряд тащится мышкой */
+.sc-tabs{-webkit-user-select:none;user-select:none}
+.sc-tabs img{-webkit-user-drag:none;user-drag:none;pointer-events:none}
+.sc-tabs.col{cursor:grab}
+.sc-tabs.col.drag{cursor:grabbing}
+.sc-tabs.col.drag .sc-tab{pointer-events:none}
