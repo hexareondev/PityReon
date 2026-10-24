@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PityReon — трекер круток, наград и сборок</title>
-<link rel="icon" type="image/svg+xml" href="favicon.svg?v=59">
-<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=59">
+<link rel="icon" type="image/svg+xml" href="favicon.svg?v=61">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=61">
 <meta name="theme-color" content="#0a0a0c">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=59">
+<link rel="stylesheet" href="css/style.css?v=61">
 </head>
 <body>
 <div class="shell">
@@ -555,12 +555,18 @@
 <div class="overlay" id="settingsOverlay">
   <div class="sheet" style="max-width:460px;max-height:calc(100vh - 32px);overflow:auto" role="dialog" aria-modal="true" aria-labelledby="setTitle">
     <h3 id="setTitle">Настройки</h3>
-    <p class="sub">Время, когда в игре обновляются ежедневные награды. Календарь считает день по этому рубежу.</p>
+    <details class="setsec" data-sec="reset">
+      <summary><b>Смена дня</b><small id="sum-reset"></small></summary>
+      <div class="setbody">
+    <p class="hint" style="margin:0 0 10px">Время, когда в игре обновляются ежедневные награды. Календарь считает день по этому рубежу.</p>
     <div class="editrow"><span>Сервер</span><select id="resetPreset"></select></div>
     <div class="editrow"><span>Смена дня</span><input id="resetTime" type="time"></div>
     <p class="hint" id="resetInfo" style="margin:10px 0 0"></p>
-    <div class="sep"></div>
-    <p class="group">Имена персонажей и оружия</p>
+      </div>
+    </details>
+    <details class="setsec" data-sec="lang">
+      <summary><b>Язык имён</b><small id="sum-lang"></small></summary>
+      <div class="setbody">
     <div class="editrow"><span>Язык</span><select id="nameLang">
       <option value="auto">как в системе</option>
       <option value="ru">русский</option>
@@ -568,12 +574,18 @@
       <option value="file">как в файле истории</option>
     </select></div>
     <p class="hint" style="margin:8px 0 0">Выгрузчики пишут имена на разных языках. Трекер узнаёт предмет по коду и показывает все имена на одном языке.</p>
-    <div class="sep"></div>
-    <p class="group">Витрина (Enka.Network)</p>
+      </div>
+    </details>
+    <details class="setsec" data-sec="enka">
+      <summary><b>Витрина</b><small id="sum-enka"></small></summary>
+      <div class="setbody">
     <div class="editrow"><span>Посредник</span><input id="enkaProxy" spellcheck="false" placeholder="пусто — напрямую к enka.network"></div>
     <p class="hint" style="margin:8px 0 0">Нужен, только если браузер не пускает к Enka напрямую. Код посредника для Cloudflare Workers — в tools/enka-proxy-worker.js.</p>
-    <div class="sep"></div>
-    <p class="group">Портреты в истории круток</p>
+      </div>
+    </details>
+    <details class="setsec" data-sec="icons">
+      <summary><b>Портреты в истории</b><small id="sum-icons"></small></summary>
+      <div class="setbody">
     <div class="editrow"><span>Источник</span><select id="iconMode">
       <option value="auto">автоматически: открытые базы и папка assets</option>
       <option value="local">только папка рядом с сайтом</option>
@@ -585,12 +597,18 @@
     <p class="hint" style="margin:8px 0 0">В шаблоне {id} — код предмета из файла истории, {game} — nap, hkrpg или hk4e. Если картинки нет, портрет просто не показывается.</p>
     <div class="icodiag" id="iconDiag"></div>
     <button class="ghost sm" id="iconReset" style="margin-top:10px">Искать источники заново</button>
-    <div class="sep"></div>
-    <p class="group">Базы достижений</p>
+      </div>
+    </details>
+    <details class="setsec" data-sec="ach">
+      <summary><b>Базы достижений</b><small id="sum-ach"></small></summary>
+      <div class="setbody">
     <div class="editrow"><span>Адрес</span><input id="achSrc" spellcheck="false" placeholder="авто — achievements/data в репозитории сайта"></div>
     <p class="hint" style="margin:8px 0 0">Пусто — базы берутся из папки achievements/data репозитория, откуда открыт сайт. Можно указать «пользователь/репозиторий», адрес папки или полный адрес с {file} — он заменится на genshin, hsr или zzz.</p>
-    <div class="sep"></div>
-    <p class="group">Синхронизация между устройствами</p>
+      </div>
+    </details>
+    <details class="setsec" data-sec="sync">
+      <summary><b>Синхронизация</b><small id="sum-sync"></small></summary>
+      <div class="setbody">
     <p class="hint" style="margin:0 0 10px">По желанию. Копия данных хранится в секретном gist вашего аккаунта GitHub: на другом устройстве введите тот же токен и загрузите её. Токен остаётся только в этом браузере.</p>
     <div id="syncTokenRow">
       <div class="editrow"><span>Токен</span><input id="syncToken" type="password" autocomplete="off" spellcheck="false" placeholder="ghp_… или github_pat_…"><button class="mark sm" id="syncSaveToken">Сохранить</button></div>
@@ -605,6 +623,8 @@
       <label class="synccheck"><input type="checkbox" id="syncAuto"> Отправлять изменения автоматически — раз в 5 минут</label>
     </div>
     <p class="hint synctxt" id="syncStatus" style="margin:8px 0 0"></p>
+      </div>
+    </details>
     <div class="row" style="margin-top:16px"><button class="ghost" id="closeSettings">Готово</button></div>
   </div>
 </div>
@@ -707,20 +727,20 @@
   <button class="mark sm" id="syncBarPull">Загрузить</button>
   <button class="ghost sm" id="syncBarClose" aria-label="Скрыть">✕</button>
 </div>
-<script src="js/core.js?v=59"></script>
-<script src="js/calendar.js?v=59"></script>
-<script src="js/history.js?v=59"></script>
-<script src="js/pools.js?v=59"></script>
-<script src="js/collection.js?v=59"></script>
-<script src="js/showcase-alt.js?v=59"></script>
-<script src="js/showcase.js?v=59"></script>
-<script src="js/backup.js?v=59"></script>
-<script src="js/settings.js?v=59"></script>
-<script src="js/pulls.js?v=59"></script>
-<script src="js/achievements.js?v=59"></script>
-<script src="js/odds.js?v=59"></script>
-<script src="js/share.js?v=59"></script>
-<script src="js/sync.js?v=59"></script>
-<script src="js/nav.js?v=59"></script>
+<script src="js/core.js?v=61"></script>
+<script src="js/calendar.js?v=61"></script>
+<script src="js/history.js?v=61"></script>
+<script src="js/pools.js?v=61"></script>
+<script src="js/collection.js?v=61"></script>
+<script src="js/showcase-alt.js?v=61"></script>
+<script src="js/showcase.js?v=61"></script>
+<script src="js/backup.js?v=61"></script>
+<script src="js/settings.js?v=61"></script>
+<script src="js/pulls.js?v=61"></script>
+<script src="js/achievements.js?v=61"></script>
+<script src="js/odds.js?v=61"></script>
+<script src="js/share.js?v=61"></script>
+<script src="js/sync.js?v=61"></script>
+<script src="js/nav.js?v=61"></script>
 </body>
 </html>

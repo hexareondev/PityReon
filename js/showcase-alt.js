@@ -71,17 +71,20 @@ function gxSky(color, seedText){
 }
 // оценка артефактов: полезные усиления (как у ZZZ) и крит-ценность (CV = 2 × крит. шанс + крит. урон)
 const GX_FLAT = { FIGHT_PROP_ATTACK:"FIGHT_PROP_ATTACK_PERCENT", FIGHT_PROP_HP:"FIGHT_PROP_HP_PERCENT", FIGHT_PROP_DEFENSE:"FIGHT_PROP_DEFENSE_PERCENT" };
-function gxGrade(vm){
-  const val = vm.valuable || {}, useful = {};
+const HX_FLAT = { Attack:"Attack%", MaxHP:"MaxHP%", Defence:"Defence%" };
+// n — сколько раз выпадали полезные характеристики; максимум — на каждый предмет (k + 5): по одному разу каждой из k полезных и 5 усилений.
+// Простые числа (атака, HP, защита) засчитываются на треть, если полезен их процент.
+function gxGrade(vm, slotsN, flatMap){
+  const val = vm.valuable || {}, useful = {}, FLAT = flatMap || GX_FLAT;
   let n = 0;
   vm.slots.forEach(d => (d.subs || []).forEach(s => {
     const r = (s.up || 0) + 1;
-    if(val[s.key]){ n += r; useful[s.n] = (useful[s.n] || 0) + r; }
-    else if(GX_FLAT[s.key] && val[GX_FLAT[s.key]]) n += r / 3;
+    if(s.val !== undefined ? s.val : val[s.key]){ n += r; useful[s.n] = (useful[s.n] || 0) + r; }
+    else if(FLAT[s.key] && val[FLAT[s.key]]) n += r / 3;
   }));
   n = Math.round(n * 10) / 10;
   const k = Math.min(4, Object.keys(val).filter(x => val[x]).length);
-  const max = 5 * (k + 5), p = n / max;
+  const max = (slotsN || 5) * (k + 5), p = n / max;
   return { n, max, useful, g: p >= .7 ? "SS" : p >= .56 ? "S" : p >= .42 ? "A" : p >= .28 ? "B" : "C" };
 }
 // короткие подписи для узких карточек артефактов (полное название — во всплывающей подсказке)
@@ -94,7 +97,7 @@ function gxCard(vm){
   const uk = Object.keys(gr.useful).sort((a, b) => gr.useful[b] - gr.useful[a]);
   // созвездия — дугой по правому краю арта, как в окне персонажа
   const arc = [0, 1, 2, 3, 4, 5].map(i => { const t = (i - 2.5) / 2.5; return Math.round(22 * t * t); });
-  let h = '<div class="hx gi r' + (vm.rarity || 5) + '" style="--accent:' + esc(vm.color) + '">' +
+  let h = '<div class="hx gi r' + (vm.rarity || 5) + (giOpt().mains ? "" : " no-mains") + '" style="--accent:' + esc(vm.color) + '">' +
     '<div class="hx-left">' +
       '<div class="hx-art" style="background-image:' + gxSky(vm.color, vm.name) + '">' + (vm.art ? '<img class="pre" alt="" referrerpolicy="no-referrer" src="' + esc(scImg(vm.art)) + '" onerror="this.remove()">' : "") +
         '<div class="hx-head"><div class="hx-name"><span class="fit">' + esc(vm.name) + '</span> <em>Ур. ' + vm.lvl + '</em></div>' +
@@ -121,7 +124,7 @@ function gxCard(vm){
       '<div class="hx-utot gi-grade g' + gr.g + '" title="' + gr.n.toLocaleString("ru-RU") + ' полезных усилений из ' + gr.max + ' возможных"><b>' + gr.g + '</b><small>' + gr.n.toLocaleString("ru-RU") + ' / ' + gr.max + '</small></div></div></div>' +
     '<div class="hx-box gi-rels"><div class="hx-relics">' + vm.slots.map(d => d.empty ? '<div class="hx-rel none"><div class="hx-rh"><span>' + esc(d.label) + '</span></div><p>Пусто</p></div>' :
       '<div class="hx-rel' + (d.top ? " top" : "") + '"><div class="hx-rh"><span>' + esc(d.label) + ' <em>+' + d.lvl + '</em></span>' + hxImg(d.icon, "hx-ricon") + '</div>' +
-        (d.main ? '<div class="hx-rm">' + ic(d.main[2]) + '<span title="' + esc(d.main[0]) + '">' + esc(gxShort(d.main[0])) + '</span><b>' + esc(d.main[1]) + '</b></div>' : "") +
+        (d.main ? '<div class="hx-rm' + (d.mainBad ? ' gi-bad" title="' + esc(d.mainBad) : "") + '">' + ic(d.main[2]) + '<span' + (d.mainBad ? "" : ' title="' + esc(d.main[0]) + '"') + '>' + esc(gxShort(d.main[0])) + '</span>' + (d.mainBad ? '<i class="gi-badi" aria-label="' + esc(d.mainBad) + '">!</i>' : "") + '<b>' + esc(d.main[1]) + '</b></div>' : "") +
         d.subs.map(s => '<div class="hx-rs' + (s.val ? " val" : "") + '">' + ic(s.ic) + '<span title="' + esc(s.n) + '"><em>' + esc(gxShort(s.n)) + '</em>' + (s.up ? '<i>»' + s.up + '</i>' : "") + '</span><b>' + esc(s.v) + "</b></div>").join("") + "</div>").join("") +
     '</div></div></div>';
   return h;
@@ -178,11 +181,13 @@ function hxCard(vm){
 
   h += '<div class="hx-right"><div class="hx-title">Характеристики</div>' +
     '<div class="hx-box"><div class="hx-grid">' + vm.stats.map(xStatRow).join("") + '</div></div>';
-  const uk = Object.keys(vm.useful || {}).sort((a, b) => vm.useful[b] - vm.useful[a]);
-  const total = uk.reduce((s, k) => s + vm.useful[k], 0);
+  // оценка реликвий — как у артефактов Genshin: SS…C по полезным усилениям
+  const gr = gxGrade(vm, 6, HX_FLAT);
+  const uk = Object.keys(gr.useful).sort((a, b) => gr.useful[b] - gr.useful[a]);
   h += '<div class="hx-box hx-relbox"><div class="hx-bt">Реликвии' + (vm.sets.length ? ' <small>' + vm.sets.map(s => esc(s.name) + (s.full ? " ×4" : " ×2")).join(" · ") + '</small>' : "") + '</div>' +
-    (uk.length ? '<div class="hx-useful"><div><span class="hx-ut">Полезные усиления</span>' + uk.map(k => '<span class="hx-uc">' + esc(k) + ' <b>' + vm.useful[k] + "</b></span>").join("") +
-      '</div><div class="hx-utot"><b>' + total + '</b><small>всего</small></div></div>' : "") +
+    (vm.slots.some(d => !d.empty) ? '<div class="hx-useful"><div><span class="hx-ut">Полезные усиления</span>' + (uk.length ? uk.map(k => '<span class="hx-uc">' + esc(k) + ' <b>' + gr.useful[k] + "</b></span>").join("") : '<span class="hx-uc">нет</span>') +
+      '<span class="hx-uc gi-cv">Крит-ценность <b>' + (Math.round((vm.cv || 0) / 10) / 10).toLocaleString("ru-RU") + '</b></span>' +
+      '</div><div class="hx-utot gi-grade g' + gr.g + '" title="' + gr.n.toLocaleString("ru-RU") + ' полезных усилений из ' + gr.max + ' возможных"><b>' + gr.g + '</b><small>' + gr.n.toLocaleString("ru-RU") + ' / ' + gr.max + '</small></div></div>' : "") +
     '<div class="hx-relics">' + vm.slots.map(d => d.empty ? '<div class="hx-rel none"><div class="hx-rh"><span>' + esc(d.label) + '</span></div><p>Пусто</p></div>' :
       '<div class="hx-rel' + (d.top ? " top" : "") + '"><div class="hx-rh"><span>' + esc(d.label) + ' <em>+' + d.lvl + '</em></span>' + hxImg(d.icon, "hx-ricon") + '</div>' +
         (d.main ? '<div class="hx-rm">' + ic(d.main[2]) + '<span>' + esc(d.main[0]) + '</span><b>' + esc(d.main[1]) + '</b></div>' : "") +
@@ -293,6 +298,17 @@ function scRenderAlt(card, game, vm, uid, id){
   card.innerHTML = (game === "hk4e" ? gxCard(vm) : game === "hkrpg" ? hxCard(vm) : zxCard(vm, uid, u.nick || "")) + scOptsHtml(game, vm, id);
   artEdit = false;
 }
+// Genshin: отметка неподходящих главных характеристик (можно выключить)
+function giOpt(){ return Object.assign({ mains:true }, ui.giOpt || {}); }
+document.addEventListener("click", e => {
+  const b = e.target.closest && e.target.closest("[data-go]");
+  if(!b) return;
+  const k = b.dataset.go, on = !giOpt()[k];
+  ui.giOpt = Object.assign(giOpt(), { [k]: on }); saveUI();
+  b.classList.toggle("on", on); b.setAttribute("aria-pressed", on);
+  const g = document.querySelector("#scCard .hx.gi");
+  if(g) g.classList.toggle("no-" + k, !on);
+});
 // ZZZ: что показывать на карточке (и на картинке из неё)
 function zxOpt(){ return Object.assign({ uid:true, nick:true, bar:true, rolls:true, grade:true }, ui.zxOpt || {}); }
 // строка под карточкой: что показывать (ZZZ) и подгонка портрета (все игры)
@@ -302,6 +318,7 @@ function scOptsHtml(game, vm, id){
   const chip = (k, t) => '<button class="chip' + (o[k] ? " on" : "") + '" data-zo="' + k + '" aria-pressed="' + o[k] + '">' + t + "</button>";
   const any = Object.keys(ui.artAdj || {}).length + Object.keys(ui.recAdj || {}).length;
   return '<div class="chips sc-opts">' +
+    (game === "hk4e" ? '<button class="chip' + (giOpt().mains ? " on" : "") + '" data-go="mains" aria-pressed="' + giOpt().mains + '" title="Отмечать часы, кубок и корону с главной характеристикой не из рекомендованных HoYoLAB">Проверка главных статов</button><i class="sc-opts-sep"></i>' : "") +
     (game === "nap" ? chip("uid", "UID") + chip("nick", "Ник") + chip("bar", "Сводка сабстатов") + chip("rolls", "Отметки усилений") + chip("grade", "Оценка") + '<i class="sc-opts-sep"></i>' : "") +
     '<button class="chip" id="scArt" title="Подвинуть и увеличить портрет персонажа">Портрет</button>' +
     '<button class="chip' + (recEdit ? " on" : "") + '" id="scRec" title="Какие характеристики полезны персонажу — как «Рекомендуемые атрибуты» в HoYoLAB">Полезные характеристики</button>' +

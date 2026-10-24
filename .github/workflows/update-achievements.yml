@@ -11,6 +11,7 @@ on:
 
 permissions:
   contents: write
+  issues: write   # сообщить, если HoYoLAB перестал пускать (истекли cookie)
 
 jobs:
   update:
@@ -30,6 +31,7 @@ jobs:
           python -m pip install --quiet pillow
           python items/art_focus.py
       - name: Рекомендуемые характеристики из HoYoLAB (для витрины)
+        id: hoyo
         continue-on-error: true
         env:
           LTUID: ${{ secrets.LTUID }}
@@ -38,6 +40,29 @@ jobs:
         run: |
           python -m pip install --quiet genshin
           python items/hoyo_rec.py
+      - name: Сообщить, если HoYoLAB не ответил
+        if: steps.hoyo.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          t="HoYoLAB: не удалось обновить рекомендуемые характеристики"
+          n=$(gh issue list --state open --search "$t in:title" --json number --jq '.[0].number // empty')
+          body="Шаг «Рекомендуемые характеристики из HoYoLAB» завершился ошибкой: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+          Чаще всего это значит, что cookie HoYoLAB истекли. Возьмите новые ltuid_v2, ltoken_v2 и ltmid_v2 на hoyolab.com (F12 → Application → Cookies → .hoyolab.com) и замените секреты LTUID, LTOKEN, LTMID в Settings → Secrets and variables → Actions, затем запустите «Обновление баз» вручную.
+
+          Сайт продолжает работать на последних сохранённых данных. Issue закроется сам после удачного обновления."
+          if [ -n "$n" ]; then gh issue comment "$n" --body "Снова не получилось: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          else gh issue create --title "$t" --body "$body"; fi
+      - name: Закрыть сообщение об ошибке HoYoLAB, если всё снова работает
+        if: steps.hoyo.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          t="HoYoLAB: не удалось обновить рекомендуемые характеристики"
+          for n in $(gh issue list --state open --search "$t in:title" --json number --jq '.[].number'); do
+            gh issue close "$n" --comment "HoYoLAB снова отвечает — рекомендации обновлены."
+          done
       - name: Закоммитить изменения
         run: |
           git config user.name "github-actions[bot]"

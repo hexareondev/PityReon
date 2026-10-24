@@ -1636,3 +1636,33 @@ button.am:hover{color:var(--text);border-color:var(--edge)}
 .sc-tabs.prev{max-height:166px;overflow-y:auto;gap:6px;padding:4px;margin-top:10px;scrollbar-width:thin}
 .sc-tabs.prev .sc-tab{width:46px;height:46px;flex:none}
 .sc-tabs.prev .sc-tab span{font-size:16px}
+/* настройки: разделы сворачиваются, в заголовке — текущее значение */
+.setsec{border:1px solid var(--edge-soft);border-radius:var(--rs);background:rgba(255,255,255,.02);margin:8px 0 0}
+.setsec > summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:var(--rs);user-select:none}
+.setsec > summary::-webkit-details-marker{display:none}
+.setsec > summary::after{content:"";flex:none;width:7px;height:7px;margin-left:4px;border-right:1.5px solid var(--dim);border-bottom:1.5px solid var(--dim);transform:rotate(45deg) translate(-2px,-2px);transition:transform .15s}
+.setsec[open] > summary::after{transform:rotate(-135deg) translate(-2px,-2px)}
+.setsec > summary:hover{background:rgba(255,255,255,.03)}
+.setsec > summary b{font-weight:600;font-size:14px;color:var(--text)}
+.setsec > summary small{flex:1;min-width:0;text-align:right;font-size:12px;color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.setsec > summary small.on{color:var(--gold)}
+.setsec[open]{border-color:rgba(240,194,100,.22)}
+.setbody{padding:2px 14px 14px}
+#setTitle{margin-bottom:6px}
+/* Genshin: главная характеристика не из рекомендованных */
+.hx.gi .hx-rm.gi-bad b{color:#ff9b7a}
+.gi-badi{flex:none;width:15px;height:15px;border-radius:50%;background:rgba(255,120,90,.18);border:1px solid rgba(255,120,90,.55);color:#ff9b7a;font-style:normal;font-size:10px;font-weight:700;line-height:13px;text-align:center;cursor:help}
+.hx.gi.no-mains .gi-badi{display:none}
+.hx.gi.no-mains .hx-rm.gi-bad b{color:var(--gold-hot)}
+/* история сборки персонажа */
+.sc-hist{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:10px}
+.sc-hist > span{font-size:12px;color:var(--dim);margin-right:4px}
+.sc-diff{margin-top:10px;padding:12px 14px;border-radius:var(--rs);background:var(--panel-2);border:1px solid var(--edge-soft)}
+.sc-diff p{margin:0 0 8px;font-size:12.5px;color:var(--muted)}
+.sc-diff > div{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,2fr) auto;gap:10px;align-items:baseline;padding:5px 0;border-top:1px solid rgba(255,255,255,.04);font-size:13px}
+.sc-diff span{color:var(--muted)}
+.sc-diff em{font-style:normal;color:var(--text);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.sc-diff b{font-family:var(--display);font-variant-numeric:tabular-nums;white-space:nowrap}
+.sc-diff .up b{color:#7fd88f}
+.sc-diff .dn b{color:#ff8f7a}
+@media (max-width:520px){ .sc-diff > div{grid-template-columns:1fr auto} .sc-diff em{grid-column:1 / -1;grid-row:2} }

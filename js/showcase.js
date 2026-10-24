@@ -389,13 +389,19 @@ function giVM(av){
     const ids = (eq.reliquary.appendPropIdList || []).map(x => GI_FP[B.affix[String(x)]]);
     const ms = fl.reliquaryMainstat || {};
     slots.push({ pos: sl[0], label: sl[1], set: scLoc(B.sets[hash]), icon: fl.icon ? "/ui/" + fl.icon + ".png" : "", lvl: Math.max(0, (eq.reliquary.level || 1) - 1), top: fl.rankLevel === 5,
-      main: ms.mainPropId ? [gLabel(ms.mainPropId), gVal(ms.mainPropId, ms.statValue), gIc(ms.mainPropId)] : null,
+      main: ms.mainPropId ? [gLabel(ms.mainPropId), gVal(ms.mainPropId, ms.statValue), gIc(ms.mainPropId)] : null, mainKey: ms.mainPropId || "",
       subs: (fl.reliquarySubstats || []).map(s => {
         if(s.appendPropId === "FIGHT_PROP_CRITICAL") cv += 2 * s.statValue;
         if(s.appendPropId === "FIGHT_PROP_CRITICAL_HURT") cv += s.statValue;
         const rolls = ids.filter(x => x === s.appendPropId).length || 1;
         return { n: gLabel(s.appendPropId), v: gVal(s.appendPropId, s.statValue), up: rolls - 1, val: !!valuable[s.appendPropId], ic: gIc(s.appendPropId), key: s.appendPropId, raw: s.statValue, fmt: x => gVal(s.appendPropId, x) };
       }) });
+  });
+  // главная характеристика часов, кубка и короны не из рекомендованных HoYoLAB — отмечаем (подсказка — что рекомендуется)
+  const rm = RECM["hk4e:" + id];
+  if(rm) slots.forEach(d => {
+    const want = rm[{ 3:"sands", 4:"goblet", 5:"circlet" }[d.pos]];
+    if(want && d.mainKey && want.indexOf(d.mainKey) === -1) d.mainBad = "Рекомендуется: " + want.map(gLabel).join(" или ");
   });
   const sets = Object.keys(cnt).filter(h => cnt[h].n >= 2).sort((a, b) => cnt[b].n - cnt[a].n)
     .map(h => ({ name: scLoc(B.sets[h]) || "Комплект", icon: cnt[h].icon ? "/ui/" + cnt[h].icon + ".png" : "", full: cnt[h].n >= 4 }));
@@ -439,13 +445,13 @@ function giVM(av){
 /* ════════════ полезные характеристики ════════════
    Как «Рекомендуемые атрибуты» в HoYoLAB: свой выбор (ui.recAdj) → общий список, собранный вручную (items/data/rec_stats.json) →
    рекомендации HoYoLAB (items/data/rec_hoyo.json, обновляются сами раз в неделю) → угадайка по сборке */
-let REC = null, RECH = {}, recLoading = false;
+let REC = null, RECH = {}, RECM = {}, recLoading = false;
 function recLoad(cb){
   if(REC){ cb && cb(); return; }
   if(recLoading) return;
   recLoading = true;
-  Promise.all(["rec_stats", "rec_hoyo"].map(n => fetch("items/data/" + n + ".json", { cache:"no-cache" }).then(r => r.ok ? r.json() : {}).catch(() => ({}))))
-    .then(([m, h]) => { RECH = h || {}; REC = Object.assign({}, RECH, m || {}); recLoading = false; cb && cb(); });
+  Promise.all(["rec_stats", "rec_hoyo", "rec_main"].map(n => fetch("items/data/" + n + ".json", { cache:"no-cache" }).then(r => r.ok ? r.json() : {}).catch(() => ({}))))
+    .then(([m, h, mm]) => { RECH = h || {}; RECM = mm || {}; REC = Object.assign({}, RECH, m || {}); recLoading = false; cb && cb(); });
 }
 function recGet(game, id){ const k = game + ":" + id; return (ui.recAdj || {})[k] || (REC || {})[k] || null; }
 function recSource(game, id){
@@ -507,6 +513,8 @@ const SCG = {
 function scGame(){ const g = histGameKey(); return SCG[g] ? g : "nap"; }
 function scUid(){ const inp = document.getElementById("scUid"); return (inp && inp.value || "").replace(/\D/g, ""); }
 function scUrl(game, uid){ return (ui.enkaProxy || "https://enka.network").replace(/\/+$/, "") + "/api/" + SCG[game].api + "/" + uid; }
+// подпись сборки — без того, что меняется само по себе (дружба, облик)
+function scSig(a){ const c = Object.assign({}, a || {}); delete c.fetterInfo; delete c.costumeId; return JSON.stringify(c); }
 function scIngest(game, j, uidHint){
   const p = SCG[game].parse(j);
   if(!p.list.length && !p.uid) throw new Error("Это не похоже на ответ Enka для " + SCG[game].title + ".");
@@ -516,7 +524,17 @@ function scIngest(game, j, uidHint){
   const u = enkaData[game + ":" + uid] = enkaData[game + ":" + uid] || { agents:{} };
   u.nick = p.nick || u.nick || ""; u.level = p.level || u.level || 0; u.at = now;
   u.shown = p.list.map(x => x[0]);
-  p.list.forEach(x => { u.agents[x[0]] = { at: now, a: x[1] }; });
+  // прошлые сборки: если персонаж с прошлой загрузки поменялся, старая сборка уходит в историю (до 4 штук)
+  p.list.forEach(x => {
+    const prev = u.agents[x[0]], rec = { at: now, a: x[1], since: now };
+    if(prev){
+      const hist = (prev.hist || []).slice();
+      if(scSig(prev.a) !== scSig(x[1])) hist.unshift({ at: prev.since || prev.at, till: prev.at, a: prev.a });
+      else rec.since = prev.since || prev.at;
+      if(hist.length) rec.hist = hist.slice(0, 4);
+    }
+    u.agents[x[0]] = rec;
+  });
   ui.scUidG = ui.scUidG || {}; ui.scUidG[game] = uid;
   document.getElementById("scUid").value = uid;
   ui.scAgentG = ui.scAgentG || {};
@@ -622,8 +640,14 @@ function renderShowcase(){
   if(!vm){ card.innerHTML = '<div class="sc-empty">Не удалось разобрать сборку этого персонажа — возможно, он новее справочника. Справочник обновляется раз в неделю.</div>'; return; }
   scLayoutSeg(game);
   document.getElementById("scPng").hidden = false; document.getElementById("scCopy").hidden = !(navigator.clipboard && window.ClipboardItem);
-  if(scAltWanted(game)) scRenderAlt(card, game, vm, uid, cur);
-  else scRenderCard(card, u, cur, vm);
+  // история сборки: можно открыть прошлую и сравнить с текущей
+  const hist = u.agents[cur].hist || [], hk = game + ":" + uid + ":" + cur;
+  let hi = scHistSel[hk], shown = vm;
+  if(!(hi >= 0 && hi < hist.length)) hi = -1;
+  if(hi >= 0){ try { shown = G.vm(hist[hi].a); } catch(e){ console.error(e); hi = -1; shown = vm; } }
+  if(scAltWanted(game)) scRenderAlt(card, game, shown, uid, cur);
+  else scRenderCard(card, u, cur, shown);
+  if(hist.length) card.insertAdjacentHTML("beforeend", scHistBar(hist, hi, hk, u.agents[cur]) + (hi >= 0 ? scDiff(shown, vm, game) : ""));
   artCur = { game, id: String(cur) };
   requestAnimationFrame(() => { scFitText(); artFit(); });
   if(document.fonts && document.fonts.ready) document.fonts.ready.then(scFitText);
@@ -672,6 +696,45 @@ function scRenderPreview(game){
   artCur = { game, id: String(cur) };
   requestAnimationFrame(() => { scFitText(); artFit(); });
 }
+
+const scHistSel = {};
+const scDate = iso => String(iso || "").slice(0, 10).split("-").reverse().join(".");
+function scHistBar(hist, hi, hk, cur){
+  const b = (i, t, tip) => '<button class="chip' + (i === hi ? " on" : "") + '" data-hk="' + esc(hk) + '" data-hi="' + i + '"' + (tip ? ' title="' + esc(tip) + '"' : "") + '>' + t + "</button>";
+  return '<div class="sc-hist"><span>Сборки</span>' + b(-1, "Сейчас", "Сборка с " + scDate(cur.since || cur.at)) +
+    hist.map((x, i) => b(i, scDate(x.at), "Была с " + scDate(x.at) + (x.till ? " по " + scDate(x.till) : ""))).join("") + "</div>";
+}
+// сравнение прошлой сборки с текущей: что изменилось в характеристиках, оружии, комплектах
+function scDiff(old, now, game){
+  const num = v => parseFloat(String(v).replace(/[\s\u00a0\u202f]/g, "").replace(",", "."));
+  const fmt = (d, pct, dig) => (d > 0 ? "+" : "−") + Math.abs(d).toLocaleString("ru-RU", { maximumFractionDigits: dig !== undefined ? dig : pct ? 1 : 0 }) + (pct ? "%" : "");
+  const rows = [];
+  now.stats.forEach(r => {
+    const o = old.stats.find(x => x.n === r.n);
+    if(!o || o.v === r.v) return;
+    const a = num(o.v), b = num(r.v), pct = /%/.test(r.v);
+    const d = isNaN(a) || isNaN(b) ? "" : b - a;
+    rows.push('<div class="' + (d === "" ? "" : d > 0 ? "up" : "dn") + '"><span>' + esc(r.n) + '</span><em>' + esc(o.v) + " → " + esc(r.v) + '</em><b>' + (d === "" || !d ? "" : fmt(d, pct)) + "</b></div>");
+  });
+  const cvA = Math.round((old.cv || 0) / 10) / 10, cvB = Math.round((now.cv || 0) / 10) / 10;
+  if(cvA !== cvB) rows.push('<div class="' + (cvB > cvA ? "up" : "dn") + '"><span>Крит-ценность</span><em>' + cvA.toLocaleString("ru-RU") + " → " + cvB.toLocaleString("ru-RU") + '</em><b>' + fmt(Math.round((cvB - cvA) * 10) / 10, false, 1) + "</b></div>");
+  if(game !== "nap" && typeof gxGrade === "function"){
+    const fl = game === "hkrpg" ? HX_FLAT : GX_FLAT, n = game === "hkrpg" ? 6 : 5;
+    const ga = gxGrade(old, n, fl), gb = gxGrade(now, n, fl);
+    if(ga.n !== gb.n) rows.push('<div class="' + (gb.n > ga.n ? "up" : "dn") + '"><span>Полезные усиления</span><em>' + ga.n.toLocaleString("ru-RU") + " (" + ga.g + ") → " + gb.n.toLocaleString("ru-RU") + " (" + gb.g + ')</em><b>' + fmt(Math.round((gb.n - ga.n) * 10) / 10, false, 1) + "</b></div>");
+  }
+  const w = x => x.weapon ? x.weapon.name + " · ур. " + x.weapon.lvl + " · " + x.weapon.refine.label + x.weapon.refine.n : "нет";
+  if(w(old) !== w(now)) rows.push('<div class="ch"><span>' + esc((now.weapon || old.weapon || {}).title || "Оружие") + '</span><em>' + esc(w(old)) + " → " + esc(w(now)) + "</em><b></b></div>");
+  const st = x => (x.sets || []).map(s => s.name + (s.full ? " ×4" : " ×2")).join(", ") || "нет";
+  if(st(old) !== st(now)) rows.push('<div class="ch"><span>Комплекты</span><em>' + esc(st(old)) + " → " + esc(st(now)) + "</em><b></b></div>");
+  return '<div class="sc-diff"><p>Показана прошлая сборка. Что изменилось к текущей:</p>' + (rows.join("") || '<div><span>Характеристики не изменились</span><em></em><b></b></div>') + "</div>";
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest && e.target.closest(".sc-hist [data-hi]");
+  if(!b) return;
+  scHistSel[b.dataset.hk] = Number(b.dataset.hi);
+  renderShowcase();
+});
 
 function scPips(n, max){
   let h = '<span class="sc-pips p">';

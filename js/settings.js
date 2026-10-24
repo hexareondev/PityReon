@@ -220,3 +220,25 @@ if(!store.persistent){
   document.getElementById("storeNote").textContent =
     "Этот просмотр без постоянного хранилища: отметки пропадут при перезагрузке. На GitHub Pages всё сохраняется в браузере.";
 }
+
+/* разделы настроек: в свёрнутом заголовке видно текущее значение */
+function setSummaries(){
+  const put = (k, t, on) => { const el = document.getElementById("sum-" + k); if(el){ el.textContent = t; el.classList.toggle("on", !!on); } };
+  const opt = id => { const s = document.getElementById(id); return s && s.selectedIndex >= 0 ? s.options[s.selectedIndex].text : ""; };
+  put("reset", "в " + hhmm(resetMin()) + " по вашему времени");
+  put("lang", opt("nameLang"));
+  let host = "";
+  try { host = ui.enkaProxy ? new URL(ui.enkaProxy).host : ""; } catch(e){}
+  put("enka", host ? "через " + host : "напрямую", !!host);
+  put("icons", { auto:"автоматически", local:"папка рядом с сайтом", custom:"свой адрес", off:"выключены" }[iconMode()] || "");
+  put("ach", ui.achSrc ? "свой адрес" : "из репозитория сайта", !!ui.achSrc);
+  const tokenOn = !document.getElementById("syncActs").classList.contains("hidden");
+  put("sync", tokenOn ? "подключена" : "выключена", tokenOn);
+}
+(function(){
+  const ov = document.getElementById("settingsOverlay");
+  const later = () => setTimeout(setSummaries, 60);
+  document.getElementById("openSettings").addEventListener("click", later);
+  ov.addEventListener("change", later);
+  ov.addEventListener("click", e => { if(e.target.closest("button")) later(); });
+})();
