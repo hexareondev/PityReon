@@ -92,7 +92,7 @@ function zzzVM(av){
     const sub = wi.sub ? (w._sub != null ? w._sub : zWeaponSub(wi.sub[1], w.BreakLevel || 0)) : 0;
     if(wi.main) base[wi.main[0]] = (base[wi.main[0]] || 0) + main;
     if(wi.sub) put(wi.sub[0], sub);
-    weapon = { title:"Амплификатор", name: scItemName("nap", w.Id) || "#" + w.Id, img: wi.img, top: wi.r === 4, badge: wi.r === 4 ? "S" : wi.r === 3 ? "A" : "B",
+    weapon = { id: String(w.Id), title:"Амплификатор", name: scItemName("nap", w.Id) || "#" + w.Id, img: wi.img, top: wi.r === 4, badge: wi.r === 4 ? "S" : wi.r === 3 ? "A" : "B",
       lvl: w.Level || 1, refine:{ label:"P", n: w.UpgradeLevel || 1 },
       stats: [wi.main && [zProp(wi.main[0]), zVal(wi.main[0], main), zIc(wi.main[0]), String(wi.main[0]).slice(0, 3)], wi.sub && [zProp(wi.sub[0]), zVal(wi.sub[0], sub), zIc(wi.sub[0]), String(wi.sub[0]).slice(0, 3)]].filter(Boolean) };
   }
@@ -132,7 +132,7 @@ function zzzVM(av){
   const sets = Object.keys(cnt).filter(s => s && cnt[s] >= 2).sort((a, b) => cnt[b] - cnt[a]).map(s => {
     const su = B.suits[s] || {};
     Object.keys(su.bonus || {}).forEach(p => put(p, su.bonus[p]));
-    return { name: scLoc(su), icon: su.icon, full: cnt[s] >= 4 };
+    return { id: s, name: scLoc(su), icon: su.icon, full: cnt[s] >= 4 };
   });
   const pct = (b, r, f) => Math.floor((base[b] || 0) * (1 + (add[r] || 0) / 10000) + (add[f] || 0));
   const flat = (b, f) => (base[b] || 0) + (add[f] || 0);
@@ -168,7 +168,7 @@ function zzzVM(av){
     .map(s => [ZZZ_SKILL[s.Index], (s.Level || 0) + boost, s.Index]);
   skills.push(["Ядро", core ? "ABCDEF".charAt(core - 1) : "—"]);
   const el = zzzElement(info.el);
-  return { name: scItemName("nap", id) || av._name || "#" + id, art: info.img, circle: info.circle || info.img, el: el.n, color: el.c, cls: ZZZ_PRO[info.pro] || info.pro, elIc: ZZZ_EL_IC[el.k] || "", proIc: ZZZ_PRO_IC[info.pro] || "", rank: ((itemsDb.nap && itemsDb.nap.items[id]) || {}).r === 3 ? "A" : "S", valuable,
+  return { cid: id, hoyoRating: av._rating || null, name: scItemName("nap", id) || av._name || "#" + id, art: info.img, circle: info.circle || info.img, el: el.n, color: el.c, cls: ZZZ_PRO[info.pro] || info.pro, elIc: ZZZ_EL_IC[el.k] || "", proIc: ZZZ_PRO_IC[info.pro] || "", rank: ((itemsDb.nap && itemsDb.nap.items[id]) || {}).r === 3 ? "A" : "S", valuable,
     lvl, maxLvl: 60, cons:{ label:"M", title:"Кинограмма", n:m }, keys, skills, stats, weapon, sets, cv, slotsTitle:"Диски", setsWord:"дисков",
     slots: [1,2,3,4,5,6].map(i => slots.find(s => s.pos === i) || { pos:i, label:String(i), empty:true }),
     foot: "Характеристики посчитаны по формулам Enka: агент, амплификатор, диски и бонусы комплектов за 2 предмета. Пассивки амплификатора, эффекты за 4 предмета и баффы в бою не учитываются, поэтому цифры могут немного отличаться от окна агента в игре." };
@@ -317,7 +317,7 @@ function hsrVM(av){
   const skName = pid => { const n = Number(pid) % 1000; return HSR_SKILL[n] || (n >= 300 && n < 400 ? (n % 2 ? "Навык спутника" : "Талант спутника") : n >= 400 ? "Особый навык" : "Навык"); };
   const tSkills = Object.keys(pts).filter(p => (pts[p][1] === 2 || pts[p][1] === 4) && Number(p) % 1000 !== 7 && lvOf[p])
     .sort((a, b) => Number(a) - Number(b))
-    .map(p => ({ n: skName(p), lv: lvOf[p] + (boost[String(Number(id) * 100 + Number(p) % 1000)] || 0), icon: pts[p][0] }));
+    .map(p => ({ pid: p, n: skName(p), lv: lvOf[p] + (boost[String(Number(id) * 100 + Number(p) % 1000)] || 0), icon: pts[p][0] }));
   const majors = Object.keys(pts).filter(p => pts[p][1] === 3).sort().map(p => ({ icon: pts[p][0], on: !!lvOf[p] }));
   const minors = Object.keys(pts).filter(p => pts[p][1] === 1).sort().map(p => ({ icon: pts[p][0], on: !!lvOf[p] }));
   const treeSum = {};
@@ -331,7 +331,7 @@ function hsrVM(av){
   slots.forEach(d => d.subs.forEach(su => { if(su.val){ useful[su.n] = (useful[su.n] || 0) + su.up + 1; } }));
   const el = HSR_EL[A.el] || [A.el, "#f0c264"];
   return { traces:{ skills: tSkills, majors, minors, bonus: treeBonus }, rankIcons: A.rankIcons || [], useful, valuable: Object.fromEntries(pathVal.map(k => [k, 1])),
-    name: scItemName("hkrpg", id) || av._name || "#" + id, art: A.img, circle: A.circle, el: el[0], color: el[1], cls: HSR_PATH[A.path] || A.path,
+    cid: id, name: scItemName("hkrpg", id) || av._name || "#" + id, art: A.img, circle: A.circle, el: el[0], color: el[1], cls: HSR_PATH[A.path] || A.path,
     lvl, maxLvl: 80, cons:{ label:"E", title:"Эйдолон", n: rank }, keys, skills, stats, weapon, sets, cv: cv * 100, slotsTitle:"Реликвии", setsWord:"реликвий",
     slots: [1,2,3,4,5,6].map(i => slots.find(s => s.pos === i) || { pos:i, label: HSR_SLOT[i], empty:true }),
     foot: "Характеристики посчитаны по данным игры: персонаж, конус, следы, реликвии и постоянные бонусы комплектов. Пассивка конуса учитывается, только если её бонус постоянный и путь совпадает; баффы в бою не учитываются." };
@@ -444,12 +444,12 @@ function giVM(av){
   const sn = ["Обычная атака", "Элементальный навык", "Взрыв стихии"];
   const skills = (A.skills || []).map((s, i) => [sn[i] || "Навык", (sl[String(s)] || 1) + (extra[String((A.proud || {})[String(s)])] || 0)]);
   // для карточки «как в игре»: иконки талантов, усиление от созвездий — золотом
-  const talents = (A.skills || []).map((s, i) => ({ n: sn[i] || "Навык", lv: skills[i][1], icon: (A.sicons || [])[i] || "",
+  const talents = (A.skills || []).map((s, i) => ({ id: s, n: sn[i] || "Навык", lv: skills[i][1], icon: (A.sicons || [])[i] || "",
     boost: !!extra[String((A.proud || {})[String(s)])] }));
   const el = GI_EL[A.el] || [A.el, "#f0c264"];
   const cons = (av.talentIdList || []).length;
   const it = itemsDb.hk4e && itemsDb.hk4e.items[id];
-  return { name: scItemName("hk4e", id) || av._name || "#" + id, art: A.img, circle: A.circle, el: el[0], color: el[1], cls: GI_WT[A.wt] || "", elKey: A.el || "",
+  return { cid: id, name: scItemName("hk4e", id) || av._name || "#" + id, art: A.img, circle: A.circle, el: el[0], color: el[1], cls: GI_WT[A.wt] || "", elKey: A.el || "",
     talents, constIcons: A.consts || [], valuable,
     lvl, maxLvl: Math.max(90, lvl), cons:{ label:"C", title:"Созвездие", n: cons }, rarity: A.r || (it ? it.r : 5), friend: (av.fetterInfo || {}).expLevel || 0, keys, skills, stats, weapon, sets, cv: cv * 100, slotsTitle:"Артефакты", setsWord:"артефактов",
     slots: [1,2,3,4,5].map(i => slots.find(s => s.pos === i) || { pos:i, label: ["Цветок","Перо","Пески","Кубок","Корона"][i - 1], empty:true }),
@@ -633,6 +633,7 @@ function renderShowcase(){
   }
   if(!SCB[game] || !itemsDb[game]){ ensureBuild(game, () => ensureItems(game, () => { if(scGame() === game) renderShowcase(); })); ensureItems(game); return; }
   if(!REC){ recLoad(() => { if(scGame() === game) renderShowcase(); }); return; }
+  descLoad(game);
   const prevBtn = document.getElementById("scPrev");
   prevBtn.classList.toggle("on", !!ui.scPrev); prevBtn.setAttribute("aria-pressed", !!ui.scPrev);
   if(ui.scPrev){ scRenderPreview(game); return; }

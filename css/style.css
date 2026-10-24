@@ -1725,3 +1725,15 @@ button.am:hover{color:var(--text);border-color:var(--edge)}
 .hoyosteps li{margin:4px 0}
 .hoyosteps code{font-size:12px;padding:1px 6px;border-radius:5px;background:rgba(255,255,255,.07);color:var(--text)}
 #hoyoOverlay a{color:var(--gold);text-underline-offset:2px}
+/* подсказки с описаниями */
+.dtip{position:fixed;z-index:200;max-width:calc(100vw - 24px);padding:10px 12px;border-radius:10px;background:#16161d;border:1px solid rgba(240,194,100,.28);box-shadow:0 10px 30px rgba(0,0,0,.55);font-size:12.5px;line-height:1.5;color:var(--muted);pointer-events:none}
+.dtip b{display:block;color:var(--text);font-size:13px;margin-bottom:4px}
+.dtip p{margin:6px 0 0}
+.dtip em{font-style:normal;color:var(--gold)}
+[data-tip]{cursor:help}
+.hx-bt .dt{border-bottom:1px dotted rgba(255,255,255,.25)}
+/* ZZZ: оценка HoYoLAB рядом со своей */
+.zx-hoyo{display:inline-flex;align-items:baseline;gap:5px;padding:2px 9px;border-radius:999px;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.12);font-size:12px}
+.zx-hoyo small{font-size:9.5px;letter-spacing:.06em;color:var(--dim)}
+.zx-hoyo b{font-family:var(--display);color:var(--gold-hot)}
+.zx-hoyo em{font-style:normal;color:var(--muted)}

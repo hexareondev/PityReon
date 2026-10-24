@@ -92,6 +92,8 @@ function gxShort(n){
   return String(n).replace(/^Шанс крит(ического|\.) попадания$/, "Шанс крита").replace(/^Бонус (\S+) урона$/, "$1 урон")
     .replace(/^Сила атаки$/, "Атака").replace(/^Мастерство стихий$/, "Мастерство").replace(/^Восстановление энергии$/, "Восст. энергии");
 }
+// подсказка с описанием (js/desc.js); пока описания нет — обычная подсказка браузера
+function tipA(spec, title){ return ' data-tip="' + esc(spec) + '"' + (title && !descTipHtml(spec) ? ' title="' + esc(title) + '"' : ""); }
 function gxCard(vm){
   const gr = gxGrade(vm), stars = "★".repeat(vm.rarity || 5);
   const uk = Object.keys(gr.useful).sort((a, b) => gr.useful[b] - gr.useful[a]);
@@ -102,13 +104,13 @@ function gxCard(vm){
       '<div class="hx-art" style="background-image:' + gxSky(vm.color, vm.name) + '">' + (vm.art ? '<img class="pre" alt="" referrerpolicy="no-referrer" src="' + esc(scImg(vm.art)) + '" onerror="this.remove()">' : "") +
         '<div class="hx-head"><div class="hx-name"><span class="fit">' + esc(vm.name) + '</span> <em>Ур. ' + vm.lvl + '</em></div>' +
         '<div class="hx-tags"><span class="el">' + (GI_EL_IC[vm.elKey] ? '<img class="gi-elic" src="icons/gi/el_' + GI_EL_IC[vm.elKey] + '.webp" alt="">' : "<i></i>") + esc(vm.el) + '</span><span>' + esc(vm.cls) + '</span><span class="gi-stars">' + stars + '</span></div></div>' +
-        '<div class="gi-cons">' + [0,1,2,3,4,5].map(i => '<span style="margin-right:' + arc[i] + 'px">' + hxImg((vm.constIcons || [])[i], "gi-c" + (i < vm.cons.n ? " on" : ""), i < vm.cons.n ? "" : ic("lock", "lk")) + "</span>").join("") + '</div>' +
+        '<div class="gi-cons">' + [0,1,2,3,4,5].map(i => '<span style="margin-right:' + arc[i] + 'px"' + tipA("con|hk4e|" + vm.cid + "|" + (i + 1)) + '>' + hxImg((vm.constIcons || [])[i], "gi-c" + (i < vm.cons.n ? " on" : ""), i < vm.cons.n ? "" : ic("lock", "lk")) + "</span>").join("") + '</div>' +
         (vm.friend ? '<div class="gi-friend">' + ic("heal") + ' Дружба <b>' + vm.friend + '</b></div>' : "") +
       '</div>';
   h += '</div><div class="hx-right"><div class="hx-title">Характеристики</div>' +
     '<div class="hx-box"><div class="hx-grid" style="grid-template-rows:repeat(' + Math.ceil(vm.stats.length / 2) + ',auto)">' + vm.stats.map(xStatRow).join("") + '</div></div><div class="gi-wt">';
   h += '<div class="hx-box"><div class="hx-bt">Таланты</div><div class="hx-skills gi-tal">' +
-      (vm.talents || []).map(t => '<span title="' + esc(t.n) + ': ' + t.lv + (t.boost ? " (+3 от созвездия)" : "") + '">' + hxImg(t.icon, "hx-sk") + '<b' + (t.boost ? ' class="up"' : "") + '>' + t.lv + "</b><small>" + esc(t.n) + "</small></span>").join("") +
+      (vm.talents || []).map(t => '<span' + tipA("skill|hk4e|" + t.id, t.n + ": " + t.lv + (t.boost ? " (+3 от созвездия)" : "")) + '>' + hxImg(t.icon, "hx-sk") + '<b' + (t.boost ? ' class="up"' : "") + '>' + t.lv + "</b><small>" + esc(t.n) + "</small></span>").join("") +
     '</div></div>';
   if(vm.weapon){
     const w = vm.weapon;
@@ -118,7 +120,7 @@ function gxCard(vm){
   }
   h += '</div></div>';
 
-  h += '<div class="hx-box gi-rhead"><div class="hx-bt">Артефакты' + (vm.sets.length ? ' <small>' + vm.sets.map(s => esc(s.name) + (s.full ? " ×4" : " ×2")).join(" · ") + '</small>' : "") + '</div>' +
+  h += '<div class="hx-box gi-rhead"><div class="hx-bt">Артефакты' + (vm.sets.length ? ' <small>' + vm.sets.map(s => '<span class="dt"' + tipA("set|hk4e|" + s.name) + '>' + esc(s.name) + (s.full ? " ×4" : " ×2") + "</span>").join(" · ") + '</small>' : "") + '</div>' +
     '<div class="hx-useful"><div><span class="hx-ut">Полезные усиления</span>' + (uk.length ? uk.map(k => '<span class="hx-uc">' + esc(k) + ' <b>' + gr.useful[k] + "</b></span>").join("") : '<span class="hx-uc">нет</span>') +
       '<span class="hx-uc gi-cv">Крит-ценность <b>' + (Math.round((vm.cv || 0) / 10) / 10).toLocaleString("ru-RU") + '</b></span></div>' +
       '<div class="hx-utot gi-grade g' + gr.g + '" title="' + gr.n.toLocaleString("ru-RU") + ' полезных усилений из ' + gr.max + ' возможных"><b>' + gr.g + '</b><small>' + gr.n.toLocaleString("ru-RU") + ' / ' + gr.max + '</small></div></div></div>' +
@@ -164,7 +166,7 @@ function hxCard(vm){
       '<div class="hx-art" style="background-image:' + hxNebula(vm.color, vm.name) + '">' + (vm.art ? '<img class="pre" alt="" referrerpolicy="no-referrer" src="' + esc(scImg(vm.art)) + '" onerror="this.remove()">' : "") +
         '<div class="hx-head"><div class="hx-name"><span class="fit">' + esc(vm.name) + '</span> <em>Ур. ' + vm.lvl + '</em></div>' +
         '<div class="hx-tags"><span class="el"><i></i>' + esc(vm.el) + '</span><span>' + esc(vm.cls) + '</span></div></div>' +
-        '<div class="hx-eid">' + [1,2,3,4,5,6].map(i => hxImg((vm.rankIcons || [])[i - 1], "hx-e" + (i <= vm.cons.n ? " on" : ""), i <= vm.cons.n ? "" : ic("lock", "lk"))).join("") + '</div>' +
+        '<div class="hx-eid">' + [1,2,3,4,5,6].map(i => '<span' + tipA("con|hkrpg|" + vm.cid + "|" + i) + '>' + hxImg((vm.rankIcons || [])[i - 1], "hx-e" + (i <= vm.cons.n ? " on" : ""), i <= vm.cons.n ? "" : ic("lock", "lk")) + "</span>").join("") + '</div>' +
       '</div>';
   if(vm.weapon){
     const w = vm.weapon;
@@ -173,7 +175,7 @@ function hxCard(vm){
       w.stats.map(s => '<div class="hx-lcst">' + esc(s[0]) + ' <b>' + esc(s[1]) + "</b></div>").join("") + '</div></div></div>';
   }
   h += '<div class="hx-box"><div class="hx-bt">Следы</div>' +
-      '<div class="hx-skills">' + t.skills.map(s => '<span title="' + esc(s.n) + ': ' + s.lv + '">' + hxImg(s.icon, "hx-sk") + '<b>' + s.lv + "</b></span>").join("") + '</div>' +
+      '<div class="hx-skills">' + t.skills.map(s => '<span' + tipA("skill|hkrpg|" + s.pid, s.n + ": " + s.lv) + '>' + hxImg(s.icon, "hx-sk") + '<b>' + s.lv + "</b></span>").join("") + '</div>' +
       (t.majors.length || t.minors.length ? '<div class="hx-nodes">' + t.majors.map(m => hxImg(m.icon, "hx-major" + (m.on ? " on" : ""))).join("") +
         t.minors.map(m => hxImg(m.icon, "hx-minor" + (m.on ? " on" : ""))).join("") + '</div>' : "") +
       (t.bonus.length ? '<div class="hx-tbonus">' + t.bonus.map(b => '<span>' + esc(b.n) + ' <b>' + esc(b.v) + "</b></span>").join("") + '</div>' : "") +
@@ -236,7 +238,7 @@ function zxCard(vm, uid, nick){
   const skills = vm.skills.filter(s => ZZZ_SKILL_IC[s[2]]).sort((a, b) => order.indexOf(a[2]) - order.indexOf(b[2]));
   const zImg = (name, cls) => name ? '<img class="' + cls + '" src="icons/zzz/' + name + '.webp" alt="">' : "";
   // столбец кинограммы: 6 ячеек, пустая, специализация, стихия
-  const mind = [1,2,3,4,5,6].map(i => '<i class="' + (i <= vm.cons.n ? "on" : "") + '"><span>0' + i + "</span></i>").join("") +
+  const mind = [1,2,3,4,5,6].map(i => '<i class="' + (i <= vm.cons.n ? "on" : "") + '"' + tipA("con|nap|" + vm.cid + "|" + i) + '><span>0' + i + "</span></i>").join("") +
     '<i class="blank"></i><i class="ic" title="' + esc(vm.cls || "") + '">' + (vm.proIc ? zImg("sp_" + vm.proIc, "") : '<span>' + esc((vm.cls || "").slice(0, 3)) + "</span>") + '</i>' +
     '<i class="ic" title="' + esc(vm.el || "") + '">' + zImg(vm.elIc && "el_" + vm.elIc, "") + "</i>";
   const o = zxOpt(), gr = zxGrade(vm);
@@ -248,10 +250,10 @@ function zxCard(vm, uid, nick){
     '<div class="zx-mind"><div class="zx-mind-in">' + mind + '</div></div>' +
     '<div class="zx-mid"><div class="zx-mid-in"><div class="zx-stats"><div>' + col(vm.stats.slice(0, half)) + '</div><div>' + col(vm.stats.slice(half)) + '</div></div>' +
       '<div class="zx-low"><div class="zx-core">' + "abcdef".split("").map((l, i) => '<i class="' + (i < coreN ? "on" : "") + '" title="' + l.toUpperCase() + '"><span style="-webkit-mask-image:url(icons/zzz/core_' + l + '.svg);mask-image:url(icons/zzz/core_' + l + '.svg)"></span></i>').join("") + '</div>' +
-        (vm.weapon ? '<div class="zx-w w' + esc(vm.weapon.badge || "B") + '"><div class="zx-wn">' + esc(vm.weapon.name) + '</div><div class="zx-wst">' + vm.weapon.stats.map(s => '<span' + (s[3] ? ' data-f="' + esc(s[3]) + '"' : "") + '>' + (s[2] ? ic(s[2]) : "") + esc(s[1]) + "</span>").join("") + '</div>' +
+        (vm.weapon ? '<div class="zx-w w' + esc(vm.weapon.badge || "B") + '"' + tipA("wpn|nap|" + vm.weapon.id) + '><div class="zx-wn">' + esc(vm.weapon.name) + '</div><div class="zx-wst">' + vm.weapon.stats.map(s => '<span' + (s[3] ? ' data-f="' + esc(s[3]) + '"' : "") + '>' + (s[2] ? ic(s[2]) : "") + esc(s[1]) + "</span>").join("") + '</div>' +
           xImg(vm.weapon.img, "zx-wimg") + '<em class="zx-p">' + vm.weapon.refine.label + vm.weapon.refine.n + '</em><em class="zx-wl">Lv. ' + vm.weapon.lvl + '</em></div>' : "") + '</div>' +
-      '<div class="zx-low2"><div class="zx-skills">' + skills.map(s => '<span title="' + esc(s[0]) + '">' + zImg("sk_" + ZZZ_SKILL_IC[s[2]], "zx-skimg") + '<b>' + s[1] + "</b></span>").join("") + '</div>' +
-        '<div class="zx-sets">' + vm.sets.map(s => '<div><span>' + esc(s.name) + '</span>' + xImg(s.icon, "zx-sicon") + '<b>' + (s.full ? "4/4" : "2/4") + "</b></div>").join("") + '</div></div>' +
+      '<div class="zx-low2"><div class="zx-skills">' + skills.map(s => '<span' + tipA("skill|nap|" + vm.cid + ":" + s[2], s[0]) + '>' + zImg("sk_" + ZZZ_SKILL_IC[s[2]], "zx-skimg") + '<b>' + s[1] + "</b></span>").join("") + '</div>' +
+        '<div class="zx-sets">' + vm.sets.map(s => '<div' + tipA("set|nap|" + s.id) + '><span>' + esc(s.name) + '</span>' + xImg(s.icon, "zx-sicon") + '<b>' + (s.full ? "4/4" : "2/4") + "</b></div>").join("") + '</div></div>' +
     '</div></div>' +
     '<div class="zx-discs">' + vm.slots.map(d => d.empty ? '<div class="zx-d none"><div class="zx-box"><div class="zx-vin"></div><div class="zx-sq"><div class="zx-sqi"><b>' + d.pos + '</b></div></div></div><p>Пусто</p></div>' :
       '<div class="zx-d r' + (d.rank || "B") + '"><div class="zx-box"><div class="zx-vin">' + xImg(d.icon, "zx-dicon") + '</div>' +
@@ -261,6 +263,8 @@ function zxCard(vm, uid, nick){
         '<div class="zx-ds">' + d.subs.map(s => '<span class="' + (s.val ? "val" : "") + '" data-f="' + esc(String(s.key).slice(0, 3)) + '">' + ic(s.ic) + '<b>' + esc(s.v) + '</b>' + (s.up ? '<u style="width:' + (s.up * 8 - 2) + 'px"></u>' : "") + "</span>").join("") + "</div></div>").join("") + '</div>' +
     '</div><div class="zx-bar"><div class="zx-who">' +
       '<span class="zx-grade g' + gr.g + '" title="Оценка сборки: ' + gr.n.toLocaleString("ru-RU") + ' полезных усилений из ' + gr.max + ' возможных для этого агента"><b>' + gr.g + '</b><small>' + gr.n.toLocaleString("ru-RU") + ' / ' + gr.max + '</small></span>' +
+      // официальная оценка HoYoLAB — только для сборок из файла HoYoLAB
+      (vm.hoyoRating ? '<span class="zx-hoyo" title="Оценка экипировки HoYoLAB"><small>HoYoLAB</small><b>' + esc(vm.hoyoRating.r) + '</b>' + (vm.hoyoRating.s ? '<em>' + Math.round(vm.hoyoRating.s) + '</em>' : "") + '</span>' : "") +
       (nick ? '<span class="zx-nick">' + esc(nick) + '</span>' : "") + '</div><div class="zx-sum">' + Object.keys(sum).sort((a, b) => zxBarPos(a) - zxBarPos(b)).map(k => '<span' + (sum[k].val ? ' class="val"' : "") + ' title="' + esc(sum[k].name) + '" data-f="' + esc(String(k).slice(0, 3)) + '"><small>' + sum[k].n + '</small>' + ic(sum[k].ic) + '<b>' + esc(sum[k].fmt(sum[k].v)) + "</b></span>").join("") + '</div></div>' +
   '</div>';
   return h;

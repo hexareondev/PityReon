@@ -11,6 +11,8 @@
 Берутся рекомендации по умолчанию — одинаковые у всех игроков, а не свои настройки владельца аккаунта.
 Результат — items/data/rec_hoyo.json в формате витрины: { "hkrpg:1310": ["BreakDamageAddedRatio", ...], ... }
 и items/data/rec_main.json — рекомендуемые главные характеристики артефактов Genshin: { "hk4e:10000047": {"sands": [...], ...} }.
+Заодно копится база описаний для подсказок в карточках — items/data/desc_<игра>.json:
+навыки, созвездия/эйдолоны/кинограммы, бонусы комплектов, эффекты амплификаторов (по персонажам аккаунта).
 Если cookie заданы, но HoYoLAB не ответил (истекли cookie и т.п.), скрипт завершается с ошибкой — workflow откроет issue.
 В лог пишутся только количества — без UID и прочих данных аккаунта.
 Нужен genshin.py: pip install genshin
@@ -32,6 +34,19 @@ ZZZ = ["20103", "21103", "12102", "11102", "13102", "31203", "23203"]
 GI_MAIN = {6: "ATTACK_PERCENT", 3: "HP_PERCENT", 9: "DEFENSE_PERCENT", 28: "ELEMENT_MASTERY", 23: "CHARGE_EFFICIENCY", 20: "CRITICAL",
            22: "CRITICAL_HURT", 26: "HEAL_ADD", 40: "FIRE_ADD_HURT", 41: "ELEC_ADD_HURT", 42: "WATER_ADD_HURT", 43: "GRASS_ADD_HURT",
            44: "WIND_ADD_HURT", 45: "ROCK_ADD_HURT", 46: "ICE_ADD_HURT", 30: "PHYSICAL_ADD_HURT"}
+ZZZ_SKILL = {0: "Обычная атака", 1: "Особая атака", 2: "Уклонение", 3: "Цепная атака", 5: "Базовый навык", 6: "Поддержка"}
+
+
+def new_desc():
+    return {"skills": {}, "cons": {}, "sets": {}, "weapons": {}}
+
+
+def add_cons(d, cid, items, nk, dk):
+    o = {str(r["pos"]): {"n": r.get(nk) or "", "d": r[dk]} for r in (items or []) if r.get(dk)}
+    if o:
+        d["cons"][str(cid)] = o
+
+
 ORDER = {"hkrpg": list(HSR.values()), "hk4e": list(GI.values()), "nap": ZZZ}
 
 
@@ -57,10 +72,20 @@ async def fetch(env):
             return None
 
     res, mains = {}, {}
+    desc = {"hkrpg": new_desc(), "hk4e": new_desc(), "nap": new_desc()}
     for acc in await client.get_game_accounts():
         g, base = acc.game, {"role_id": acc.uid, "server": acc.server}
         if g == genshin.Game.STARRAIL:
             d = await call("avatar/info", g, params={**base, "need_wiki": "true"}) or {}
+            for a in d.get("avatar_list", []):
+                add_cons(desc["hkrpg"], a["id"], a.get("ranks"), "name", "desc")
+                for sk in a.get("skills", []):
+                    st = (sk.get("skill_stages") or [None])[0]
+                    if st and st.get("desc"):
+                        pid = str(sk.get("point_id"))
+                        if len(pid) == 8 and pid[0] == "1":
+                            pid = pid[1:]
+                        desc["hkrpg"]["skills"][pid] = {"n": st.get("name") or "", "d": st["desc"]}
             for aid, v in (d.get("recommend_property") or {}).items():
                 keys = [HSR[p] for p in (v.get("recommend_relic_properties") or []) if p in HSR]
                 if keys:
@@ -71,6 +96,16 @@ async def fetch(env):
             for i in range(0, len(ids), 8):
                 det = await call("character/detail", g, method="POST", data={**base, "character_ids": ids[i:i + 8]}) or {}
                 for c in det.get("list", []):
+                    cid = c["base"]["id"]
+                    add_cons(desc["hk4e"], cid, c.get("constellations"), "name", "effect")
+                    for sk in c.get("skills", []):
+                        if sk.get("desc"):
+                            desc["hk4e"]["skills"][str(sk["skill_id"])] = {"n": sk.get("name") or "", "d": sk["desc"]}
+                    for rl in c.get("relics", []):
+                        st = rl.get("set") or {}
+                        eff = {str(f["activation_number"]): f["effect"] for f in st.get("affixes", []) if f.get("effect")}
+                        if st.get("name") and eff:
+                            desc["hk4e"]["sets"][st["name"]] = {"n": st["name"], **eff}
                     r = (c.get("recommend_relic_property") or {}).get("recommend_properties") or {}
                     keys = [GI[p] for p in (r.get("sub_property_list") or []) if p in GI]
                     if keys:
@@ -88,12 +123,26 @@ async def fetch(env):
                 # список номеров HoYoLAB для ZZZ не принимает — только по одному агенту
                 d = await call("avatar/info", g, params={**base, "id_list[]": a["id"], "need_wiki": "true"}) or {}
                 for av in d.get("avatar_list", []):
+                    add_cons(desc["nap"], av["id"], av.get("ranks"), "name", "desc")
+                    for sk in av.get("skills", []):
+                        items = [it for it in sk.get("items", []) if it.get("text")]
+                        if items:
+                            desc["nap"]["skills"]["%s:%s" % (av["id"], sk["skill_type"])] = {
+                                "n": ZZZ_SKILL.get(sk["skill_type"], ""),
+                                "d": "\n\n".join(((it.get("title") + "\n") if it.get("title") else "") + it["text"] for it in items)}
+                    for e in av.get("equip", []):
+                        su = e.get("equip_suit") or {}
+                        if su.get("suit_id") and (su.get("desc1") or su.get("desc2")):
+                            desc["nap"]["sets"][str(su["suit_id"])] = {"n": su.get("name") or "", "2": su.get("desc1") or "", "4": su.get("desc2") or ""}
+                    w = av.get("weapon") or {}
+                    if w.get("talent_content"):
+                        desc["nap"]["weapons"][str(w["id"])] = {"n": w.get("talent_title") or w.get("name") or "", "d": w["talent_content"]}
                     plan = (av.get("equip_plan_info") or {}).get("game_default") or {}
                     keys = [str(p.get("id")) for p in (plan.get("property_list") or []) if str(p.get("id")) in ZZZ]
                     if keys:
                         res["nap:" + str(av["id"])] = norm("nap", keys)
                 await asyncio.sleep(0.3)
-    return res, mains, errors
+    return res, mains, errors, desc
 
 
 def main():
@@ -109,7 +158,7 @@ def main():
             return {}
     out, out_main = load(OUT), load(OUT_MAIN)
     try:
-        new, new_main, errors = asyncio.run(fetch(env))
+        new, new_main, errors, new_desc_all = asyncio.run(fetch(env))
     except Exception as e:          # например, cookie истекли — не пускает уже на списке аккаунтов
         print("HoYoLAB не ответил: %s" % type(e).__name__)
         sys.exit(1)
@@ -119,6 +168,17 @@ def main():
     with open(OUT, "w", encoding="utf-8") as f:
         json.dump(body, f, ensure_ascii=False, indent=1)
         f.write("\n")
+    # база описаний: новое дополняет и обновляет прежнее
+    for game, nd in new_desc_all.items():
+        path = os.path.join(HERE, "data", "desc_%s.json" % game)
+        cur = load(path)
+        for kind, items in nd.items():
+            cur.setdefault(kind, {}).update(items)
+        if any(cur.get(k) for k in cur):
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump({k: dict(sorted(v.items())) for k, v in sorted(cur.items())}, f, ensure_ascii=False, separators=(",", ":"))
+                f.write("\n")
+            print("Описания %s: навыков %d, созвездий %d, комплектов %d, амплификаторов %d" % (game, len(cur.get("skills", {})), len(cur.get("cons", {})), len(cur.get("sets", {})), len(cur.get("weapons", {}))))
     out_main.update(new_main)
     with open(OUT_MAIN, "w", encoding="utf-8") as f:
         json.dump(dict(sorted(out_main.items(), key=lambda kv: int(kv[0].split(":")[1]))), f, ensure_ascii=False, indent=1)

@@ -95,7 +95,8 @@ function hoyoZzz(g){
     const core = (a.skills || []).find(s => s.skill_type === 5);
     const fin = {};
     (a.properties || []).forEach(p => { if(p.final !== "" && p.final != null) fin[p.property_id] = hoyoPct(p.final) || /\./.test(String(p.final)) ? Math.round(hoyoNum(p.final) * 100) : Math.round(hoyoNum(p.final)); });
-    list.push({ _name: a.name_mi18n, _final: fin, Id: a.id, Level: a.level, PromotionLevel: Math.max(1, Math.ceil((a.level || 1) / 10)), TalentLevel: a.rank || 0,
+    const plan = a.equip_plan_info || {}, rt = String(plan.equip_rating || "").replace(/^ER_/, "").replace("_Plus", "+");
+    list.push({ _name: a.name_mi18n, _final: fin, _rating: rt ? { r: rt, s: plan.equip_rating_score || 0 } : null, Id: a.id, Level: a.level, PromotionLevel: Math.max(1, Math.ceil((a.level || 1) / 10)), TalentLevel: a.rank || 0,
       CoreSkillEnhancement: core ? Math.max(0, core.level - 1) : 0,
       SkillLevelList: (a.skills || []).map(s => ({ Index: s.skill_type, Level: s.level })),
       // уровень амплификатора HoYoLAB иногда отдаёт нулём — тогда берём готовые значения его характеристик
@@ -105,6 +106,40 @@ function hoyoZzz(g){
       EquippedList: eq });
   }));
   return { uid: g.uid, PlayerInfo: { SocialDetail: { ProfileDetail: { Uid: g.uid, Nickname: g.nick, Level: g.level } }, ShowcaseDetail: { AvatarList: list } } };
+}
+
+// описания из файла HoYoLAB — в свою базу подсказок (js/desc.js); тот же разбор делает items/hoyo_rec.py для общей базы
+function hoyoDesc(game, g){
+  const d = { skills:{}, cons:{}, sets:{}, weapons:{} };
+  const cons = (id, list, nk, dk) => { const o = {}; (list || []).forEach(r => { if(r[dk]) o[r.pos] = { n: r[nk] || "", d: r[dk] }; }); if(Object.keys(o).length) d.cons[id] = o; };
+  if(game === "hkrpg") ((g.info || {}).avatar_list || []).forEach(a => {
+    cons(a.id, a.ranks, "name", "desc");
+    (a.skills || []).forEach(s => {
+      const st = (s.skill_stages || [])[0]; if(!st || !st.desc) return;
+      let pid = String(s.point_id); if(pid.length === 8 && pid[0] === "1") pid = pid.slice(1);
+      d.skills[pid] = { n: st.name || "", d: st.desc };
+    });
+  });
+  if(game === "hk4e") (g.details || []).forEach(x => (x.list || []).forEach(c => {
+    const id = (c.base || {}).id;
+    cons(id, c.constellations, "name", "effect");
+    (c.skills || []).forEach(s => { if(s.desc) d.skills[s.skill_id] = { n: s.name || "", d: s.desc }; });
+    (c.relics || []).forEach(r => {
+      const st = r.set || {}; if(!st.name) return;
+      const e = {}; (st.affixes || []).forEach(f => { if(f.effect) e[String(f.activation_number)] = f.effect; });
+      if(Object.keys(e).length) d.sets[st.name] = Object.assign({ n: st.name }, e);
+    });
+  }));
+  if(game === "nap") (g.info || []).forEach(x => (x.avatar_list || []).forEach(a => {
+    cons(a.id, a.ranks, "name", "desc");
+    (a.skills || []).forEach(s => {
+      const items = (s.items || []).filter(it => it.text);
+      if(items.length) d.skills[a.id + ":" + s.skill_type] = { n: ZZZ_SKILL[s.skill_type] || "", d: items.map(it => (it.title ? it.title + "\n" : "") + it.text).join("\n\n") };
+    });
+    (a.equip || []).forEach(e => { const su = e.equip_suit || {}; if(su.suit_id && (su.desc1 || su.desc2)) d.sets[su.suit_id] = { n: su.name || "", "2": su.desc1 || "", "4": su.desc2 || "" }; });
+    const w = a.weapon; if(w && w.talent_content) d.weapons[w.id] = { n: w.talent_title || w.name || "", d: w.talent_content };
+  }));
+  return d;
 }
 
 // загрузка файла HoYoLAB: все игры из файла сразу; справочники нужных игр подгружаются по очереди
@@ -117,6 +152,8 @@ async function scIngestHoyo(j){
     for(let i = 0; i < 100 && !SCB[game]; i++) await new Promise(r => setTimeout(r, 100));
     if(!SCB[game]) continue;
     try { const r = scIngest(game, conv[game](g), g.uid); done.push(SCG[game].title + ": " + r.n); }
+    catch(e){ console.error(e); }
+    try { descMerge(game, hoyoDesc(game, g)); }
     catch(e){ console.error(e); }
   }
   // поле UID — на текущую игру (scIngest ставит UID каждой загруженной)
