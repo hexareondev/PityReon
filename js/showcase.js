@@ -437,17 +437,23 @@ function giVM(av){
 }
 
 /* ════════════ полезные характеристики ════════════
-   Как «Рекомендуемые атрибуты» в HoYoLAB: свой выбор (ui.recAdj) → общий список (items/data/rec_stats.json) → угадайка по сборке */
-let REC = null, recLoading = false;
+   Как «Рекомендуемые атрибуты» в HoYoLAB: свой выбор (ui.recAdj) → общий список, собранный вручную (items/data/rec_stats.json) →
+   рекомендации HoYoLAB (items/data/rec_hoyo.json, обновляются сами раз в неделю) → угадайка по сборке */
+let REC = null, RECH = {}, recLoading = false;
 function recLoad(cb){
   if(REC){ cb && cb(); return; }
   if(recLoading) return;
   recLoading = true;
-  fetch("items/data/rec_stats.json", { cache:"no-cache" }).then(r => r.ok ? r.json() : {}).catch(() => ({}))
-    .then(j => { REC = j || {}; recLoading = false; cb && cb(); });
+  Promise.all(["rec_stats", "rec_hoyo"].map(n => fetch("items/data/" + n + ".json", { cache:"no-cache" }).then(r => r.ok ? r.json() : {}).catch(() => ({}))))
+    .then(([m, h]) => { RECH = h || {}; REC = Object.assign({}, RECH, m || {}); recLoading = false; cb && cb(); });
 }
 function recGet(game, id){ const k = game + ":" + id; return (ui.recAdj || {})[k] || (REC || {})[k] || null; }
-function recSource(game, id){ const k = game + ":" + id; return (ui.recAdj || {})[k] ? "own" : (REC || {})[k] ? "shared" : "guess"; }
+function recSource(game, id){
+  const k = game + ":" + id, m = REC || {};
+  if((ui.recAdj || {})[k]) return "own";
+  if(!m[k]) return "guess";
+  return RECH[k] && RECH[k].slice().sort().join() === m[k].slice().sort().join() ? "hoyo" : "shared";
+}
 // какие характеристики можно выбрать: только те, что выпадают в дополнительных (проценты; простые числа идут следом за своим процентом)
 const REC_OPTS = {
   hk4e: ["FIGHT_PROP_CRITICAL", "FIGHT_PROP_CRITICAL_HURT", "FIGHT_PROP_ATTACK_PERCENT", "FIGHT_PROP_HP_PERCENT", "FIGHT_PROP_DEFENSE_PERCENT", "FIGHT_PROP_ELEMENT_MASTERY", "FIGHT_PROP_CHARGE_EFFICIENCY"],

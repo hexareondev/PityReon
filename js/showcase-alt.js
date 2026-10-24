@@ -311,7 +311,7 @@ function scOptsHtml(game, vm, id){
 // выбор полезных характеристик: подсвечиваются в характеристиках и артефактах, по ним считаются «Полезные усиления» и оценка
 function recPanel(game, vm, id){
   const cur = vm.valuable || {}, src = recSource(game, id);
-  const srcText = { own:"Свой выбор", shared:"Из общего списка", guess:"Угадано по сборке и роли — выберите сами" }[src];
+  const srcText = { own:"Свой выбор", hoyo:"Рекомендации HoYoLAB", shared:"Из общего списка", guess:"Угадано по сборке и роли — выберите сами" }[src];
   return '<div class="sc-recp" data-g="' + game + '" data-id="' + esc(id) + '"><div class="sc-recp-h"><b>Полезные характеристики</b><small>' + srcText + '</small>' +
     (src === "own" ? '<button class="chip" data-rr="1" title="Убрать свой выбор">↺ Сбросить</button>' : "") + '</div><div class="chips">' +
     REC_OPTS[game].map(k => '<button class="chip' + (cur[k] ? " on" : "") + '" data-rk="' + esc(k) + '" aria-pressed="' + !!cur[k] + '">' + ic(recIcon(game, k)) + esc(recLabel(game, k)) + "</button>").join("") +

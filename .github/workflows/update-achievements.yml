@@ -29,6 +29,15 @@ jobs:
         run: |
           python -m pip install --quiet pillow
           python items/art_focus.py
+      - name: Рекомендуемые характеристики из HoYoLAB (для витрины)
+        continue-on-error: true
+        env:
+          LTUID: ${{ secrets.LTUID }}
+          LTOKEN: ${{ secrets.LTOKEN }}
+          LTMID: ${{ secrets.LTMID }}
+        run: |
+          python -m pip install --quiet genshin
+          python items/hoyo_rec.py
       - name: Закоммитить изменения
         run: |
           git config user.name "github-actions[bot]"

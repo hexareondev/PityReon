@@ -1,0 +1,732 @@
+{
+ "hk4e:10000003": [
+  "FIGHT_PROP_CRITICAL",
+  "FIGHT_PROP_CRITICAL_HURT",
+  "FIGHT_PROP_ATTACK_PERCENT"
+ ],
+ "hk4e:10000005": [
+  "FIGHT_PROP_CRITICAL",
+  "FIGHT_PROP_CRITICAL_HURT",
+  "FIGHT_PROP_CHARGE_EFFICIENCY"
+ ],
+ "hk4e:10000006": [
+  "FIGHT_PROP_CRITICAL",
+  "FIGHT_PROP_CRITICAL_HURT",
+  "FIGHT_PROP_ATTACK_PERCENT"
+ ],
+ "hk4e:10000014": [
+  "FIGHT_PROP_HP_PERCENT"
+ ],
+ "hk4e:10000015": [
+  "FIGHT_PROP_CRITICAL",
+  "FIGHT_PROP_CRITICAL_HURT",
+  "FIGHT_PROP_ATTACK_PERCENT"
+ ],
+ "hk4e:10000016": [
+  "FIGHT_PROP_CRITICAL",
+  "FIGHT_PROP_CRITICAL_HURT",
+  "FIGHT_PROP_ATTACK_PERCENT"
+ ],
+ "hk4e:10000020": [
+  "FIGHT_PROP_CRITICAL",
+  "FIGHT_PROP_CRITICAL_HURT",
+  "FIGHT_PROP_ATTACK_PERCENT"
+ ],
+ "hk4e:10000021": [
+  "FIGHT_PROP_CRITICAL",
+  "FIGHT_PROP_CRITICAL_HURT",
+  "FIGHT_PROP_ATTACK_PERCENT"
+ ],
+ "hk4e:10000023": [
+  "FIGHT_PROP_CRITICAL",
+  "FIGHT_PROP_CRITICAL_HURT",
+  "FIGHT_PROP_CHARGE_EFFICIENCY"
+ ],
+ "hk4e:10000025": [
+  "FIGHT_PROP_CRITICAL",
+  "FIGHT_PROP_CRITICAL_HURT",
+  "FIGHT_PROP_ATTACK_PERCENT"
+ ],
+ "hk4e:10000027": [
+  "FIGHT_PROP_CRITICAL",
+  "FIGHT_PROP_CRITICAL_HURT",
+  "FIGHT_PROP_ATTACK_PERCENT"
+ ],
+ "hk4e:10000031": [
+  "FIGHT_PROP_CRITICAL",
+  "FIGHT_PROP_CRITICAL_HURT",
+  "FIGHT_PROP_ATTACK_PERCENT"
+ ],
+ "hk4e:10000032": [
+  "FIGHT_PROP_HP_PERCENT",
+  "FIGHT_PROP_CHARGE_EFFICIENCY"
+ ],
+ "hk4e:10000034": [
+  "FIGHT_PROP_CRITICAL",
+  "FIGHT_PROP_CRITICAL_HURT",
+  "FIGHT_PROP_DEFENSE_PERCENT"
+ ],
+ "hk4e:10000036": [
+  "FIGHT_PROP_CRITICAL",
+  "FIGHT_PROP_CRITICAL_HURT",
+  "FIGHT_PROP_ATTACK_PERCENT"
+ ],
+ "hk4e:10000039": [
+  "FIGHT_PROP_HP_PERCENT"
+ ],
+ "hk4e:10000041": [
+  "FIGHT_PROP_CRITICAL",
+  "FIGHT_PROP_CRITICAL_HURT",
+  "FIGHT_PROP_CHARGE_EFFICIENCY"
+ ],
+ "hk4e:10000042": [
+  "FIGHT_PROP_CRITICAL",
+  "FIGHT_PROP_CRITICAL_HURT",
+  "FIGHT_PROP_ATTACK_PERCENT"
+ ],
+ "hk4e:10000043": [
+  "FIGHT_PROP_ELEMENT_MASTERY"
+ ],
+ "hk4e:10000044": [
+  "FIGHT_PROP_CRITICAL",
+  "FIGHT_PROP_CRITICAL_HURT",
+  "FIGHT_PROP_ATTACK_PERCENT"
+ ],
+ "hk4e:10000045": [
+  "FIGHT_PROP_CRITICAL",
+  "FIGHT_PROP_CRITICAL_HURT",
+  "FIGHT_PROP_ATTACK_PERCENT"
+ ],
+ "hk4e:10000047": [
+  "FIGHT_PROP_ELEMENT_MASTERY"
+ ],
+ "hk4e:10000048": [
+  "FIGHT_PROP_CRITICAL",
+  "FIGHT_PROP_CRITICAL_HURT",
+  "FIGHT_PROP_ATTACK_PERCENT"
+ ],
+ "hk4e:10000050": [
+  "FIGHT_PROP_HP_PERCENT"
+ ],
+ "hk4e:10000052": [
+  "FIGHT_PROP_CRITICAL",
+  "FIGHT_PROP_CRITICAL_HURT",
+  "FIGHT_PROP_CHARGE_EFFICIENCY"
+ ],
+ "hk4e:10000053": [
+  "FIGHT_PROP_ATTACK_PERCENT"
+ ],
+ "hk4e:10000055": [
+  "FIGHT_PROP_CRITICAL",
+  "FIGHT_PROP_CRITICAL_HURT",
+  "FIGHT_PROP_DEFENSE_PERCENT"
+ ],
+ "hk4e:10000059": [
+  "FIGHT_PROP_CRITICAL",
+  "FIGHT_PROP_CRITICAL_HURT",
+  "FIGHT_PROP_ATTACK_PERCENT"
+ ],
+ "hk4e:10000062": [
+  "FIGHT_PROP_CRITICAL",
+  "FIGHT_PROP_CRITICAL_HURT",
+  "FIGHT_PROP_ATTACK_PERCENT"
+ ],
+ "hk4e:10000064": [
+  "FIGHT_PROP_DEFENSE_PERCENT"
+ ],
+ "hk4e:10000067": [
+  "FIGHT_PROP_CRITICAL",
+  "FIGHT_PROP_CRITICAL_HURT",
+  "FIGHT_PROP_ATTACK_PERCENT"
+ ],
+ "hk4e:10000069": [
+  "FIGHT_PROP_CRITICAL",
+  "FIGHT_PROP_CRITICAL_HURT",
+  "FIGHT_PROP_ELEMENT_MASTERY"
+ ],
+ "hk4e:10000072": [
+  "FIGHT_PROP_HP_PERCENT"
+ ],
+ "hk4e:10000077": [
+  "FIGHT_PROP_HP_PERCENT"
+ ],
+ "hk4e:10000079": [
+  "FIGHT_PROP_CRITICAL",
+  "FIGHT_PROP_CRITICAL_HURT",
+  "FIGHT_PROP_HP_PERCENT"
+ ],
+ "hk4e:10000081": [
+  "FIGHT_PROP_ELEMENT_MASTERY"
+ ],
+ "hk4e:10000083": [
+  "FIGHT_PROP_CRITICAL",
+  "FIGHT_PROP_CRITICAL_HURT",
+  "FIGHT_PROP_ATTACK_PERCENT"
+ ],
+ "hk4e:10000084": [
+  "FIGHT_PROP_CRITICAL",
+  "FIGHT_PROP_CRITICAL_HURT",
+  "FIGHT_PROP_ATTACK_PERCENT"
+ ],
+ "hk4e:10000085": [
+  "FIGHT_PROP_CRITICAL",
+  "FIGHT_PROP_CRITICAL_HURT",
+  "FIGHT_PROP_ATTACK_PERCENT"
+ ],
+ "hk4e:10000092": [
+  "FIGHT_PROP_CRITICAL",
+  "FIGHT_PROP_CRITICAL_HURT",
+  "FIGHT_PROP_ATTACK_PERCENT"
+ ],
+ "hk4e:10000093": [
+  "FIGHT_PROP_ATTACK_PERCENT"
+ ],
+ "hkrpg:1001": [
+  "Defence%",
+  "Speed",
+  "StatusProbability",
+  "StatusResistance"
+ ],
+ "hkrpg:1002": [
+  "Attack%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:1003": [
+  "Attack%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:1004": [
+  "Attack%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage",
+  "StatusProbability"
+ ],
+ "hkrpg:1005": [
+  "Attack%",
+  "Speed",
+  "StatusProbability"
+ ],
+ "hkrpg:1006": [
+  "Attack%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage",
+  "StatusProbability"
+ ],
+ "hkrpg:1008": [
+  "Attack%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:1009": [
+  "Attack%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:1013": [
+  "Attack%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:1014": [
+  "Attack%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:1015": [
+  "Attack%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:1101": [
+  "Speed",
+  "CriticalDamage",
+  "StatusResistance"
+ ],
+ "hkrpg:1102": [
+  "Attack%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:1103": [
+  "Attack%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:1104": [
+  "Defence%",
+  "Speed",
+  "StatusProbability",
+  "StatusResistance"
+ ],
+ "hkrpg:1105": [
+  "MaxHP%",
+  "Speed",
+  "StatusResistance"
+ ],
+ "hkrpg:1106": [
+  "Attack%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage",
+  "StatusProbability"
+ ],
+ "hkrpg:1107": [
+  "Attack%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:1108": [
+  "Attack%",
+  "Speed",
+  "StatusProbability"
+ ],
+ "hkrpg:1109": [
+  "Attack%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:1110": [
+  "MaxHP%",
+  "Speed",
+  "StatusResistance"
+ ],
+ "hkrpg:1111": [
+  "Attack%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage",
+  "BreakDamageAddedRatio"
+ ],
+ "hkrpg:1112": [
+  "Attack%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:1201": [
+  "Attack%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:1202": [
+  "Attack%",
+  "Speed",
+  "StatusResistance"
+ ],
+ "hkrpg:1203": [
+  "Attack%",
+  "Speed",
+  "StatusResistance"
+ ],
+ "hkrpg:1204": [
+  "Attack%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:1205": [
+  "MaxHP%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:1206": [
+  "Attack%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage",
+  "BreakDamageAddedRatio"
+ ],
+ "hkrpg:1207": [
+  "Attack%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:1208": [
+  "MaxHP%",
+  "Defence%",
+  "Speed",
+  "StatusResistance"
+ ],
+ "hkrpg:1209": [
+  "Attack%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:1210": [
+  "Attack%",
+  "Speed",
+  "StatusProbability"
+ ],
+ "hkrpg:1211": [
+  "MaxHP%",
+  "Speed",
+  "StatusResistance"
+ ],
+ "hkrpg:1212": [
+  "MaxHP%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:1213": [
+  "Attack%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:1214": [
+  "Attack%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage",
+  "BreakDamageAddedRatio"
+ ],
+ "hkrpg:1215": [
+  "Speed",
+  "StatusResistance"
+ ],
+ "hkrpg:1217": [
+  "MaxHP%",
+  "Speed",
+  "StatusResistance"
+ ],
+ "hkrpg:1218": [
+  "Attack%",
+  "Speed",
+  "StatusProbability"
+ ],
+ "hkrpg:1220": [
+  "Attack%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:1221": [
+  "Attack%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:1222": [
+  "Attack%",
+  "Speed",
+  "BreakDamageAddedRatio"
+ ],
+ "hkrpg:1223": [
+  "Attack%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:1224": [
+  "Attack%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:1225": [
+  "Speed",
+  "BreakDamageAddedRatio",
+  "StatusProbability"
+ ],
+ "hkrpg:1301": [
+  "Speed",
+  "BreakDamageAddedRatio",
+  "StatusResistance"
+ ],
+ "hkrpg:1302": [
+  "Attack%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:1303": [
+  "Speed",
+  "BreakDamageAddedRatio",
+  "StatusResistance"
+ ],
+ "hkrpg:1304": [
+  "Defence%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:1305": [
+  "Attack%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:1306": [
+  "Speed",
+  "CriticalDamage",
+  "StatusResistance"
+ ],
+ "hkrpg:1307": [
+  "Attack%",
+  "Speed",
+  "StatusProbability"
+ ],
+ "hkrpg:1308": [
+  "Attack%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:1309": [
+  "Attack%",
+  "Speed"
+ ],
+ "hkrpg:1310": [
+  "Attack%",
+  "Speed",
+  "BreakDamageAddedRatio"
+ ],
+ "hkrpg:1312": [
+  "Attack%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:1313": [
+  "Speed",
+  "CriticalDamage",
+  "StatusResistance"
+ ],
+ "hkrpg:1314": [
+  "Attack%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:1315": [
+  "Attack%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage",
+  "BreakDamageAddedRatio"
+ ],
+ "hkrpg:1317": [
+  "Attack%",
+  "Speed",
+  "BreakDamageAddedRatio"
+ ],
+ "hkrpg:1321": [
+  "Speed",
+  "BreakDamageAddedRatio"
+ ],
+ "hkrpg:1401": [
+  "Attack%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:1402": [
+  "Attack%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:1403": [
+  "MaxHP%",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:1404": [
+  "MaxHP%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:1405": [
+  "Attack%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:1406": [
+  "Attack%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:1407": [
+  "MaxHP%",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:1408": [
+  "Attack%",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:1409": [
+  "MaxHP%",
+  "Speed",
+  "CriticalDamage",
+  "StatusResistance"
+ ],
+ "hkrpg:1410": [
+  "Attack%",
+  "Speed",
+  "StatusProbability"
+ ],
+ "hkrpg:1412": [
+  "Attack%",
+  "Speed",
+  "CriticalDamage"
+ ],
+ "hkrpg:1413": [
+  "MaxHP%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:1414": [
+  "Attack%",
+  "Speed"
+ ],
+ "hkrpg:1415": [
+  "MaxHP%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:1501": [
+  "Attack%",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:1502": [
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:1503": [
+  "Defence%",
+  "Speed"
+ ],
+ "hkrpg:1504": [
+  "Attack%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:1505": [
+  "Attack%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:1506": [
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:1507": [
+  "MaxHP%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:1508": [
+  "Attack%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:1509": [
+  "Attack%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:1510": [
+  "Attack%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:1512": [
+  "MaxHP%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:1513": [
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:8001": [
+  "Attack%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:8002": [
+  "Attack%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:8003": [
+  "Defence%",
+  "Speed",
+  "StatusResistance"
+ ],
+ "hkrpg:8004": [
+  "Defence%",
+  "Speed",
+  "StatusResistance"
+ ],
+ "hkrpg:8005": [
+  "Speed",
+  "BreakDamageAddedRatio"
+ ],
+ "hkrpg:8006": [
+  "Speed",
+  "BreakDamageAddedRatio"
+ ],
+ "hkrpg:8007": [
+  "Attack%",
+  "Speed",
+  "CriticalDamage"
+ ],
+ "hkrpg:8008": [
+  "Attack%",
+  "Speed",
+  "CriticalDamage"
+ ],
+ "hkrpg:8009": [
+  "Attack%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
+ "hkrpg:8010": [
+  "Attack%",
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ]
+}
