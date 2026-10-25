@@ -95,6 +95,19 @@ function hoyoZzz(g){
         RandomPropertyList: (e.properties || []).map(p => ({ PropertyId: p.property_id, PropertyValue: Math.round(raw(p.base) / Math.max(1, p.level || 1)), PropertyLevel: p.level || 1 })) } };
     });
     const w = a.weapon;
+    // уровень амплификатора HoYoLAB иногда отдаёт нулём — восстанавливаем по его основной характеристике
+    let wl = w ? w.level || 0 : 0;
+    const wi = w && SCB.nap.weapons[String(w.id)], wm = w && (w.main_properties || [])[0];
+    if(w && !wl && wi && wi.main && wm){
+      const target = raw(wm.base);
+      let best = 1, diff = Infinity;
+      for(let l = 1; l <= 60; l++) for(const b of [hoyoPromo(l, 10, 10), l % 10 === 0 ? l / 10 : -1]){
+        if(b < 0) continue;
+        const d = Math.abs(zWeaponMain(wi.main[1], l, b) - target);
+        if(d < diff){ diff = d; best = l; }
+      }
+      wl = best;
+    }
     const core = (a.skills || []).find(s => s.skill_type === 5);
     const fin = {};
     (a.properties || []).forEach(p => { if(p.final !== "" && p.final != null) fin[p.property_id] = hoyoPct(p.final) || /\./.test(String(p.final)) ? Math.round(hoyoNum(p.final) * 100) : Math.round(hoyoNum(p.final)); });
@@ -103,7 +116,7 @@ function hoyoZzz(g){
       CoreSkillEnhancement: core ? Math.max(0, core.level - 1) : 0,
       SkillLevelList: (a.skills || []).map(s => ({ Index: s.skill_type, Level: s.level })),
       // уровень амплификатора HoYoLAB иногда отдаёт нулём — тогда берём готовые значения его характеристик
-      Weapon: w ? { Id: w.id, Level: w.level, BreakLevel: hoyoPromo(w.level, 10, 10), UpgradeLevel: w.star || 1,
+      Weapon: w ? { Id: w.id, Level: wl, BreakLevel: hoyoPromo(wl, 10, 10), UpgradeLevel: w.star || 1,
         _main: ((w.main_properties || [])[0] || {}).base != null ? raw(w.main_properties[0].base) : undefined,
         _sub: ((w.properties || [])[0] || {}).base != null ? raw(w.properties[0].base) : undefined } : undefined,
       EquippedList: eq });
@@ -145,6 +158,34 @@ function hoyoDesc(game, g){
   return d;
 }
 
+// рекомендации HoYoLAB по умолчанию из своих файлов: подсветка для персонажей, которых нет в общей базе
+const hrecStore = makeStore("pityreon-hrec-v1");
+let HREC = hrecStore.load();
+if(!HREC || typeof HREC !== "object") HREC = {};
+const HOYO_REC_HSR = { 32:"MaxHP%", 33:"Attack%", 34:"Defence%", 51:"Speed", 52:"CriticalChance", 53:"CriticalDamage", 59:"BreakDamageAddedRatio", 56:"StatusProbability", 57:"StatusResistance" };
+const HOYO_REC_GI = { 20:"FIGHT_PROP_CRITICAL", 22:"FIGHT_PROP_CRITICAL_HURT", 6:"FIGHT_PROP_ATTACK_PERCENT", 3:"FIGHT_PROP_HP_PERCENT", 9:"FIGHT_PROP_DEFENSE_PERCENT", 28:"FIGHT_PROP_ELEMENT_MASTERY", 23:"FIGHT_PROP_CHARGE_EFFICIENCY" };
+function hoyoRecs(game, g){
+  const rec = {}, main = {}, ord = (keys) => REC_OPTS[game].filter(k => keys.indexOf(k) !== -1);
+  if(game === "hkrpg"){
+    const rp = (g.info || {}).recommend_property || {};
+    Object.keys(rp).forEach(aid => { const ks = (rp[aid].recommend_relic_properties || []).map(p => HOYO_REC_HSR[p]).filter(Boolean); if(ks.length) rec["hkrpg:" + aid] = ord(ks); });
+  }
+  if(game === "hk4e") (g.details || []).forEach(x => (x.list || []).forEach(c => {
+    const r = (c.recommend_relic_property || {}).recommend_properties || {}, k = "hk4e:" + (c.base || {}).id;
+    const ks = (r.sub_property_list || []).map(p => HOYO_REC_GI[p]).filter(Boolean); if(ks.length) rec[k] = ord(ks);
+    const m = {};
+    [["sands","sand_main_property_list"],["goblet","goblet_main_property_list"],["circlet","circlet_main_property_list"]].forEach(([sl, f]) => {
+      const v = (r[f] || []).map(p => GI_FP[p]).filter(Boolean); if(v.length) m[sl] = v;
+    });
+    if(Object.keys(m).length) main[k] = m;
+  }));
+  if(game === "nap") (g.info || []).forEach(x => (x.avatar_list || []).forEach(a => {
+    const pl = ((a.equip_plan_info || {}).game_default || {}).property_list || [];
+    const ks = pl.map(p => String(p.id)).filter(id => REC_OPTS.nap.indexOf(id) !== -1); if(ks.length) rec["nap:" + a.id] = ord(ks);
+  }));
+  return { rec, main };
+}
+
 // загрузка файла HoYoLAB: все игры из файла сразу; справочники нужных игр подгружаются по очереди
 async function scIngestHoyo(j){
   const conv = { hkrpg: hoyoHsr, hk4e: hoyoGi, nap: hoyoZzz }, done = [];
@@ -155,6 +196,8 @@ async function scIngestHoyo(j){
     for(let i = 0; i < 100 && !SCB[game]; i++) await new Promise(r => setTimeout(r, 100));
     if(!SCB[game]) continue;
     try { const r = scIngest(game, conv[game](g), g.uid); done.push(SCG[game].title + ": " + r.n); }
+    catch(e){ console.error(e); }
+    try { const hr = hoyoRecs(game, g), cur = HREC[game] = HREC[game] || {}; cur.rec = Object.assign(cur.rec || {}, hr.rec); cur.main = Object.assign(cur.main || {}, hr.main); hrecStore.save(HREC); }
     catch(e){ console.error(e); }
     try { descMerge(game, hoyoDesc(game, g)); }
     catch(e){ console.error(e); }
@@ -169,7 +212,12 @@ async function scIngestHoyo(j){
 (function(){
   const ov = document.getElementById("hoyoOverlay"), note = document.getElementById("hoyoNote");
   const close = () => ov.classList.remove("on");
-  document.getElementById("scHoyo").addEventListener("click", () => { note.textContent = ""; ov.classList.add("on"); });
+  // закладка: тот же скрипт целиком в адресе javascript: — работает на странице HoYoLAB, ничего не подгружая со стороны
+  const bm = document.getElementById("hoyoBm"), bmNote = document.getElementById("hoyoBmNote");
+  bm.addEventListener("click", e => { e.preventDefault(); bmNote.textContent = "Её нужно перетащить на панель закладок, а нажимать — на странице HoYoLAB."; });
+  const prepBm = () => fetch("tools/hoyolab-export.js", { cache:"no-cache" }).then(r => r.text())
+    .then(code => { bm.href = "javascript:" + encodeURIComponent(code); }).catch(() => { bmNote.textContent = "Не загрузилась — используйте способ 2."; });
+  document.getElementById("scHoyo").addEventListener("click", () => { note.textContent = ""; bmNote.textContent = ""; prepBm(); ov.classList.add("on"); });
   document.getElementById("hoyoClose").addEventListener("click", close);
   ov.addEventListener("mousedown", e => { if(e.target === ov) close(); });
   document.getElementById("hoyoPick").addEventListener("click", () => { close(); document.getElementById("scFile").click(); });

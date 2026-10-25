@@ -421,7 +421,7 @@ function giVM(av){
       }) });
   });
   // главная характеристика часов, кубка и короны не из рекомендованных HoYoLAB — отмечаем (подсказка — что рекомендуется)
-  const rm = RECM["hk4e:" + id];
+  const rm = RECM["hk4e:" + id] || hrecLocal("hk4e", "main", "hk4e:" + id);
   if(rm) slots.forEach(d => {
     const want = rm[{ 3:"sands", 4:"goblet", 5:"circlet" }[d.pos]];
     if(want && d.mainKey && want.indexOf(d.mainKey) === -1) d.mainBad = "Рекомендуется: " + want.map(gLabel).join(" или ");
@@ -476,11 +476,13 @@ function recLoad(cb){
   Promise.all(["rec_stats", "rec_hoyo", "rec_main"].map(n => fetch("items/data/" + n + ".json", { cache:"no-cache" }).then(r => r.ok ? r.json() : {}).catch(() => ({}))))
     .then(([m, h, mm]) => { RECH = h || {}; RECM = mm || {}; REC = Object.assign({}, RECH, m || {}); recLoading = false; cb && cb(); });
 }
-function recGet(game, id){ const k = game + ":" + id; return (ui.recAdj || {})[k] || (REC || {})[k] || null; }
+// рекомендации HoYoLAB из своих загруженных файлов (js/hoyolab.js) — когда в общей базе персонажа нет
+function hrecLocal(game, kind, k){ return typeof HREC === "object" && HREC[game] && HREC[game][kind] ? HREC[game][kind][k] || null : null; }
+function recGet(game, id){ const k = game + ":" + id; return (ui.recAdj || {})[k] || (REC || {})[k] || hrecLocal(game, "rec", k) || null; }
 function recSource(game, id){
   const k = game + ":" + id, m = REC || {};
   if((ui.recAdj || {})[k]) return "own";
-  if(!m[k]) return "guess";
+  if(!m[k]) return hrecLocal(game, "rec", k) ? "hoyo" : "guess";
   return RECH[k] && RECH[k].slice().sort().join() === m[k].slice().sort().join() ? "hoyo" : "shared";
 }
 // какие характеристики можно выбрать: только те, что выпадают в дополнительных (проценты; простые числа идут следом за своим процентом)

@@ -320,13 +320,12 @@ let recEdit = false;
 function scOptsHtml(game, vm, id){
   const o = zxOpt();
   const chip = (k, t) => '<button class="chip' + (o[k] ? " on" : "") + '" data-zo="' + k + '" aria-pressed="' + o[k] + '">' + t + "</button>";
-  const any = Object.keys(ui.artAdj || {}).length + Object.keys(ui.recAdj || {}).length;
   return '<div class="chips sc-opts">' +
     (game === "hk4e" ? '<button class="chip' + (giOpt().mains ? " on" : "") + '" data-go="mains" aria-pressed="' + giOpt().mains + '" title="Отмечать часы, кубок и корону с главной характеристикой не из рекомендованных HoYoLAB">Проверка главных статов</button><i class="sc-opts-sep"></i>' : "") +
     (game === "nap" ? chip("uid", "UID") + chip("nick", "Ник") + chip("bar", "Сводка сабстатов") + chip("rolls", "Отметки усилений") + chip("grade", "Оценка") + (vm && vm.hoyoRating ? chip("hoyo", "Оценка HoYoLAB") : "") + '<i class="sc-opts-sep"></i>' : "") +
     '<button class="chip" id="scArt" title="Подвинуть и увеличить портрет персонажа">Портрет</button>' +
     '<button class="chip' + (recEdit ? " on" : "") + '" id="scRec" title="Какие характеристики полезны персонажу — как «Рекомендуемые атрибуты» в HoYoLAB">Полезные характеристики</button>' +
-    '<button class="chip" id="scArtExport"' + (any ? "" : " hidden") + ' title="Скопировать свои правки портретов и полезных характеристик">Экспорт настроек</button></div>' +
+    '<span class="sc-expw"><button class="chip" id="scArtExport" data-g="' + game + '" title="Выбрать, что выгрузить по этой игре: портреты, полезные характеристики, данные HoYoLAB">Экспорт…</button></span></div>' +
     (recEdit && id ? recPanel(game, vm, id) : "");
 }
 // выбор полезных характеристик: подсвечиваются в характеристиках и артефактах, по ним считаются «Полезные усиления» и оценка
@@ -538,7 +537,6 @@ function artSet(fn){
   a.z = Math.min(3, Math.max(0.4, a.z));
   a.dx = Math.round(a.dx * 1000) / 1000; a.dy = Math.round(a.dy * 1000) / 1000; a.z = Math.round(a.z * 1000) / 1000;
   ui.artAdj[k] = a; saveUI(); artFit();
-  const ex = document.getElementById("scArtExport"); if(ex) ex.hidden = false;
 }
 function artToolbar(box){
   box.classList.add("art-edit");
@@ -577,26 +575,57 @@ function artEditToggle(on){
   else { box.classList.remove("art-edit"); const t = box.querySelector(".art-tools"); if(t) t.remove(); }
 }
 document.addEventListener("click", e => { if(e.target.closest && e.target.closest("#scArt")) artEditToggle(!artEdit); });
-// экспорт своих правок (портреты + полезные характеристики) — прислать, чтобы внести в общие списки
-document.addEventListener("click", async e => {
-  if(!(e.target.closest && e.target.closest("#scArtExport"))) return;
-  const art = ui.artAdj || {}, rec = ui.recAdj || {};
-  const note = document.getElementById("scNote");
-  if(!Object.keys(art).length && !Object.keys(rec).length){ note.textContent = "Своих правок портретов и характеристик пока нет."; return; }
-  const text = JSON.stringify({ art_adj: art, rec_stats: rec }, null, 1);
-  const btn = e.target.closest("#scArtExport");
-  try {
-    await navigator.clipboard.writeText(text);
-    note.textContent = "Настройки скопированы: портретов " + Object.keys(art).length + ", характеристик " + Object.keys(rec).length + " — пришлите их, чтобы они стали общими.";
-    btn.textContent = "Скопировано"; btn.classList.add("on");
-    setTimeout(() => { btn.textContent = "Экспорт настроек"; btn.classList.remove("on"); }, 1800);
-  }
-  catch(e){
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(new Blob([text], { type:"application/json" })); a.download = "pityreon_settings.json";
-    document.body.appendChild(a); a.click(); a.remove();
-    note.textContent = "Настройки сохранены файлом pityreon_settings.json — пришлите его, чтобы они стали общими.";
-  }
+// экспорт: меню — что выгрузить и по какой игре; в общие списки вливается только то, чего в них ещё нет
+function scExportData(game){
+  const pre = game + ":", pick = o => Object.fromEntries(Object.entries(o || {}).filter(([k]) => k.indexOf(pre) === 0));
+  const hr = (typeof HREC === "object" && HREC[game]) || {};
+  const hrec = Object.fromEntries(Object.entries(hr.rec || {}).filter(([k]) => !RECH[k]));
+  const hmain = Object.fromEntries(Object.entries(hr.main || {}).filter(([k]) => !RECM[k]));
+  const desc = {}, loc = (typeof descLoc === "object" && descLoc[game]) || {}, rep = (typeof DESC === "object" && DESC[game]) || {};
+  let dn = 0;
+  Object.keys(loc).forEach(kind => {
+    const add = Object.fromEntries(Object.entries(loc[kind] || {}).filter(([k]) => !((rep[kind] || {})[k])));
+    if(Object.keys(add).length){ desc[kind] = add; dn += Object.keys(add).length; }
+  });
+  return [
+    { k:"art_adj", t:"Портреты", d:"ручная подгонка портретов", v: pick(ui.artAdj) },
+    { k:"rec_stats", t:"Полезные характеристики", d:"свой выбор в карточке", v: pick(ui.recAdj) },
+    { k:"rec_hoyo", t:"Рекомендации HoYoLAB", d:"из ваших файлов, которых нет в общей базе", v: hrec },
+    { k:"rec_main", t:"Главные статы HoYoLAB", d:"часы, кубок, корона — из ваших файлов", v: hmain, only:"hk4e" },
+    { k:"desc", t:"Описания HoYoLAB", d:"навыки, созвездия, комплекты — которых нет в общей базе", v: desc, n: dn }
+  ].filter(x => !x.only || x.only === game).map(x => Object.assign(x, { n: x.n !== undefined ? x.n : Object.keys(x.v).length }));
+}
+function scExportClose(){ document.querySelectorAll(".sc-exp").forEach(x => x.remove()); }
+document.addEventListener("click", e => {
+  const btn = e.target.closest && e.target.closest("#scArtExport");
+  if(!btn){ if(!(e.target.closest && e.target.closest(".sc-exp"))) scExportClose(); return; }
+  if(document.querySelector(".sc-exp")){ scExportClose(); return; }
+  const game = btn.dataset.g, items = scExportData(game), title = SCG[game].title;
+  const m = document.createElement("div");
+  m.className = "sc-exp";
+  m.innerHTML = '<b>Экспорт · ' + esc(title) + '</b><small>Только эта игра. Пришлите файл — внесу в общие списки.</small>' +
+    items.map(x => '<label class="' + (x.n ? "" : "off") + '"><input type="checkbox" data-k="' + x.k + '"' + (x.n ? " checked" : " disabled") + '><span>' + esc(x.t) + '<em>' + esc(x.d) + '</em></span><i>' + x.n + "</i></label>").join("") +
+    '<div class="sc-expb"><button class="chip" data-a="copy">Скопировать</button><button class="chip on" data-a="file">Скачать файл</button></div>';
+  btn.parentNode.appendChild(m);
+  const r = m.getBoundingClientRect();
+  if(r.left < 8){ m.style.right = "auto"; m.style.left = "0"; }
+  m.addEventListener("click", async ev => {
+    const a = ev.target.closest("button[data-a]"); if(!a) return;
+    const out = { game };
+    m.querySelectorAll("input:checked").forEach(c => { const it = items.find(x => x.k === c.dataset.k); if(it && it.n) out[it.k] = it.v; });
+    const note = document.getElementById("scNote");
+    if(Object.keys(out).length < 2){ note.textContent = "Нечего выгружать — отметьте хотя бы один пункт."; return; }
+    const text = JSON.stringify(out, null, 1), name = "pityreon_" + game + "_settings.json";
+    if(a.dataset.a === "copy"){
+      try { await navigator.clipboard.writeText(text); note.textContent = "Скопировано (" + title + ") — пришлите, чтобы это стало общим."; scExportClose(); return; }
+      catch(err){ /* не дали скопировать — скачиваем файлом */ }
+    }
+    const l = document.createElement("a");
+    l.href = URL.createObjectURL(new Blob([text], { type:"application/json" })); l.download = name;
+    document.body.appendChild(l); l.click(); l.remove();
+    note.textContent = "Сохранено файлом " + name + " — пришлите его, чтобы это стало общим.";
+    scExportClose();
+  });
 });
 
 /* длинные имена: уменьшаем шрифт, пока имя не влезет в отведённые строки */

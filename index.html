@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PityReon — трекер круток, наград и сборок</title>
-<link rel="icon" type="image/svg+xml" href="favicon.svg?v=70">
-<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=70">
+<link rel="icon" type="image/svg+xml" href="favicon.svg?v=71">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=71">
 <meta name="theme-color" content="#0a0a0c">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=70">
+<link rel="stylesheet" href="css/style.css?v=71">
 </head>
 <body>
 <div class="shell">
@@ -637,11 +637,16 @@
   <div class="sheet" style="max-width:520px;max-height:calc(100vh - 32px);overflow:auto" role="dialog" aria-modal="true" aria-labelledby="hoyoTitle">
     <h3 id="hoyoTitle">Все персонажи из HoYoLAB</h3>
     <p class="sub">Витрина Enka показывает только тех, кого вы выставили в профиле игры. Через HoYoLAB можно выгрузить сразу всех персонажей Star Rail, Genshin и ZZZ — по тому же принципу, что выгрузка истории круток.</p>
+    <p class="group" style="margin:12px 0 6px">Способ 1 — закладка (проще)</p>
     <ol class="hoyosteps">
-      <li>На компьютере откройте <a href="https://act.hoyolab.com/app/community-game-records-sea/index.html" target="_blank" rel="noopener">Боевые хроники HoYoLAB</a> и войдите в аккаунт.</li>
-      <li>Скопируйте скрипт кнопкой ниже.</li>
-      <li>На странице HoYoLAB нажмите F12 → вкладка «Console», вставьте скрипт и нажмите Enter. Chrome при первой вставке попросит набрать <code>allow pasting</code>.</li>
+      <li>Перетащите эту кнопку на панель закладок браузера (один раз): <a class="hoyobm" id="hoyoBm" href="#" draggable="true">PityReon: выгрузка</a> <span class="hint" id="hoyoBmNote"></span></li>
+      <li>Откройте <a href="https://act.hoyolab.com/app/community-game-records-sea/index.html" target="_blank" rel="noopener">Боевые хроники HoYoLAB</a>, войдите в аккаунт и нажмите эту закладку.</li>
       <li>Скачается файл <b>pityreon_hoyolab.json</b> — загрузите его кнопкой «Выбрать файл».</li>
+    </ol>
+    <p class="group" style="margin:12px 0 6px">Способ 2 — через консоль</p>
+    <ol class="hoyosteps">
+      <li>На странице Боевых хроник нажмите F12 → «Console».</li>
+      <li>Вставьте скрипт (кнопка «Скопировать скрипт») и нажмите Enter. Chrome при первой вставке попросит набрать <code>allow pasting</code>.</li>
     </ol>
     <p class="hint">Скрипт работает только на странице HoYoLAB от вашего имени и обращается только к серверам HoYoLAB: cookie не покидают браузер, на сайт попадает лишь итоговый файл. Код открыт — <a href="https://github.com/hexareondev/PityReon/blob/main/tools/hoyolab-export.js" target="_blank" rel="noopener">tools/hoyolab-export.js</a>. Никогда не вставляйте в консоль код, которому не доверяете.</p>
     <p class="hint" id="hoyoNote" style="margin:8px 0 0"></p>
@@ -751,22 +756,22 @@
   <button class="mark sm" id="syncBarPull">Загрузить</button>
   <button class="ghost sm" id="syncBarClose" aria-label="Скрыть">✕</button>
 </div>
-<script src="js/core.js?v=70"></script>
-<script src="js/calendar.js?v=70"></script>
-<script src="js/history.js?v=70"></script>
-<script src="js/pools.js?v=70"></script>
-<script src="js/collection.js?v=70"></script>
-<script src="js/desc.js?v=70"></script>
-<script src="js/showcase-alt.js?v=70"></script>
-<script src="js/showcase.js?v=70"></script>
-<script src="js/hoyolab.js?v=70"></script>
-<script src="js/backup.js?v=70"></script>
-<script src="js/settings.js?v=70"></script>
-<script src="js/pulls.js?v=70"></script>
-<script src="js/achievements.js?v=70"></script>
-<script src="js/odds.js?v=70"></script>
-<script src="js/share.js?v=70"></script>
-<script src="js/sync.js?v=70"></script>
-<script src="js/nav.js?v=70"></script>
+<script src="js/core.js?v=71"></script>
+<script src="js/calendar.js?v=71"></script>
+<script src="js/history.js?v=71"></script>
+<script src="js/pools.js?v=71"></script>
+<script src="js/collection.js?v=71"></script>
+<script src="js/desc.js?v=71"></script>
+<script src="js/showcase-alt.js?v=71"></script>
+<script src="js/showcase.js?v=71"></script>
+<script src="js/hoyolab.js?v=71"></script>
+<script src="js/backup.js?v=71"></script>
+<script src="js/settings.js?v=71"></script>
+<script src="js/pulls.js?v=71"></script>
+<script src="js/achievements.js?v=71"></script>
+<script src="js/odds.js?v=71"></script>
+<script src="js/share.js?v=71"></script>
+<script src="js/sync.js?v=71"></script>
+<script src="js/nav.js?v=71"></script>
 </body>
 </html>
