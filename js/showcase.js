@@ -912,21 +912,20 @@ function scRenderCard(card, u, id, vm){
       (vm.weapon ? '<div class="sc-hw' + (vm.weapon.top ? " top" : "") + '">' + '<div class="sc-hwimg' + (vm.weapon.tall ? " tall" : "") + '">' + (vm.weapon.img ? '<img alt="" referrerpolicy="no-referrer" src="' + esc(scImg(vm.weapon.img)) + '" onerror="this.remove()">' : "") + '</div>' +
         '<div class="sc-hwi"><small>' + esc(vm.weapon.title) + '</small><b>' + esc(vm.weapon.name) + '</b><span>Ур. ' + esc(vm.weapon.lvl) + ' · <em>' + esc(vm.weapon.refine.label + vm.weapon.refine.n) + '</em>' +
         vm.weapon.stats.map(st => ' · ' + esc(st[0]) + ' <i>' + esc(st[1]) + '</i>').join("") + '</span></div></div>' : "") +
+      // комплекты и крит-ценность — в шапке, рядом с оружием
+      '<div class="sc-hsets">' + vm.sets.map(st => { const g = scGame(), tk = g === "hk4e" ? "set|hk4e|" + st.name : g === "nap" && st.id ? "set|nap|" + st.id : "";
+          return '<span class="sc-hset' + (st.full ? " full" : "") + '"' + (tk ? tipA(tk) : "") + '>' + (st.icon ? '<img alt="" referrerpolicy="no-referrer" src="' + esc(scImg(st.icon)) + '" onerror="this.remove()">' : "<i></i>") + esc(st.name) + "<b>" + (st.full ? "4" : "2") + "</b></span>"; }).join("") +
+        (vm.sets.length ? "" : '<span class="sc-hset none">Нет собранных комплектов</span>') +
+        '<span class="sc-hcv" title="Крит. ценность ' + esc(vm.setsWord) + ': 2 × шанс крита + крит. урон">Крит-ценность <b>' + (Math.round(vm.cv / 10) / 10).toLocaleString("ru-RU") + "</b></span></div>" +
       '<div class="sc-skills">' + vm.skills.map(s => '<span title="' + esc(s[0]) + ': ' + s[1] + '"><i>' + esc(s[0]) + '</i><b>' + s[1] + '</b></span>').join("") + '</div>' +
       '<p class="sc-when">' + (inShow ? "В витрине сейчас" : "Сборка от " + rec.at.slice(0, 10).split("-").reverse().join(".") + ", сейчас не в витрине") +
         ' · обновлено ' + new Date(u.at).toLocaleString("ru-RU", { day:"2-digit", month:"2-digit", hour:"2-digit", minute:"2-digit" }) + '</p>' +
     '</div></div>';
 
-  h += '<div class="sc-cols"><div class="sc-panel"><div class="sc-ptitle">Характеристики</div><div class="sc-stats">' + vm.stats.map(r =>
+  // характеристики — на всю ширину, в два столбца (по порядку сверху вниз)
+  h += '<div class="sc-panel sc-statp"><div class="sc-ptitle">Характеристики</div><div class="sc-stats two" style="grid-template-rows:repeat(' + Math.ceil(vm.stats.length / 2) + ',auto)">' + vm.stats.map(r =>
       '<div class="sc-stat' + (r.hl ? " hl" : "") + '"><span>' + esc(r.n) + '</span><b class="num">' + esc(r.v) +
         (r.base ? '<small>' + esc(r.base) + ' <em>+' + esc(r.add) + '</em></small>' : "") + '</b></div>').join("") + '</div></div>';
-
-  h += '<div class="sc-side">';
-  h += '<div class="sc-panel"><div class="sc-ptitle">Комплекты</div>' + (vm.sets.length ? '<div class="sc-sets">' + vm.sets.map(s =>
-      '<div class="sc-set' + (s.full ? " full" : "") + '">' + (s.icon ? '<img alt="" referrerpolicy="no-referrer" src="' + esc(scImg(s.icon)) + '" onerror="this.remove()">' : '<i></i>') +
-      '<span>' + esc(s.name) + '</span><b>' + (s.full ? "4" : "2") + '</b></div>').join("") + '</div>' : '<p class="sc-none">Нет собранных комплектов</p>') +
-    '<div class="sc-cv"><span>Крит. ценность ' + esc(vm.setsWord) + '</span><b class="num">' + (Math.round(vm.cv / 10) / 10).toLocaleString("ru-RU") + '</b></div></div>';
-  h += '</div></div>';
 
   h += '<div class="sc-ptitle sc-dtitle">' + esc(vm.slotsTitle) + '</div><div class="sc-discs' + (vm.slots.length === 5 ? " five" : "") + '">';
   vm.slots.forEach(d => {

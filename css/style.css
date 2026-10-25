@@ -1782,3 +1782,15 @@ input[type=checkbox]:disabled{cursor:default;opacity:.5}
 .sc-hwi span{font-size:12px;color:var(--muted)}
 .sc-hwi em{font-style:normal;color:var(--gold);font-weight:600}
 .sc-hwi i{font-style:normal;color:var(--text)}
+/* «Трекер»: комплекты в шапке, характеристики в два столбца */
+.sc-hsets{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.sc-hset{display:inline-flex;align-items:center;gap:7px;padding:4px 6px 4px 4px;border-radius:999px;background:rgba(8,8,12,.55);border:1px solid rgba(255,255,255,.07);font-size:12.5px;color:var(--text);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.sc-hset img,.sc-hset i{width:22px;height:22px;border-radius:50%;object-fit:contain;background:rgba(255,255,255,.05)}
+.sc-hset b{min-width:20px;height:20px;padding:0 6px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;background:rgba(255,255,255,.08);color:var(--muted)}
+.sc-hset.full b{background:var(--gold);color:#1a1305}
+.sc-hset.none{padding:5px 12px;color:var(--dim)}
+.sc-hcv{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:999px;background:rgba(8,8,12,.55);border:1px solid rgba(255,255,255,.07);font-size:12.5px;color:var(--muted)}
+.sc-hcv b{font-family:var(--display);color:#ff9b7a}
+.sc-statp{margin-top:8px}
+.sc-stats.two{grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-flow:column;column-gap:32px}
+@media (max-width:640px){ .sc-stats.two{grid-template-columns:1fr;grid-template-rows:none !important;grid-auto-flow:row} }
