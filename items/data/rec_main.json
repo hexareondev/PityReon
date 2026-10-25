@@ -1,4 +1,15 @@
 {
+ "hk4e:10000002": {
+  "sands": [
+   "FIGHT_PROP_ATTACK_PERCENT"
+  ],
+  "goblet": [
+   "FIGHT_PROP_ICE_ADD_HURT"
+  ],
+  "circlet": [
+   "FIGHT_PROP_CRITICAL_HURT"
+  ]
+ },
  "hk4e:10000003": {
   "sands": [
    "FIGHT_PROP_ATTACK_PERCENT"
@@ -30,6 +41,17 @@
   ],
   "circlet": [
    "FIGHT_PROP_CRITICAL"
+  ]
+ },
+ "hk4e:10000007": {
+  "sands": [
+   "FIGHT_PROP_ATTACK_PERCENT"
+  ],
+  "goblet": [
+   "FIGHT_PROP_ATTACK_PERCENT"
+  ],
+  "circlet": [
+   "FIGHT_PROP_CRITICAL_HURT"
   ]
  },
  "hk4e:10000014": {
@@ -87,12 +109,34 @@
    "FIGHT_PROP_CRITICAL_HURT"
   ]
  },
+ "hk4e:10000022": {
+  "sands": [
+   "FIGHT_PROP_ATTACK_PERCENT"
+  ],
+  "goblet": [
+   "FIGHT_PROP_WIND_ADD_HURT"
+  ],
+  "circlet": [
+   "FIGHT_PROP_CRITICAL"
+  ]
+ },
  "hk4e:10000023": {
   "sands": [
    "FIGHT_PROP_CHARGE_EFFICIENCY"
   ],
   "goblet": [
    "FIGHT_PROP_FIRE_ADD_HURT"
+  ],
+  "circlet": [
+   "FIGHT_PROP_CRITICAL"
+  ]
+ },
+ "hk4e:10000024": {
+  "sands": [
+   "FIGHT_PROP_CHARGE_EFFICIENCY"
+  ],
+  "goblet": [
+   "FIGHT_PROP_ELEC_ADD_HURT"
   ],
   "circlet": [
    "FIGHT_PROP_CRITICAL"
@@ -118,6 +162,17 @@
   ],
   "circlet": [
    "FIGHT_PROP_CRITICAL_HURT"
+  ]
+ },
+ "hk4e:10000030": {
+  "sands": [
+   "FIGHT_PROP_HP_PERCENT"
+  ],
+  "goblet": [
+   "FIGHT_PROP_HP_PERCENT"
+  ],
+  "circlet": [
+   "FIGHT_PROP_HP_PERCENT"
   ]
  },
  "hk4e:10000031": {
@@ -153,12 +208,34 @@
    "FIGHT_PROP_CRITICAL"
   ]
  },
+ "hk4e:10000035": {
+  "sands": [
+   "FIGHT_PROP_ATTACK_PERCENT"
+  ],
+  "goblet": [
+   "FIGHT_PROP_ATTACK_PERCENT"
+  ],
+  "circlet": [
+   "FIGHT_PROP_HEAL_ADD"
+  ]
+ },
  "hk4e:10000036": {
   "sands": [
    "FIGHT_PROP_ATTACK_PERCENT"
   ],
   "goblet": [
    "FIGHT_PROP_ICE_ADD_HURT"
+  ],
+  "circlet": [
+   "FIGHT_PROP_CRITICAL"
+  ]
+ },
+ "hk4e:10000038": {
+  "sands": [
+   "FIGHT_PROP_DEFENSE_PERCENT"
+  ],
+  "goblet": [
+   "FIGHT_PROP_ROCK_ADD_HURT"
   ],
   "circlet": [
    "FIGHT_PROP_CRITICAL"
@@ -230,6 +307,17 @@
    "FIGHT_PROP_CRITICAL"
   ]
  },
+ "hk4e:10000046": {
+  "sands": [
+   "FIGHT_PROP_HP_PERCENT"
+  ],
+  "goblet": [
+   "FIGHT_PROP_FIRE_ADD_HURT"
+  ],
+  "circlet": [
+   "FIGHT_PROP_CRITICAL"
+  ]
+ },
  "hk4e:10000047": {
   "sands": [
    "FIGHT_PROP_ELEMENT_MASTERY"
@@ -296,6 +384,39 @@
    "FIGHT_PROP_CRITICAL"
   ]
  },
+ "hk4e:10000056": {
+  "sands": [
+   "FIGHT_PROP_CHARGE_EFFICIENCY"
+  ],
+  "goblet": [
+   "FIGHT_PROP_ELEC_ADD_HURT"
+  ],
+  "circlet": [
+   "FIGHT_PROP_CRITICAL"
+  ]
+ },
+ "hk4e:10000057": {
+  "sands": [
+   "FIGHT_PROP_DEFENSE_PERCENT"
+  ],
+  "goblet": [
+   "FIGHT_PROP_ROCK_ADD_HURT"
+  ],
+  "circlet": [
+   "FIGHT_PROP_CRITICAL_HURT"
+  ]
+ },
+ "hk4e:10000058": {
+  "sands": [
+   "FIGHT_PROP_ATTACK_PERCENT"
+  ],
+  "goblet": [
+   "FIGHT_PROP_ELEC_ADD_HURT"
+  ],
+  "circlet": [
+   "FIGHT_PROP_CRITICAL_HURT"
+  ]
+ },
  "hk4e:10000059": {
   "sands": [
    "FIGHT_PROP_ATTACK_PERCENT"
@@ -329,6 +450,17 @@
    "FIGHT_PROP_DEFENSE_PERCENT"
   ]
  },
+ "hk4e:10000065": {
+  "sands": [
+   "FIGHT_PROP_ELEMENT_MASTERY"
+  ],
+  "goblet": [
+   "FIGHT_PROP_ELEMENT_MASTERY"
+  ],
+  "circlet": [
+   "FIGHT_PROP_ELEMENT_MASTERY"
+  ]
+ },
  "hk4e:10000067": {
   "sands": [
    "FIGHT_PROP_ATTACK_PERCENT"
@@ -338,6 +470,17 @@
   ],
   "circlet": [
    "FIGHT_PROP_CRITICAL"
+  ]
+ },
+ "hk4e:10000068": {
+  "sands": [
+   "FIGHT_PROP_CHARGE_EFFICIENCY"
+  ],
+  "goblet": [
+   "FIGHT_PROP_HP_PERCENT"
+  ],
+  "circlet": [
+   "FIGHT_PROP_HEAL_ADD"
   ]
  },
  "hk4e:10000069": {
@@ -362,6 +505,39 @@
    "FIGHT_PROP_HP_PERCENT"
   ]
  },
+ "hk4e:10000073": {
+  "sands": [
+   "FIGHT_PROP_ELEMENT_MASTERY"
+  ],
+  "goblet": [
+   "FIGHT_PROP_ELEMENT_MASTERY"
+  ],
+  "circlet": [
+   "FIGHT_PROP_ELEMENT_MASTERY"
+  ]
+ },
+ "hk4e:10000074": {
+  "sands": [
+   "FIGHT_PROP_HP_PERCENT"
+  ],
+  "goblet": [
+   "FIGHT_PROP_HP_PERCENT"
+  ],
+  "circlet": [
+   "FIGHT_PROP_HP_PERCENT"
+  ]
+ },
+ "hk4e:10000076": {
+  "sands": [
+   "FIGHT_PROP_CHARGE_EFFICIENCY"
+  ],
+  "goblet": [
+   "FIGHT_PROP_WIND_ADD_HURT"
+  ],
+  "circlet": [
+   "FIGHT_PROP_CRITICAL"
+  ]
+ },
  "hk4e:10000077": {
   "sands": [
    "FIGHT_PROP_HP_PERCENT"
@@ -382,6 +558,17 @@
   ],
   "circlet": [
    "FIGHT_PROP_CRITICAL"
+  ]
+ },
+ "hk4e:10000080": {
+  "sands": [
+   "FIGHT_PROP_HP_PERCENT"
+  ],
+  "goblet": [
+   "FIGHT_PROP_HP_PERCENT"
+  ],
+  "circlet": [
+   "FIGHT_PROP_HEAL_ADD"
   ]
  },
  "hk4e:10000081": {
@@ -428,6 +615,17 @@
    "FIGHT_PROP_CRITICAL"
   ]
  },
+ "hk4e:10000090": {
+  "sands": [
+   "FIGHT_PROP_HP_PERCENT"
+  ],
+  "goblet": [
+   "FIGHT_PROP_HP_PERCENT"
+  ],
+  "circlet": [
+   "FIGHT_PROP_HP_PERCENT"
+  ]
+ },
  "hk4e:10000092": {
   "sands": [
    "FIGHT_PROP_ATTACK_PERCENT"
@@ -442,6 +640,116 @@
  "hk4e:10000093": {
   "sands": [
    "FIGHT_PROP_ATTACK_PERCENT"
+  ],
+  "goblet": [
+   "FIGHT_PROP_ATTACK_PERCENT"
+  ],
+  "circlet": [
+   "FIGHT_PROP_ATTACK_PERCENT"
+  ]
+ },
+ "hk4e:10000098": {
+  "sands": [
+   "FIGHT_PROP_ATTACK_PERCENT"
+  ],
+  "goblet": [
+   "FIGHT_PROP_ELEC_ADD_HURT"
+  ],
+  "circlet": [
+   "FIGHT_PROP_CRITICAL_HURT"
+  ]
+ },
+ "hk4e:10000100": {
+  "sands": [
+   "FIGHT_PROP_DEFENSE_PERCENT"
+  ],
+  "goblet": [
+   "FIGHT_PROP_ROCK_ADD_HURT"
+  ],
+  "circlet": [
+   "FIGHT_PROP_CRITICAL"
+  ]
+ },
+ "hk4e:10000109": {
+  "sands": [
+   "FIGHT_PROP_ELEMENT_MASTERY"
+  ],
+  "goblet": [
+   "FIGHT_PROP_ELEMENT_MASTERY"
+  ],
+  "circlet": [
+   "FIGHT_PROP_CRITICAL"
+  ]
+ },
+ "hk4e:10000110": {
+  "sands": [
+   "FIGHT_PROP_ATTACK_PERCENT"
+  ],
+  "goblet": [
+   "FIGHT_PROP_ATTACK_PERCENT"
+  ],
+  "circlet": [
+   "FIGHT_PROP_ATTACK_PERCENT"
+  ]
+ },
+ "hk4e:10000111": {
+  "sands": [
+   "FIGHT_PROP_ATTACK_PERCENT"
+  ],
+  "goblet": [
+   "FIGHT_PROP_ELEC_ADD_HURT"
+  ],
+  "circlet": [
+   "FIGHT_PROP_CRITICAL_HURT"
+  ]
+ },
+ "hk4e:10000112": {
+  "sands": [
+   "FIGHT_PROP_ATTACK_PERCENT"
+  ],
+  "goblet": [
+   "FIGHT_PROP_ICE_ADD_HURT"
+  ],
+  "circlet": [
+   "FIGHT_PROP_CRITICAL_HURT"
+  ]
+ },
+ "hk4e:10000115": {
+  "sands": [
+   "FIGHT_PROP_HP_PERCENT"
+  ],
+  "goblet": [
+   "FIGHT_PROP_HP_PERCENT"
+  ],
+  "circlet": [
+   "FIGHT_PROP_HP_PERCENT"
+  ]
+ },
+ "hk4e:10000121": {
+  "sands": [
+   "FIGHT_PROP_ELEMENT_MASTERY"
+  ],
+  "goblet": [
+   "FIGHT_PROP_WATER_ADD_HURT"
+  ],
+  "circlet": [
+   "FIGHT_PROP_CRITICAL"
+  ]
+ },
+ "hk4e:10000143": {
+  "sands": [
+   "FIGHT_PROP_ATTACK_PERCENT"
+  ],
+  "goblet": [
+   "FIGHT_PROP_ATTACK_PERCENT"
+  ],
+  "circlet": [
+   "FIGHT_PROP_CRITICAL_HURT"
+  ]
+ },
+ "hk4e:10000148": {
+  "sands": [
+   "FIGHT_PROP_CHARGE_EFFICIENCY"
   ],
   "goblet": [
    "FIGHT_PROP_ATTACK_PERCENT"
