@@ -218,6 +218,11 @@ async function scIngestHoyo(j){
   const prepBm = () => fetch("tools/hoyolab-export.js", { cache:"no-cache" }).then(r => r.text())
     .then(code => { bm.href = "javascript:" + encodeURIComponent(code); }).catch(() => { bmNote.textContent = "Не загрузилась — используйте способ 2."; });
   document.getElementById("scHoyo").addEventListener("click", () => { note.textContent = ""; bmNote.textContent = ""; prepBm(); ov.classList.add("on"); });
+  document.getElementById("hoyoBmCopy").addEventListener("click", async () => {
+    if(!/^javascript:/.test(bm.href)){ bmNote.textContent = "Ещё готовится — нажмите через секунду."; return; }
+    try { await navigator.clipboard.writeText(bm.href); bmNote.textContent = "Адрес закладки скопирован — вставьте его в поле «URL» новой закладки, имя любое."; }
+    catch(e){ bmNote.textContent = "Не получилось скопировать — перетащите кнопку на панель закладок."; }
+  });
   document.getElementById("hoyoClose").addEventListener("click", close);
   ov.addEventListener("mousedown", e => { if(e.target === ov) close(); });
   document.getElementById("hoyoPick").addEventListener("click", () => { close(); document.getElementById("scFile").click(); });

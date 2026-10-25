@@ -619,7 +619,24 @@ function scFile(f){
 // картинки Enka — путь от её сайта; картинки из файла HoYoLAB — уже полный адрес
 function scImg(path){ return !path ? "" : /^https?:\/\//.test(path) ? path : ENKA_HOST + path; }
 let scLastGame = null;
+// перерисовка витрины без прыжков: пока строится новое, высота карточки и ряда персонажей держится прежней,
+// а прокрутка свёрнутого ряда сохраняется
+let scTabsKeep = null, scTabsCenter = false;
 function renderShowcase(){
+  const card = document.getElementById("scCard"), tabs = document.getElementById("scTabs");
+  const y = window.scrollY;
+  card.style.minHeight = card.offsetHeight ? card.offsetHeight + "px" : "";
+  tabs.style.minHeight = tabs.offsetHeight ? tabs.offsetHeight + "px" : "";
+  scTabsKeep = { game: card.dataset.game, left: tabs.scrollLeft };
+  try { renderShowcaseNow(); }
+  finally {
+    requestAnimationFrame(() => {
+      card.style.minHeight = ""; tabs.style.minHeight = "";
+      if(Math.abs(window.scrollY - y) > 2) window.scrollTo(0, y);
+    });
+  }
+}
+function renderShowcaseNow(){
   const game = scGame(), G = SCG[game];
   document.getElementById("hTitle").childNodes[0].nodeValue = "Витрина";
   const inp = document.getElementById("scUid");
@@ -684,7 +701,7 @@ function renderShowcase(){
     const nm = vm ? vm.name : "#" + id;
     b.title = nm + (inShow ? "" : " — сейчас не в витрине, сборка от " + u.agents[id].at.slice(0, 10).split("-").reverse().join("."));
     b.innerHTML = '<span>' + esc(nm.charAt(0)) + '</span>' + (vm && vm.circle ? '<img alt="" loading="lazy" referrerpolicy="no-referrer" src="' + esc(scImg(vm.circle)) + '" onerror="this.remove()">' : "");
-    b.onclick = () => { ui.scAgentG[game] = id; saveUI(); renderShowcase(); };
+    b.onclick = () => { ui.scAgentG[game] = id; saveUI(); scTabsCenter = true; renderShowcase(); };
     tabs.appendChild(b);
   });
   requestAnimationFrame(scTabsFit);
@@ -815,15 +832,19 @@ function scTabsFit(){
   const first = tabs.firstElementChild, last = tabs.lastElementChild;
   const multi = col ? tabs.scrollWidth > tabs.clientWidth + 2 : !!(first && last && last.offsetTop > first.offsetTop + 4);
   tog.hidden = tabs.classList.contains("prev") || !(multi || col && tabs.scrollWidth > tabs.clientWidth + 2);
-  // выбранный персонаж должен быть виден, но без лишнего сдвига: прокручиваем, только если он за краем
+  // свёрнутый ряд: прокрутка остаётся, где была; выбранный по нажатию — плавно встаёт по центру,
+  // иначе (первый показ) — только если он за краем
   if(col){
+    if(scTabsKeep && scTabsKeep.game === document.getElementById("scCard").dataset.game) tabs.scrollLeft = scTabsKeep.left;
     const on = tabs.querySelector(".sc-tab.on");
     if(on){
       const l = on.offsetLeft - tabs.offsetLeft, r = l + on.offsetWidth;
-      if(l < tabs.scrollLeft) tabs.scrollLeft = Math.max(0, l - 8);
+      if(scTabsCenter) tabs.scrollTo({ left: Math.max(0, l - (tabs.clientWidth - on.offsetWidth) / 2), behavior: "smooth" });
+      else if(l < tabs.scrollLeft) tabs.scrollLeft = Math.max(0, l - 8);
       else if(r > tabs.scrollLeft + tabs.clientWidth) tabs.scrollLeft = r - tabs.clientWidth + 8;
     }
   }
+  if(tabs.children.length){ scTabsCenter = false; scTabsKeep = null; }   // пустой ряд (перед перерисовкой) флаги не тратит
   scTabsEdges();
 }
 // в свёрнутом списке края затеняются, если за ними есть ещё персонажи
