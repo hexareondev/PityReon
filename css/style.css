@@ -1761,3 +1761,4 @@ input[type=checkbox]:checked::before{transform:rotate(-45deg) translate(1px,-1px
 input[type=checkbox]:hover:not(:disabled){border-color:rgba(240,194,100,.6)}
 input[type=checkbox]:focus-visible{outline:2px solid rgba(240,194,100,.6);outline-offset:2px}
 input[type=checkbox]:disabled{cursor:default;opacity:.5}
+#scPrevReset.warn{border-color:rgba(255,120,90,.6);color:#ff9b7a}

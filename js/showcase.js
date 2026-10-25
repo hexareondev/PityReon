@@ -665,6 +665,7 @@ function renderShowcaseNow(){
   if(!SCB[game] || !itemsDb[game]){ ensureBuild(game, () => ensureItems(game, () => { if(scGame() === game) renderShowcase(); })); ensureItems(game); return; }
   if(!REC){ recLoad(() => { if(scGame() === game) renderShowcase(); }); return; }
   descLoad(game);
+  scPrevResetSync(game);
   const prevBtn = document.getElementById("scPrev");
   prevBtn.classList.toggle("on", !!ui.scPrev); prevBtn.setAttribute("aria-pressed", !!ui.scPrev);
   if(ui.scPrev){ scRenderPreview(game); return; }
@@ -975,4 +976,28 @@ document.getElementById("scFile").onchange = e => { const f = e.target.files[0];
     saveUI();
   });
 })();
+// превью: сбросить все свои правки этой игры (портреты и полезные характеристики) — вернутся общие с сервера
+function scPrevOwn(game){
+  const pre = game + ":", n = o => Object.keys(o || {}).filter(k => k.indexOf(pre) === 0);
+  return { art: n(ui.artAdj), rec: n(ui.recAdj) };
+}
+function scPrevResetSync(game){
+  const b = document.getElementById("scPrevReset"), own = scPrevOwn(game), cnt = own.art.length + own.rec.length;
+  b.hidden = !ui.scPrev || !cnt;
+  if(!b.dataset.arm) b.textContent = "Сбросить мои правки (" + cnt + ")";
+}
+document.getElementById("scPrevReset").onclick = e => {
+  const b = e.currentTarget, game = scGame();
+  if(!b.dataset.arm){   // второе нажатие — подтверждение
+    b.dataset.arm = "1"; b.textContent = "Точно сбросить? Нажмите ещё раз"; b.classList.add("warn");
+    clearTimeout(b._t); b._t = setTimeout(() => { delete b.dataset.arm; b.classList.remove("warn"); scPrevResetSync(scGame()); }, 3500);
+    return;
+  }
+  clearTimeout(b._t); delete b.dataset.arm; b.classList.remove("warn");
+  const own = scPrevOwn(game);
+  own.art.forEach(k => delete ui.artAdj[k]); own.rec.forEach(k => delete ui.recAdj[k]);
+  saveUI();
+  renderShowcase();
+  document.getElementById("scNote").textContent = "Свои правки " + SCG[game].title + " сброшены: портретов " + own.art.length + ", характеристик " + own.rec.length + ". Показаны общие данные.";
+};
 document.getElementById("scPrev").onclick = () => { ui.scPrev = !ui.scPrev; saveUI(); scLastGame = null; renderShowcase(); };
