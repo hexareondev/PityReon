@@ -317,12 +317,12 @@ document.addEventListener("click", e => {
 function zxOpt(){ return Object.assign({ uid:true, nick:true, bar:true, rolls:true, grade:true, hoyo:true }, ui.zxOpt || {}); }
 // строка под карточкой: что показывать (ZZZ) и подгонка портрета (все игры)
 let recEdit = false;
-function scOptsHtml(game, vm, id){
+function scOptsHtml(game, vm, id, tracker){
   const o = zxOpt();
   const chip = (k, t) => '<button class="chip' + (o[k] ? " on" : "") + '" data-zo="' + k + '" aria-pressed="' + o[k] + '">' + t + "</button>";
   return '<div class="chips sc-opts">' +
-    (game === "hk4e" ? '<button class="chip' + (giOpt().mains ? " on" : "") + '" data-go="mains" aria-pressed="' + giOpt().mains + '" title="Отмечать часы, кубок и корону с главной характеристикой не из рекомендованных HoYoLAB">Проверка главных статов</button><i class="sc-opts-sep"></i>' : "") +
-    (game === "nap" ? chip("uid", "UID") + chip("nick", "Ник") + chip("bar", "Сводка сабстатов") + chip("rolls", "Отметки усилений") + chip("grade", "Оценка") + (vm && vm.hoyoRating ? chip("hoyo", "Оценка HoYoLAB") : "") + '<i class="sc-opts-sep"></i>' : "") +
+    (game === "hk4e" && !tracker ? '<button class="chip' + (giOpt().mains ? " on" : "") + '" data-go="mains" aria-pressed="' + giOpt().mains + '" title="Отмечать часы, кубок и корону с главной характеристикой не из рекомендованных HoYoLAB">Проверка главных статов</button><i class="sc-opts-sep"></i>' : "") +
+    (game === "nap" && !tracker ? chip("uid", "UID") + chip("nick", "Ник") + chip("bar", "Сводка сабстатов") + chip("rolls", "Отметки усилений") + chip("grade", "Оценка") + (vm && vm.hoyoRating ? chip("hoyo", "Оценка HoYoLAB") : "") + '<i class="sc-opts-sep"></i>' : "") +
     '<button class="chip" id="scArt" title="Подвинуть и увеличить портрет персонажа">Портрет</button>' +
     '<button class="chip' + (recEdit ? " on" : "") + '" id="scRec" title="Какие характеристики полезны персонажу — как «Рекомендуемые атрибуты» в HoYoLAB">Полезные характеристики</button>' +
     '<span class="sc-expw"><button class="chip" id="scArtExport" data-g="' + game + '" title="Выбрать, что выгрузить по этой игре: портреты, полезные характеристики, данные HoYoLAB">Экспорт…</button></span></div>' +
@@ -486,9 +486,10 @@ function artLoad(cb){
   Promise.all(["art_focus", "art_adj"].map(n => fetch("items/data/" + n + ".json", { cache:"no-cache" }).then(r => r.ok ? r.json() : {}).catch(() => ({}))))
     .then(([a, b]) => { ART = a || {}; ARTADJ = b || {}; artLoading = false; cb && cb(); });
 }
-function artKey(){ return artCur ? artCur.game + ":" + artCur.id : ""; }
+// у карточки «Трекер» блок портрета другой формы — её правки хранятся отдельно, с пометкой @tr
+function artKey(){ return artCur ? artCur.game + ":" + artCur.id + (artCur.tr ? "@tr" : "") : ""; }
 function artAdjGet(){ const k = artKey(); return (ui.artAdj || {})[k] || ARTADJ[k] || null; }
-function artBox(){ const c = document.getElementById("scCard"); return c && c.querySelector(".zx-art,.hx-art,.gx-art"); }
+function artBox(){ const c = document.getElementById("scCard"); return c && c.querySelector(".zx-art,.hx-art,.gx-art,.sc-art"); }
 function artFit(){
   const box = artBox();
   if(!box || !artCur) return;

@@ -718,7 +718,7 @@ function renderShowcaseNow(){
   if(scAltWanted(game)) scRenderAlt(card, game, shown, uid, cur);
   else scRenderCard(card, u, cur, shown);
   if(hist.length) card.insertAdjacentHTML("beforeend", scHistBar(hist, hi, hk, u.agents[cur]) + (hi >= 0 ? scDiff(shown, vm, game) : ""));
-  artCur = { game, id: String(cur) };
+  artCur = { game, id: String(cur), tr: !scAltWanted(game) };
   requestAnimationFrame(() => { scFitText(); artFit(); });
   if(document.fonts && document.fonts.ready) document.fonts.ready.then(scFitText);
 }
@@ -900,7 +900,7 @@ function scRenderCard(card, u, id, vm){
   let h = '<div class="sc-hero" style="--accent:' + esc(vm.color) + '">' +
     '<div class="sc-art">' +
       '<span class="sc-art-letter"' + (vm.art ? ' hidden' : "") + '>' + esc(vm.name.charAt(0)) + '</span>' +
-      (vm.art ? '<img alt="" referrerpolicy="no-referrer" src="' + esc(scImg(vm.art)) + '" onerror="this.previousElementSibling.hidden=false;this.remove()">' : "") +
+      (vm.art ? '<img class="pre" alt="" referrerpolicy="no-referrer" src="' + esc(scImg(vm.art)) + '" onerror="this.previousElementSibling.hidden=false;this.remove()">' : "") +
     '</div>' +
     '<div class="sc-head">' +
       '<div class="sc-chips"><span class="sc-el"><i></i>' + esc(vm.el) + '</span>' + (vm.cls ? '<span>' + esc(vm.cls) + '</span>' : "") + '</div>' +
@@ -909,6 +909,9 @@ function scRenderCard(card, u, id, vm){
       '<div class="sc-mind" title="' + esc(vm.cons.title) + ' ' + vm.cons.label + vm.cons.n + '">' + [1,2,3,4,5,6].map(i => '<i class="' + (i <= vm.cons.n ? "on" : "") + '">' + i + '</i>').join("") +
         '<b>' + vm.cons.label + vm.cons.n + '</b></div>' +
       '<div class="sc-keys">' + vm.keys.map(k => '<div><span>' + esc(k[0]) + '</span><b class="num">' + esc(k[1]) + '</b></div>').join("") + '</div>' +
+      (vm.weapon ? '<div class="sc-hw' + (vm.weapon.top ? " top" : "") + '">' + '<div class="sc-hwimg' + (vm.weapon.tall ? " tall" : "") + '">' + (vm.weapon.img ? '<img alt="" referrerpolicy="no-referrer" src="' + esc(scImg(vm.weapon.img)) + '" onerror="this.remove()">' : "") + '</div>' +
+        '<div class="sc-hwi"><small>' + esc(vm.weapon.title) + '</small><b>' + esc(vm.weapon.name) + '</b><span>Ур. ' + esc(vm.weapon.lvl) + ' · <em>' + esc(vm.weapon.refine.label + vm.weapon.refine.n) + '</em>' +
+        vm.weapon.stats.map(st => ' · ' + esc(st[0]) + ' <i>' + esc(st[1]) + '</i>').join("") + '</span></div></div>' : "") +
       '<div class="sc-skills">' + vm.skills.map(s => '<span title="' + esc(s[0]) + ': ' + s[1] + '"><i>' + esc(s[0]) + '</i><b>' + s[1] + '</b></span>').join("") + '</div>' +
       '<p class="sc-when">' + (inShow ? "В витрине сейчас" : "Сборка от " + rec.at.slice(0, 10).split("-").reverse().join(".") + ", сейчас не в витрине") +
         ' · обновлено ' + new Date(u.at).toLocaleString("ru-RU", { day:"2-digit", month:"2-digit", hour:"2-digit", minute:"2-digit" }) + '</p>' +
@@ -919,15 +922,6 @@ function scRenderCard(card, u, id, vm){
         (r.base ? '<small>' + esc(r.base) + ' <em>+' + esc(r.add) + '</em></small>' : "") + '</b></div>').join("") + '</div></div>';
 
   h += '<div class="sc-side">';
-  const w = vm.weapon;
-  if(w){
-    h += '<div class="sc-panel sc-weapon' + (w.top ? " r4" : "") + '"><div class="sc-ptitle">' + esc(w.title) + '</div><div class="sc-wbody">' +
-      '<div class="sc-wimg' + (w.tall ? " tall" : "") + '"><span>' + esc(w.badge) + '</span>' + (w.img ? '<img alt="" referrerpolicy="no-referrer" src="' + esc(scImg(w.img)) + '" onerror="this.remove()">' : "") + '</div>' +
-      '<div class="sc-winfo"><div class="sc-wname">' + esc(w.name) + '</div>' +
-      '<div class="sc-wmeta"><span>Ур. ' + w.lvl + '</span>' + scPips(w.refine.n, 5) + '<b>' + w.refine.label + w.refine.n + '</b></div>' +
-      w.stats.map(s => '<div class="sc-wstat"><span>' + esc(s[0]) + '</span><b class="num">' + esc(s[1]) + '</b></div>').join("") +
-      '</div></div></div>';
-  } else h += '<div class="sc-panel sc-weapon none"><div class="sc-ptitle">Снаряжение</div>Не экипировано</div>';
   h += '<div class="sc-panel"><div class="sc-ptitle">Комплекты</div>' + (vm.sets.length ? '<div class="sc-sets">' + vm.sets.map(s =>
       '<div class="sc-set' + (s.full ? " full" : "") + '">' + (s.icon ? '<img alt="" referrerpolicy="no-referrer" src="' + esc(scImg(s.icon)) + '" onerror="this.remove()">' : '<i></i>') +
       '<span>' + esc(s.name) + '</span><b>' + (s.full ? "4" : "2") + '</b></div>').join("") + '</div>' : '<p class="sc-none">Нет собранных комплектов</p>') +
@@ -946,7 +940,8 @@ function scRenderCard(card, u, id, vm){
         '<b class="num">' + esc(s.v) + '</b></div>').join("") + '</div></div>';
   });
   h += '</div><p class="hint sc-foot">' + esc(vm.foot) + ' Точки у дополнительных характеристик — сколько раз она усиливалась; золотом — полезные этому персонажу.</p>';
-  card.innerHTML = h;
+  card.innerHTML = h + scOptsHtml(scGame(), vm, id, true);
+  artEdit = false;
 }
 
 document.getElementById("scLoad").onclick = scFetch;
