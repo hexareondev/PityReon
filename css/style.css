@@ -1794,3 +1794,32 @@ input[type=checkbox]:disabled{cursor:default;opacity:.5}
 .sc-statp{margin-top:8px}
 .sc-stats.two{grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-flow:column;column-gap:32px}
 @media (max-width:640px){ .sc-stats.two{grid-template-columns:1fr;grid-template-rows:none !important;grid-auto-flow:row} }
+/* оценка каждого предмета: полезные усиления; ▲ лучший, ▼ слабейший */
+.pcs{flex:none;display:inline-flex;align-items:center;height:18px;padding:0 7px;margin-left:6px;border-radius:999px;font-size:10.5px;font-weight:700;font-family:var(--display);font-variant-numeric:tabular-nums;white-space:nowrap;background:rgba(255,255,255,.07);color:var(--muted);border:1px solid transparent;cursor:help}
+.pcs.g1{color:#ffd36b;background:rgba(240,194,100,.14)}
+.pcs.g2{color:#c18cff;background:rgba(180,108,255,.12)}
+.pcs.g3{color:#8fb8ff;background:rgba(79,163,255,.1)}
+.pcs.g4{color:#9a9aa2}
+.pcs.best{border-color:rgba(240,194,100,.6)}
+.pcs.worst{border-color:rgba(255,120,90,.55);color:#ff9b7a}
+.zx-d > .pcs{position:absolute;z-index:4;right:-2px;top:-7px;margin:0;height:16px;padding:0 6px;font-size:9.5px;background:rgba(10,10,12,.92)}
+.zx.no-grade .zx-d > .pcs{display:none}
+/* Genshin / Star Rail: значок — под иконкой предмета, чтобы не теснить название слота */
+.hx-rh .pcs{position:absolute;z-index:2;right:2px;top:5px;margin:0;height:17px;padding:0 6px;background:rgba(10,10,12,.88)}
+.sc-dhead .pcs{margin-left:auto;margin-right:6px}
+/* сравнение сборок */
+.sc-cmp{margin-top:10px;padding:12px 14px;border-radius:var(--rs);background:var(--panel-2);border:1px solid var(--edge-soft)}
+.sc-cmph{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.sc-cmph b{font-size:14px}
+.sc-cmph select{flex:1;min-width:0;max-width:340px}
+.sc-cmpt{overflow-x:auto}
+.sc-cmp table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+.sc-cmp th,.sc-cmp td{padding:6px 8px;border-top:1px solid rgba(255,255,255,.04);text-align:right;white-space:nowrap}
+.sc-cmp thead th{border-top:none;font-size:11.5px;color:var(--dim);font-weight:600}
+.sc-cmp tbody th{text-align:left;font-weight:400;color:var(--muted)}
+.sc-cmp tr.hl th{color:var(--gold-hot)}
+.sc-cmp tr.sep th,.sc-cmp tr.sep td{border-top:1px solid rgba(255,255,255,.12)}
+.sc-cmp tr.txt td{white-space:normal;text-align:left;font-size:12px;color:var(--muted)}
+.sc-cmp td.up{color:#7fd88f;font-family:var(--display)}
+.sc-cmp td.dn{color:#ff8f7a;font-family:var(--display)}
+.sc-shared{color:var(--gold)}

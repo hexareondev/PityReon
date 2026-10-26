@@ -95,7 +95,7 @@ function gxShort(n){
 // подсказка с описанием (js/desc.js); пока описания нет — обычная подсказка браузера
 function tipA(spec, title){ return ' data-tip="' + esc(spec) + '"' + (title && !descTipHtml(spec) ? ' title="' + esc(title) + '"' : ""); }
 function gxCard(vm){
-  const gr = gxGrade(vm), stars = "★".repeat(vm.rarity || 5);
+  const gr = gxGrade(vm), stars = "★".repeat(vm.rarity || 5), pc = pcScores(vm, "hk4e");
   const uk = Object.keys(gr.useful).sort((a, b) => gr.useful[b] - gr.useful[a]);
   // созвездия — дугой по правому краю арта, как в окне персонажа
   const arc = [0, 1, 2, 3, 4, 5].map(i => { const t = (i - 2.5) / 2.5; return Math.round(22 * t * t); });
@@ -124,8 +124,8 @@ function gxCard(vm){
     '<div class="hx-useful"><div><span class="hx-ut">Полезные усиления</span>' + (uk.length ? uk.map(k => '<span class="hx-uc">' + esc(k) + ' <b>' + gr.useful[k] + "</b></span>").join("") : '<span class="hx-uc">нет</span>') +
       '<span class="hx-uc gi-cv">Крит-ценность <b>' + (Math.round((vm.cv || 0) / 10) / 10).toLocaleString("ru-RU") + '</b></span></div>' +
       '<div class="hx-utot gi-grade g' + gr.g + '" title="' + gr.n.toLocaleString("ru-RU") + ' полезных усилений из ' + gr.max + ' возможных"><b>' + gr.g + '</b><small>' + gr.n.toLocaleString("ru-RU") + ' / ' + gr.max + '</small></div></div></div>' +
-    '<div class="hx-box gi-rels"><div class="hx-relics">' + vm.slots.map(d => d.empty ? '<div class="hx-rel none"><div class="hx-rh"><span>' + esc(d.label) + '</span></div><p>Пусто</p></div>' :
-      '<div class="hx-rel' + (d.top ? " top" : "") + '"><div class="hx-rh"><span>' + esc(d.label) + ' <em>+' + d.lvl + '</em></span>' + hxImg(d.icon, "hx-ricon") + '</div>' +
+    '<div class="hx-box gi-rels"><div class="hx-relics">' + vm.slots.map((d, i) => d.empty ? '<div class="hx-rel none"><div class="hx-rh"><span>' + esc(d.label) + '</span></div><p>Пусто</p></div>' :
+      '<div class="hx-rel' + (d.top ? " top" : "") + '"><div class="hx-rh"><span>' + esc(d.label) + ' <em>+' + d.lvl + '</em></span>' + pcBadge(pc[i]) + hxImg(d.icon, "hx-ricon") + '</div>' +
         (d.main ? '<div class="hx-rm' + (d.mainBad ? ' gi-bad" title="' + esc(d.mainBad) : "") + '">' + ic(d.main[2]) + '<span' + (d.mainBad ? "" : ' title="' + esc(d.main[0]) + '"') + '>' + esc(gxShort(d.main[0])) + '</span>' + (d.mainBad ? '<i class="gi-badi" aria-label="' + esc(d.mainBad) + '">!</i>' : "") + '<b>' + esc(d.main[1]) + '</b></div>' : "") +
         d.subs.map(s => '<div class="hx-rs' + (s.val ? " val" : "") + '">' + ic(s.ic) + '<span title="' + esc(s.n) + '"><em>' + esc(gxShort(s.n)) + '</em>' + (s.up ? '<i>»' + s.up + '</i>' : "") + '</span><b>' + esc(s.v) + "</b></div>").join("") + "</div>").join("") +
     '</div></div></div>';
@@ -184,14 +184,14 @@ function hxCard(vm){
   h += '<div class="hx-right"><div class="hx-title">Характеристики</div>' +
     '<div class="hx-box"><div class="hx-grid">' + vm.stats.map(xStatRow).join("") + '</div></div>';
   // оценка реликвий — как у артефактов Genshin: SS…C по полезным усилениям
-  const gr = gxGrade(vm, 6, HX_FLAT);
+  const gr = gxGrade(vm, 6, HX_FLAT), pc = pcScores(vm, "hkrpg");
   const uk = Object.keys(gr.useful).sort((a, b) => gr.useful[b] - gr.useful[a]);
   h += '<div class="hx-box hx-relbox"><div class="hx-bt">Реликвии' + (vm.sets.length ? ' <small>' + vm.sets.map(s => esc(s.name) + (s.full ? " ×4" : " ×2")).join(" · ") + '</small>' : "") + '</div>' +
     (vm.slots.some(d => !d.empty) ? '<div class="hx-useful"><div><span class="hx-ut">Полезные усиления</span>' + (uk.length ? uk.map(k => '<span class="hx-uc">' + esc(k) + ' <b>' + gr.useful[k] + "</b></span>").join("") : '<span class="hx-uc">нет</span>') +
       '<span class="hx-uc gi-cv">Крит-ценность <b>' + (Math.round((vm.cv || 0) / 10) / 10).toLocaleString("ru-RU") + '</b></span>' +
       '</div><div class="hx-utot gi-grade g' + gr.g + '" title="' + gr.n.toLocaleString("ru-RU") + ' полезных усилений из ' + gr.max + ' возможных"><b>' + gr.g + '</b><small>' + gr.n.toLocaleString("ru-RU") + ' / ' + gr.max + '</small></div></div>' : "") +
-    '<div class="hx-relics">' + vm.slots.map(d => d.empty ? '<div class="hx-rel none"><div class="hx-rh"><span>' + esc(d.label) + '</span></div><p>Пусто</p></div>' :
-      '<div class="hx-rel' + (d.top ? " top" : "") + '"><div class="hx-rh"><span>' + esc(d.label) + ' <em>+' + d.lvl + '</em></span>' + hxImg(d.icon, "hx-ricon") + '</div>' +
+    '<div class="hx-relics">' + vm.slots.map((d, i) => d.empty ? '<div class="hx-rel none"><div class="hx-rh"><span>' + esc(d.label) + '</span></div><p>Пусто</p></div>' :
+      '<div class="hx-rel' + (d.top ? " top" : "") + '"><div class="hx-rh"><span>' + esc(d.label) + ' <em>+' + d.lvl + '</em></span>' + pcBadge(pc[i]) + hxImg(d.icon, "hx-ricon") + '</div>' +
         (d.main ? '<div class="hx-rm">' + ic(d.main[2]) + '<span>' + esc(d.main[0]) + '</span><b>' + esc(d.main[1]) + '</b></div>' : "") +
         d.subs.map(s => '<div class="hx-rs' + (s.val ? " val" : "") + '">' + ic(s.ic) + '<span><em>' + esc(s.n) + '</em>' + (s.up ? '<i>»' + s.up + '</i>' : "") + '</span><b>' + esc(s.v) + "</b></div>").join("") + "</div>").join("") +
     '</div></div></div></div>';
@@ -208,6 +208,30 @@ function zxBarPos(k){ const i = ZX_BAR.indexOf(String(k)); return i === -1 ? 99 
 // У дамагера с крит. шансом, крит. уроном и силой атаки % — 6 × (3 + 5) = 48, у аномалии
 // (сила атаки %, знание аномалии) — 6 × (2 + 5) = 42. Плоские атака/HP/защита считаются за треть.
 const ZX_FLAT = { "12103":"12102", "11103":"11102", "13103":"13102" };
+// оценка каждого предмета: сколько раз выпали полезные характеристики (простые числа — на треть),
+// из возможных на одном предмете (по разу каждой из k полезных, k ≤ 4, и 5 усилений); лучший и худший отмечаются
+function pcScores(vm, game){
+  const val = vm.valuable || {}, FLAT = game === "nap" ? ZX_FLAT : game === "hkrpg" ? HX_FLAT : GX_FLAT;
+  const k = Math.min(4, Object.keys(val).filter(x => val[x]).length) || 4, max = k + 5;
+  const out = vm.slots.map(d => {
+    if(d.empty || !(d.subs || []).length) return null;
+    let n = 0;
+    d.subs.forEach(s => { const r = (s.up || 0) + 1; if(s.val) n += r; else if(FLAT[String(s.key)] && val[FLAT[String(s.key)]]) n += r / 3; });
+    return { n: Math.round(n * 10) / 10, max };
+  });
+  const xs = out.filter(Boolean);
+  if(xs.length >= 3){
+    const hi = Math.max(...xs.map(x => x.n)), lo = Math.min(...xs.map(x => x.n));
+    if(hi > lo){ xs.forEach(x => { if(x.n === hi) x.best = true; if(x.n === lo) x.worst = true; }); }
+  }
+  return out;
+}
+function pcBadge(sc){
+  if(!sc) return "";
+  const p = sc.n / sc.max, cls = p >= .66 ? "g1" : p >= .44 ? "g2" : p >= .22 ? "g3" : "g4";
+  return '<span class="pcs ' + cls + (sc.best ? " best" : sc.worst ? " worst" : "") + '" title="Полезных усилений: ' + sc.n.toLocaleString("ru-RU") + " из " + sc.max +
+    (sc.best ? " — лучший предмет" : sc.worst ? " — слабейший, его стоит менять первым" : "") + '">' + (sc.best ? "▲ " : sc.worst ? "▼ " : "") + sc.n.toLocaleString("ru-RU") + "</span>";
+}
 function zxGrade(vm){
   const val = vm.valuable || {};
   let n = 0;
@@ -241,7 +265,7 @@ function zxCard(vm, uid, nick){
   const mind = [1,2,3,4,5,6].map(i => '<i class="' + (i <= vm.cons.n ? "on" : "") + '"' + tipA("con|nap|" + vm.cid + "|" + i) + '><span>0' + i + "</span></i>").join("") +
     '<i class="blank"></i><i class="ic" title="' + esc(vm.cls || "") + '">' + (vm.proIc ? zImg("sp_" + vm.proIc, "") : '<span>' + esc((vm.cls || "").slice(0, 3)) + "</span>") + '</i>' +
     '<i class="ic" title="' + esc(vm.el || "") + '">' + zImg(vm.elIc && "el_" + vm.elIc, "") + "</i>";
-  const o = zxOpt(), gr = zxGrade(vm);
+  const o = zxOpt(), gr = zxGrade(vm), pc = pcScores(vm, "nap");
   const bgWord = { fire:"FIRE", ice:"ICE", electric:"ELECTRIC", physical:"PHYSICAL", ether:"ETHER", wind:"WIND", lumen:"LUMEN", frost:"FROST", auric:"AURIC", honed:"HONED" }[vm.elIc] || "ZZZ";
   let h = '<div class="zx r' + (vm.rank || "S") + (o.uid ? "" : " no-uid") + (o.nick ? "" : " no-nick") + (o.bar ? "" : " no-bar") + (o.rolls ? "" : " no-rolls") + (o.grade ? "" : " no-grade") + (o.hoyo ? "" : " no-hoyo") + '" style="--accent:' + esc(vm.color) + '">' +
     '<div class="zx-main"><div class="zx-art"><div class="zx-bgw">' + bgWord + '</div>' + (vm.art ? '<img class="pre" alt="" referrerpolicy="no-referrer" src="' + esc(scImg(vm.art)) + '" onerror="this.remove()">' : "") +
@@ -255,12 +279,12 @@ function zxCard(vm, uid, nick){
       '<div class="zx-low2"><div class="zx-skills">' + skills.map(s => '<span' + tipA("skill|nap|" + vm.cid + ":" + s[2], s[0]) + '>' + zImg("sk_" + ZZZ_SKILL_IC[s[2]], "zx-skimg") + '<b>' + s[1] + "</b></span>").join("") + '</div>' +
         '<div class="zx-sets">' + vm.sets.map(s => '<div' + tipA("set|nap|" + s.id) + '><span>' + esc(s.name) + '</span>' + xImg(s.icon, "zx-sicon") + '<b>' + (s.full ? "4/4" : "2/4") + "</b></div>").join("") + '</div></div>' +
     '</div></div>' +
-    '<div class="zx-discs">' + vm.slots.map(d => d.empty ? '<div class="zx-d none"><div class="zx-box"><div class="zx-vin"></div><div class="zx-sq"><div class="zx-sqi"><b>' + d.pos + '</b></div></div></div><p>Пусто</p></div>' :
+    '<div class="zx-discs">' + vm.slots.map((d, i) => d.empty ? '<div class="zx-d none"><div class="zx-box"><div class="zx-vin"></div><div class="zx-sq"><div class="zx-sqi"><b>' + d.pos + '</b></div></div></div><p>Пусто</p></div>' :
       '<div class="zx-d r' + (d.rank || "B") + '"><div class="zx-box"><div class="zx-vin">' + xImg(d.icon, "zx-dicon") + '</div>' +
         '<div class="zx-sq">' +
           '<div class="zx-sqi"><div class="zx-sq1"' + (d.main ? ' data-f="' + esc(d.main[3]) + '"' : "") + '><b>' + (d.main ? esc(d.main[1]) : "") + '</b>' + (d.main ? ic(d.main[2]) : "") + '</div>' +
           '<div class="zx-sq2"><em>Lv. ' + d.lvl + '</em><s>' + esc(d.rank || "B") + '</s></div></div></div></div>' +
-        '<div class="zx-ds">' + d.subs.map(s => '<span class="' + (s.val ? "val" : "") + '" data-f="' + esc(String(s.key).slice(0, 3)) + '">' + ic(s.ic) + '<b>' + esc(s.v) + '</b>' + (s.up ? '<u style="width:' + (s.up * 8 - 2) + 'px"></u>' : "") + "</span>").join("") + "</div></div>").join("") + '</div>' +
+        '<div class="zx-ds">' + d.subs.map(s => '<span class="' + (s.val ? "val" : "") + '" data-f="' + esc(String(s.key).slice(0, 3)) + '">' + ic(s.ic) + '<b>' + esc(s.v) + '</b>' + (s.up ? '<u style="width:' + (s.up * 8 - 2) + 'px"></u>' : "") + "</span>").join("") + "</div>" + pcBadge(pc[i]) + "</div>").join("") + '</div>' +
     '</div><div class="zx-bar"><div class="zx-who">' +
       '<span class="zx-grade g' + gr.g + '" title="Оценка сборки: ' + gr.n.toLocaleString("ru-RU") + ' полезных усилений из ' + gr.max + ' возможных для этого агента"><b>' + gr.g + '</b><small>' + gr.n.toLocaleString("ru-RU") + ' / ' + gr.max + '</small></span>' +
       // официальная оценка HoYoLAB — только для сборок из файла HoYoLAB
@@ -324,6 +348,7 @@ function scOptsHtml(game, vm, id, tracker){
     (game === "hk4e" && !tracker ? '<button class="chip' + (giOpt().mains ? " on" : "") + '" data-go="mains" aria-pressed="' + giOpt().mains + '" title="Отмечать часы, кубок и корону с главной характеристикой не из рекомендованных HoYoLAB">Проверка главных статов</button><i class="sc-opts-sep"></i>' : "") +
     (game === "nap" && !tracker ? chip("uid", "UID") + chip("nick", "Ник") + chip("bar", "Сводка сабстатов") + chip("rolls", "Отметки усилений") + chip("grade", "Оценка") + (vm && vm.hoyoRating ? chip("hoyo", "Оценка HoYoLAB") : "") + '<i class="sc-opts-sep"></i>' : "") +
     '<button class="chip" id="scArt" title="Подвинуть и увеличить портрет персонажа">Портрет</button>' +
+    (typeof scShared !== "undefined" && scShared ? "" : '<button class="chip' + (typeof scCmpOpen !== "undefined" && scCmpOpen ? " on" : "") + '" id="scCmp" title="Сравнить с другим персонажем или прошлой сборкой">Сравнить</button>') +
     '<button class="chip' + (recEdit ? " on" : "") + '" id="scRec" title="Какие характеристики полезны персонажу — как «Рекомендуемые атрибуты» в HoYoLAB">Полезные характеристики</button>' +
     '<span class="sc-expw"><button class="chip" id="scArtExport" data-g="' + game + '" title="Выбрать, что выгрузить по этой игре: портреты, полезные характеристики, данные HoYoLAB">Экспорт…</button></span></div>' +
     (recEdit && id ? recPanel(game, vm, id) : "");

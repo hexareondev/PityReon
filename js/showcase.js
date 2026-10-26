@@ -668,6 +668,7 @@ function renderShowcaseNow(){
   scPrevResetSync(game);
   const prevBtn = document.getElementById("scPrev");
   prevBtn.classList.toggle("on", !!ui.scPrev); prevBtn.setAttribute("aria-pressed", !!ui.scPrev);
+  if(typeof scShared !== "undefined" && scShared && scShared.g === game){ scRenderShared(game); return; }
   if(ui.scPrev){ scRenderPreview(game); return; }
   document.getElementById("scLayout").hidden = false;
   const pq = document.getElementById("scPrevQ"); if(pq) pq.hidden = true;
@@ -675,7 +676,7 @@ function renderShowcaseNow(){
 
   const tabs = document.getElementById("scTabs"), card = document.getElementById("scCard");
   tabs.innerHTML = ""; card.innerHTML = ""; scTabsFit();
-  document.getElementById("scPng").hidden = true; document.getElementById("scCopy").hidden = true;
+  document.getElementById("scPng").hidden = true; document.getElementById("scCopy").hidden = true; document.getElementById("scShare").hidden = true;
   if(!u || !Object.keys(u.agents).length){
     card.innerHTML = '<div class="sc-empty">Здесь появятся сборки ' + G.who + ' из витрины вашего профиля: ' +
       (game === "nap" ? "амплификатор, диски" : game === "hkrpg" ? "световой конус, реликвии" : "оружие, артефакты") +
@@ -718,6 +719,7 @@ function renderShowcaseNow(){
   if(scAltWanted(game)) scRenderAlt(card, game, shown, uid, cur);
   else scRenderCard(card, u, cur, shown);
   if(hist.length) card.insertAdjacentHTML("beforeend", scHistBar(hist, hi, hk, u.agents[cur]) + (hi >= 0 ? scDiff(shown, vm, game) : ""));
+  if(typeof scExtraAfter === "function") scExtraAfter(card, game, uid, cur, vm, u);
   artCur = { game, id: String(cur), tr: !scAltWanted(game) };
   requestAnimationFrame(() => { scFitText(); artFit(); });
   if(document.fonts && document.fonts.ready) document.fonts.ready.then(scFitText);
@@ -938,11 +940,12 @@ function scRenderCard(card, u, id, vm){
         (r.base ? '<small>' + esc(r.base) + ' <em>+' + esc(r.add) + '</em></small>' : "") + '</b></div>').join("") + '</div></div>';
 
   h += '<div class="sc-ptitle sc-dtitle">' + esc(vm.slotsTitle) + '</div><div class="sc-discs' + (vm.slots.length === 5 ? " five" : "") + '">';
-  vm.slots.forEach(d => {
+  const pc = pcScores(vm, scGame());
+  vm.slots.forEach((d, i) => {
     if(d.empty){ h += '<div class="sc-disc none"><em class="sc-slot">' + d.pos + '</em><p>' + esc(d.label.length > 2 ? d.label + " — пусто" : "Пусто") + '</p></div>'; return; }
     h += '<div class="sc-disc' + (d.top ? " r4" : "") + '">' +
       (d.icon ? '<img class="sc-dmark" alt="" referrerpolicy="no-referrer" src="' + esc(scImg(d.icon)) + '" onerror="this.remove()">' : "") +
-      '<div class="sc-dhead"><em class="sc-slot">' + d.pos + '</em><span>' + (d.label.length > 2 ? '<b>' + esc(d.label) + '</b> · ' : "") + esc(d.set || "") + '</span><i>+' + d.lvl + '</i></div>' +
+      '<div class="sc-dhead"><em class="sc-slot">' + d.pos + '</em><span>' + (d.label.length > 2 ? '<b>' + esc(d.label) + '</b> · ' : "") + esc(d.set || "") + '</span>' + pcBadge(pc[i]) + '<i>+' + d.lvl + '</i></div>' +
       (d.main ? '<div class="sc-dmain"><span>' + esc(d.main[0]) + '</span><b class="num">' + esc(d.main[1]) + '</b></div>' : "") +
       '<div class="sc-dsubs">' + d.subs.map(s => '<div class="sc-dsub' + (s.val ? " val" : "") + '"><span>' + esc(s.n) + '</span>' +
         (s.up > 0 ? '<i title="Усилений: ' + s.up + '">' + "•".repeat(Math.min(5, s.up)) + '</i>' : "<i></i>") +
