@@ -889,6 +889,16 @@ document.getElementById("scTabs").addEventListener("wheel", e => {
 document.getElementById("scTabTog").addEventListener("click", () => { ui.scTabsCol = !ui.scTabsCol; saveUI(); scTabsFit(); });
 window.addEventListener("resize", () => { clearTimeout(scTabsFit.t); scTabsFit.t = setTimeout(scTabsFit, 150); });
 
+// три главные характеристики в шапке «Трекера» — из подсвеченных (полезных этому персонажу), по важности
+const SC_KEY_ORDER = ["cr", "cd", "be", "em", "ap", "am", "sheer", "pen", "penr", "impact", "atk", "hp", "def", "ehr", "spd", "er", "heal", "res"];
+function scKeyStats(vm){
+  const kind = r => String(r.ic || "").replace(/^[a-z]+:/, "");
+  const hl = (vm.stats || []).filter(r => r.hl && SC_KEY_ORDER.indexOf(kind(r)) !== -1)
+    .sort((a, b) => SC_KEY_ORDER.indexOf(kind(a)) - SC_KEY_ORDER.indexOf(kind(b))).slice(0, 3).map(r => [r.n, r.v]);
+  // не хватило подсвеченных — добираем прежними (атака/шанс крита/крит. урон и т. п.)
+  (vm.keys || []).forEach(k => { if(hl.length < 3 && !hl.some(x => x[1] === k[1] && x[0].slice(0, 4) === k[0].slice(0, 4))) hl.push(k); });
+  return hl.slice(0, 3);
+}
 function scPips(n, max){
   let h = '<span class="sc-pips p">';
   for(let i = 1; i <= max; i++) h += '<i class="' + (i <= n ? "on" : "") + '"></i>';
@@ -908,7 +918,7 @@ function scRenderCard(card, u, id, vm){
       '<div class="sc-lvl"><span class="num">Ур. ' + vm.lvl + '</span><div class="sc-lvlbar"><i style="width:' + Math.min(100, vm.lvl / vm.maxLvl * 100) + '%"></i></div><small>' + vm.maxLvl + '</small></div>' +
       '<div class="sc-mind" title="' + esc(vm.cons.title) + ' ' + vm.cons.label + vm.cons.n + '">' + [1,2,3,4,5,6].map(i => '<i class="' + (i <= vm.cons.n ? "on" : "") + '">' + i + '</i>').join("") +
         '<b>' + vm.cons.label + vm.cons.n + '</b></div>' +
-      '<div class="sc-keys">' + vm.keys.map(k => '<div><span>' + esc(k[0]) + '</span><b class="num">' + esc(k[1]) + '</b></div>').join("") + '</div>' +
+      '<div class="sc-keys">' + scKeyStats(vm).map(k => '<div><span>' + esc(k[0]) + '</span><b class="num">' + esc(k[1]) + '</b></div>').join("") + '</div>' +
       (vm.weapon ? '<div class="sc-hw' + (vm.weapon.top ? " top" : "") + '">' + '<div class="sc-hwimg' + (vm.weapon.tall ? " tall" : "") + '">' + (vm.weapon.img ? '<img alt="" referrerpolicy="no-referrer" src="' + esc(scImg(vm.weapon.img)) + '" onerror="this.remove()">' : "") + '</div>' +
         '<div class="sc-hwi"><small>' + esc(vm.weapon.title) + '</small><b>' + esc(vm.weapon.name) + '</b><span>Ур. ' + esc(vm.weapon.lvl) + ' · <em>' + esc(vm.weapon.refine.label + vm.weapon.refine.n) + '</em>' +
         vm.weapon.stats.map(st => ' · ' + esc(st[0]) + ' <i>' + esc(st[1]) + '</i>').join("") + '</span></div></div>' : "") +
@@ -939,7 +949,7 @@ function scRenderCard(card, u, id, vm){
         '<b class="num">' + esc(s.v) + '</b></div>').join("") + '</div></div>';
   });
   h += '</div><p class="hint sc-foot">' + esc(vm.foot) + ' Точки у дополнительных характеристик — сколько раз она усиливалась; золотом — полезные этому персонажу.</p>';
-  card.innerHTML = h + scOptsHtml(scGame(), vm, id, true);
+  card.innerHTML = '<div class="sc-trk">' + h + '</div>' + scOptsHtml(scGame(), vm, id, true);   // обёртка — чтобы «Картинкой» сохраняла всю карточку, а не только шапку
   artEdit = false;
 }
 
