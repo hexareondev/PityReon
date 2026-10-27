@@ -383,7 +383,8 @@ function plRarCls(game, r){ return (game === "nap" ? " zr" : " r") + r; }
 function plItemsHtml(game, m, st, poolOf){
   const C = COST[game], money = PLC[game].money;
   const books = new Set([].concat(game === "hkrpg" ? (C.exp.avatar_books || []).concat(C.exp.lc_books || []) : ((C.books || {}).agent || []).concat((C.books || {}).weapon || [])).map(b => String(b[0])));
-  const rank = id => id === money ? 0 : books.has(id) ? 1 : id.charAt(0) === "?" ? 3 : 2;
+  // как в игре: валюта, материалы (включая боссов), затем книги опыта персонажей и оружия, в конце неизвестные
+  const rank = id => id === money ? 0 : id.charAt(0) === "?" ? 3 : books.has(id) ? 2 : 1;
   const ids = Object.keys(m).filter(id => m[id] > 0).sort((a, b) => rank(a) - rank(b) ||
     (rank(a) === 1 || rank(a) === 2 ? Number(a) - Number(b) : 0) || ((C.items[b] || {}).r || 0) - ((C.items[a] || {}).r || 0) || a.localeCompare(b));
   if(!ids.length) return '<p class="hint plnone">Ничего не нужно — всё уже прокачано.</p>';
@@ -523,7 +524,7 @@ function renderPlanner(){
   const wl = cfg.rarities.map(r => '<option value="будущий ' + esc(cfg.wShort.toLowerCase()) + ' ' + cfg.star(r) + '"></option>').join("") +
     Object.keys(ws).filter(id => ws[id].r >= cfg.rarities[1]).sort((a, b) => ws[b].r - ws[a].r || Number(b) - Number(a)).map(id => '<option value="' + esc(plWeaponName(game, id)) + '"></option>').join("");
   h += '<datalist id="plCList">' + cl + '</datalist><datalist id="plWList">' + wl + '</datalist>';
-  h += '<p class="hint">Стоимость — по данным игры ' + esc(C.ver || "") + ' (Hakushin). Названия материалов пока на английском. Опыт пересчитан в книги: сначала крупные, остаток — мелкими.</p>';
+  h += '<p class="hint">Стоимость — по данным игры ' + esc(C.ver || "") + ' (Hakushin).' + (game === "hkrpg" ? ' Названия материалов пока на английском.' : '') + ' Опыт пересчитан в книги: сначала крупные, остаток — мелкими.</p>';
   box.innerHTML = h;
   if(Math.abs(window.scrollY - keepY) > 2) window.scrollTo(0, keepY);
 }
@@ -535,7 +536,7 @@ function renderInventory(game, box){
   const money = PLC[game].money;
   const books = new Set(plPools(game).flat().map(b => String(b[0])));
   const all = !!PS.invAll;
-  const rank = id => id === money ? 0 : books.has(id) ? 1 : 2;
+  const rank = id => id === money ? 0 : books.has(id) ? 2 : 1;
   const ids = Object.keys(C.items).filter(id => all || need[id] || (inv[id] > 0) || id === money || books.has(id))
     .sort((a, b) => rank(a) - rank(b) || Number(a) - Number(b));
   let h = '<div class="plinvtop"><p class="hint" style="margin:0">Внесите, сколько материалов у вас есть в игре. Планировщик отдаст их персонажам по порядку списка (кто выше, получает раньше) и подсветит, чего не хватает. Книги опыта считаются общим запасом опыта.</p>' +

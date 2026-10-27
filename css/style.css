@@ -1840,17 +1840,17 @@ input[type=checkbox]:disabled{cursor:default;opacity:.5}
 input.bad{outline:2px solid var(--crimson)}
 .pltotal{margin-bottom:14px;padding-bottom:14px}
 .plth{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:10px}
-.plitems{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:6px}
+.plitems{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:6px}
 .pli{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 4px 6px;background:var(--panel-2);border:1px solid var(--edge-soft);border-radius:var(--rs);min-width:0}
-.pli i{position:relative;width:44px;height:44px;border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--raise);font-style:normal}
-.pli i span{font-family:var(--display);font-weight:600;color:var(--muted)}
+.pli i{position:relative;width:64px;height:64px;border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--raise);font-style:normal}
+.pli i span{font-family:var(--display);font-weight:600;font-size:20px;color:var(--muted)}
 .pli i img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
 .pli.r2 i{background:linear-gradient(160deg,#2b4d3a,#1c2a22)}
 .pli.r3 i{background:linear-gradient(160deg,#28456b,#1a2433)}
 .pli.r4 i{background:linear-gradient(160deg,#4d2f6e,#251a33)}
 .pli.r5 i{background:linear-gradient(160deg,#7a5a24,#33270f)}
 .pli.unk i{outline:1px dashed var(--dim)}
-.pli b{font-size:13px}
+.pli b{font-size:14px}
 .pli small{font-size:10px;color:var(--dim);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.2}
 .plgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:10px;align-items:start}
 .plc{background:var(--panel);border:1px solid var(--edge-soft);border-radius:var(--r);padding:14px;min-width:0}
@@ -1879,7 +1879,7 @@ input.bad{outline:2px solid var(--crimson)}
 .plmat summary{cursor:pointer;font-size:12.5px;color:var(--muted);margin-bottom:8px}
 .plmat summary small{color:var(--dim)}
 .plsrc{margin:8px 0 0;font-size:11.5px}
-@media (max-width:420px){ .plgrid{grid-template-columns:1fr} .plitems{grid-template-columns:repeat(auto-fill,minmax(68px,1fr))} }
+@media (max-width:420px){ .plgrid{grid-template-columns:1fr} .plitems{grid-template-columns:repeat(auto-fill,minmax(78px,1fr))} .pli i{width:56px;height:56px} }
 /* редкость материалов ZZZ: зелёный, синий, пурпурный, оранжевый — как в игре */
 .pli.zr1 i,.pli.zr2 i,.pli.zr3 i,.pli.zr4 i{background:#23232b;border-bottom:4px solid var(--zc)}
 .pli.zr1{--zc:#7fae8f}
@@ -1902,7 +1902,7 @@ input.bad{outline:2px solid var(--crimson)}
 /* инвентарь */
 .plinvtop{display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
 .plinvtools{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-.plinv{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:6px}
+.plinv{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:6px}
 .plinvi{cursor:text}
 .plinvi input{width:100%;max-width:90px;padding:4px 6px;font-size:13px;text-align:center;font-family:var(--display)}
 .plinvi em{color:var(--muted)}
