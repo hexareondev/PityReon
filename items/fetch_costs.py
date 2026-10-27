@@ -44,6 +44,71 @@ def icon_urls(game, iid, base):
     return [f"{NANO}/assets/zzz/{base}.webp", f"{NANO}/zzz/UI/{base}.webp", f"{ENKA}/ui/zzz/{base}.png", f"{ENKA}/ui/{base}.png"]
 
 
+def _grid(img):
+    """Сетка спрайт-листа: (столбцов, строк). Граница кадров — почти прозрачная линия; берём самое мелкое деление,
+    при котором все границы пустые (деление посередине предмета не пройдёт — там картинка)."""
+    a = img.getchannel("A")
+    w, h = img.size
+    px = a.load()
+
+    def empty_col(x):
+        return sum(px[x, y] for y in range(0, h, 2)) / (255 * ((h + 1) // 2)) < 0.03
+
+    def empty_row(y):
+        return sum(px[x, y] for x in range(0, w, 2)) / (255 * ((w + 1) // 2)) < 0.03
+
+    def best(size, empty):
+        res = 1
+        for n in range(2, 33):
+            if size % n or size // n < 24:
+                continue
+            step = size // n
+            if all(empty(min(size - 1, i * step)) and empty(i * step - 1) for i in range(1, n)):
+                res = n
+        return res
+    return best(w, empty_col), best(h, empty_row)
+
+
+def animate_sheet(path):
+    """Иконки боссов ZZZ приходят спрайт-листом (кадры вращения сеткой). Склеиваем кадры в анимированный WEBP.
+    Возвращает новый путь или None, если это обычная картинка."""
+    try:
+        from PIL import Image
+    except Exception:
+        return None
+    try:
+        img = Image.open(path)
+        if getattr(img, "is_animated", False):
+            return None
+        img = img.convert("RGBA")
+    except Exception:
+        return None
+    cols, rows = _grid(img)
+    if cols * rows < 4:
+        return None
+    fw, fh = img.width // cols, img.height // rows
+    frames = []
+    for r in range(rows):
+        for c in range(cols):
+            f = img.crop((c * fw, r * fh, (c + 1) * fw, (r + 1) * fh))
+            if f.getchannel("A").getbbox() is None:      # пустые клетки в конце листа
+                continue
+            if max(fw, fh) > 128:
+                f = f.resize((round(fw * 128 / max(fw, fh)), round(fh * 128 / max(fw, fh))), Image.LANCZOS)
+            frames.append(f)
+    if len(frames) < 4:
+        return None
+    out = os.path.splitext(path)[0] + ".webp"
+    tmp = out + ".tmp"
+    frames[0].save(tmp, "WEBP", save_all=True, append_images=frames[1:], loop=0,
+                   duration=max(25, round(2400 / len(frames))), quality=85, method=4)
+    if os.path.abspath(path) != os.path.abspath(out):
+        os.remove(path)
+    os.replace(tmp, out)
+    print("  анимация: %s — %d×%d, кадров %d" % (os.path.basename(out), cols, rows, len(frames)))
+    return out
+
+
 def save_icons(game, items, bases):
     """Скачивает иконки материалов в items/icons/<игра>/ (уже скачанные не трогает).
     В предмет записывается "loc" — путь от корня сайта; где скачать не вышло, сайт пробует ссылки сам."""
@@ -72,13 +137,18 @@ def save_icons(game, items, bases):
                     data = r.read()
             except Exception:
                 continue
-            ext = ".webp" if data[:4] == b"RIFF" and data[8:12] == b"WEBP" else ".png" if data[:8] == b"\x89PNG\r\n\x1a\n" else ""
+            ext = ".webp" if data[:4] == b"RIFF" and data[8:12] == b"WEBP" else ".png" if data[:8] == b"\x89PNG\r\n\x1a\n" else ".gif" if data[:6] in (b"GIF87a", b"GIF89a") else ""
             hd = hashlib.md5(data).hexdigest()
             if not ext or len(data) < 100 or hd in bad:
                 continue
             return data, ext, hd
         return None
 
+    # уже скачанные листы (и положенные вручную) тоже превращаем в анимацию; готовые анимации не трогаются
+    for k in list(have):
+        an = animate_sheet(os.path.join(d, have[k]))
+        if an:
+            have[k] = os.path.basename(an)
     todo = []
     for iid, it in items.items():
         if iid in have:
@@ -107,6 +177,9 @@ def save_icons(game, items, bases):
             fn = iid + r[1]
             with open(os.path.join(d, fn), "wb") as f:
                 f.write(r[0])
+            an = animate_sheet(os.path.join(d, fn))
+            if an:
+                fn = os.path.basename(an)
             items[iid]["loc"] = "items/icons/%s/%s" % (game, fn); new += 1
         todo = rest
         if not fresh_bad:
