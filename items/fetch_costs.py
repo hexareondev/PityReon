@@ -73,6 +73,13 @@ def save_icons(game, items, bases):
     print("  иконки: есть %d из %d (новых %d)" % (got, len(items), new))
 
 
+def clean(name):
+    """Убирает разметку игры из названий: <i>…</i>, <unbreak>, {NICKNAME}."""
+    n = re.sub(r"<[^>]+>", "", str(name or ""))
+    n = n.replace("{NICKNAME}", "Trailblazer")
+    return re.sub(r"\{[^}]*\}", "", n).strip()
+
+
 def pairs(lst):
     """[{item_id, item_num}] или {id: num} → [[id, num]]"""
     out = []
@@ -159,7 +166,7 @@ def hsr(ver):
                 skills.append({"k": pk, "id": pid, "n": name, "max": int(lv[-1]), "cost": costs, "req": req})
             else:
                 traces[str(pid)] = costs[lv[0]]
-        chars[cid] = {"n": (info.get("en") or d.get("name") or ""), "r": rarity_num(d.get("rarity") or info.get("rank")),
+        chars[cid] = {"n": clean(info.get("en") or d.get("name") or ""), "r": rarity_num(d.get("rarity") or info.get("rank")),
                       "path": d.get("base_type") or info.get("baseType"), "el": d.get("damage_type") or info.get("damageType"),
                       "exp": av_group.get(cid, "1"), "asc": asc, "skills": skills, "tr": traces}
         time.sleep(0.05)
@@ -170,7 +177,7 @@ def hsr(ver):
             fails += 1; print("  ! lc", wid, e); continue
         st = d.get("stats") or []
         st = [st[k] for k in sorted(st, key=lambda x: int(x))] if isinstance(st, dict) else st
-        lcs[wid] = {"n": info.get("en") or d.get("name") or "", "r": rarity_num(d.get("rarity") or info.get("rank")),
+        lcs[wid] = {"n": clean(info.get("en") or d.get("name") or ""), "r": rarity_num(d.get("rarity") or info.get("rank")),
                     "path": d.get("base_type") or info.get("baseType"), "exp": lc_type.get(wid, ""),
                     "asc": [pairs(s.get("promotion_cost_list") or []) for s in st]}
         time.sleep(0.05)
@@ -183,7 +190,7 @@ def hsr(ver):
     for i in sorted(used):
         it = items_all.get(str(i)) or {}
         icon = os.path.splitext(os.path.basename(it.get("item_figure_icon_path") or ""))[0]
-        items[str(i)] = {"n": it.get("item_name") or "", "r": rarity_num({"Normal": 1, "NotNormal": 2, "Rare": 3, "VeryRare": 4, "SuperRare": 5}.get(it.get("rarity"), 0)),
+        items[str(i)] = {"n": clean(it.get("item_name")), "r": rarity_num({"Normal": 1, "NotNormal": 2, "Rare": 3, "VeryRare": 4, "SuperRare": 5}.get(it.get("rarity"), 0)),
                          "t": it.get("item_sub_type") or "", "icon": (NANO + "/assets/hsr/itemfigures/" + icon + ".webp") if icon else ""}
     save_icons("hkrpg", items, {})
     exp = {"avatar": {g: [t.get(l, 0) for l in range(1, max(t) + 1)] for g, t in exp_av.items()},
@@ -235,7 +242,7 @@ def zzz(ver, new_ids):
             if mat:
                 skills[sk] = {l: pairs(mat[l]) for l in sorted(mat, key=lambda x: int(x))}
         core = (d.get("passive") or {}).get("materials") or {}
-        chars[cid] = {"n": info.get("EN") or info.get("en") or info.get("name") or d.get("name") or "", "r": rarity_num(d.get("rarity") or info.get("rank")),
+        chars[cid] = {"n": clean(info.get("EN") or info.get("en") or info.get("name") or d.get("name")), "r": rarity_num(d.get("rarity") or info.get("rank")),
                       "type": info.get("type"), "el": info.get("element"), "exp": d.get("level_exp") or [], "asc": asc, "skills": skills,
                       "core": {l: pairs(core[l]) for l in sorted(core, key=lambda x: int(x))}, "new": int(cid) in new_ids}
         time.sleep(0.05)
@@ -250,7 +257,7 @@ def zzz(ver, new_ids):
             if p:
                 asc.append(p)
         lvl = d.get("level") or {}
-        weapons[wid] = {"n": info.get("EN") or info.get("en") or d.get("name") or "", "r": rarity_num(d.get("rarity") or info.get("rank")),
+        weapons[wid] = {"n": clean(info.get("EN") or info.get("en") or d.get("name")), "r": rarity_num(d.get("rarity") or info.get("rank")),
                         "type": info.get("type"), "exp": [(lvl[k] or {}).get("exp", 0) for k in sorted(lvl, key=lambda x: int(x))], "asc": asc}
         time.sleep(0.05)
     used = {10} | {b[0] for v in ZZZ_BOOKS.values() for b in v}
@@ -264,7 +271,7 @@ def zzz(ver, new_ids):
         it = items_all.get(str(i)) or {}
         icon = os.path.splitext(os.path.basename(it.get("icon") or ""))[0]
         bases[str(i)] = icon
-        items[str(i)] = {"n": it.get("name") or "", "r": it.get("rank") or 0, "icon": (NANO + "/assets/zzz/" + icon + ".webp") if icon else ""}
+        items[str(i)] = {"n": clean(it.get("name")), "r": it.get("rank") or 0, "icon": (NANO + "/assets/zzz/" + icon + ".webp") if icon else ""}
     save_icons("nap", items, bases)
     print("  агентов %d, амплификаторов %d, предметов %d, ошибок %d" % (len(chars), len(weapons), len(items), fails))
     print("  без возвышений: %d, без навыков: %d, амплификаторов без возвышений: %d, предметов без названия: %d" % (

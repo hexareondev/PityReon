@@ -1880,3 +1880,32 @@ input.bad{outline:2px solid var(--crimson)}
 .plmat summary small{color:var(--dim)}
 .plsrc{margin:8px 0 0;font-size:11.5px}
 @media (max-width:420px){ .plgrid{grid-template-columns:1fr} .plitems{grid-template-columns:repeat(auto-fill,minmax(68px,1fr))} }
+/* редкость материалов ZZZ: зелёный, синий, пурпурный, оранжевый — как в игре */
+.pli.zr1 i,.pli.zr2 i,.pli.zr3 i,.pli.zr4 i{background:#23232b;border-bottom:4px solid var(--zc)}
+.pli.zr1{--zc:#7fae8f}
+.pli.zr2{--zc:#1fa7ff}
+.pli.zr3{--zc:#d61bff}
+.pli.zr4{--zc:#ff9e1a}
+.pli.zr0 i{border-bottom:4px solid #6b6b74}
+/* хватает / не хватает */
+.pli.ok{border-color:rgba(120,200,140,.28)}
+.pli.ok b{color:#9fe0b0}
+.pli.lack{border-color:rgba(224,87,111,.45);background:linear-gradient(180deg,rgba(224,87,111,.1),var(--panel-2))}
+.pli em{font-style:normal;font-size:10.5px;color:var(--crimson);font-family:var(--display);line-height:1.1}
+.plst{display:inline-block;width:max-content;margin-top:3px;font-size:10.5px;padding:1px 7px;border-radius:999px}
+.plst.ok{background:rgba(120,200,140,.14);color:#9fe0b0}
+.plst.bad{background:rgba(224,87,111,.16);color:#ff9aac}
+.plst.unk{background:rgba(255,255,255,.07);color:var(--muted)}
+.plth .plst{margin:0}
+.plup{padding:5px 9px}
+.plbar{margin-top:18px}
+/* инвентарь */
+.plinvtop{display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
+.plinvtools{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.plinv{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:6px}
+.plinvi{cursor:text}
+.plinvi input{width:100%;max-width:90px;padding:4px 6px;font-size:13px;text-align:center;font-family:var(--display)}
+.plinvi em{color:var(--muted)}
+.plinvi.lack em{color:var(--crimson)}
+.plinvi.ok em{color:#9fe0b0}
+.plnone{grid-column:1/-1;margin:0}

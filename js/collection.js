@@ -141,14 +141,6 @@ function renderCollection(){
     box.appendChild(b);
   });
 
-  // режим: сетка коллекции или планировщик (Star Rail и ZZZ)
-  const canPlan = typeof PLC === "object" && !!PLC[game];
-  const mode = canPlan && typeof colMode === "function" ? colMode() : "grid";
-  colSeg("colMode", canPlan ? [["grid", "Коллекция"], ["plan", "Планировщик"]] : [], mode, v => { ui.colMode = v; saveUI(); });
-  document.getElementById("colMain").classList.toggle("hidden", mode === "plan");
-  document.getElementById("planView").classList.toggle("hidden", mode !== "plan");
-  if(mode === "plan"){ renderPlanner(); return; }
-
   const g = gameInfo(game);
   const all = colItems(game, acc);
   const kinds = COL_KIND[game] || COL_KIND.hk4e;

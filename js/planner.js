@@ -42,14 +42,16 @@ function plSave(){ hSave(); }
 function plChar(game, p){ const C = COST[game]; return C && !p.ph ? C.chars[p.id] || null : null; }
 function plWeaponData(game, w){ const C = COST[game]; return C && w && w.id && !w.ph ? (game === "hkrpg" ? C.lcs : C.weapons)[w.id] || null : null; }
 function plDbItem(game, id){ const db = itemsDb[game]; return db && db.items[String(id)] || null; }
-function plCharName(game, id){ const it = plDbItem(game, id); const c = COST[game] && COST[game].chars[id]; return it ? dbName(it) : c ? c.n : "#" + id; }
-function plWeaponName(game, id){ const it = plDbItem(game, id); const C = COST[game]; const w = C && (game === "hkrpg" ? C.lcs : C.weapons)[id]; return it ? dbName(it) : w ? w.n : "#" + id; }
+// разметка игры в английских названиях: <i>…</i>, <unbreak>, {NICKNAME}
+function plClean(n){ return String(n || "").replace(/<[^>]*>/g, "").replace(/\{NICKNAME\}/g, "Trailblazer").replace(/\{[^}]*\}/g, "").trim(); }
+function plCharName(game, id){ const it = plDbItem(game, id); const c = COST[game] && COST[game].chars[id]; return it ? dbName(it) : c ? plClean(c.n) : "#" + id; }
+function plWeaponName(game, id){ const it = plDbItem(game, id); const C = COST[game]; const w = C && (game === "hkrpg" ? C.lcs : C.weapons)[id]; return it ? dbName(it) : w ? plClean(w.n) : "#" + id; }
 function plItemName(game, id){
   if(String(id).charAt(0) === "?") return "Неизвестный материал";
   const ru = (PL_RU[game] || {})[String(id)];
   if(ru && nameLang() !== "en") return ru;
   const it = COST[game] && COST[game].items[String(id)];
-  return it && it.n ? it.n : "#" + id;
+  return it && it.n ? plClean(it.n) : "#" + id;
 }
 function plTypeOf(game, c){ return game === "hkrpg" ? c.path : c.type; }
 function plTypeLabel(game, t){
@@ -272,7 +274,50 @@ function plApplyBuild(game, p, c){
 
 /* ── отрисовка ── */
 const PS = { adding:false, phOpen:false, open:{} };
-function plGame(){ const g = colGame(); return PLC[g] ? g : null; }
+function plGame(){ const g = histGameKey(); return PLC[g] ? g : null; }
+function plMode(){ return ui.plMode === "inv" ? "inv" : "plan"; }
+
+/* ── инвентарь и распределение: материалы отдаются персонажам по порядку списка ── */
+function plInv(game){ hdata.inv = hdata.inv || {}; return hdata.inv[game] = hdata.inv[game] || {}; }
+// книги опыта считаются общим запасом опыта: [[id, опыт], …] для персонажей и для оружия
+function plPools(game){
+  const C = COST[game];
+  return game === "hkrpg" ? [C.exp.avatar_books || [], (C.exp.lc_books || []).map(b => [b[0], b[1]])]
+    : [(C.books || {}).agent || [], (C.books || {}).weapon || []];
+}
+function plAlloc(game){
+  const inv = plInv(game), left = {}, pools = plPools(game);
+  Object.keys(inv).forEach(k => { left[k] = Number(inv[k]) || 0; });
+  const poolLeft = pools.map(pb => pb.reduce((a, b) => a + (left[String(b[0])] || 0) * b[1], 0));
+  const poolOf = {}; pools.forEach((pb, i) => pb.forEach(b => { poolOf[String(b[0])] = [i, b[1]]; }));
+  const res = { per:[], total:{}, short:{}, poolShort:[0, 0] };
+  plList(game).forEach((p, i) => {
+    const m = plCost(game, p).m, st = { m, short:{}, poolShort:[0, 0], lack:0 };
+    if(p.on){
+      Object.keys(m).forEach(k => { res.total[k] = (res.total[k] || 0) + m[k]; });
+      // опыт: сначала весь опыт персонажа из запаса
+      const needExp = [0, 0];
+      Object.keys(m).forEach(k => { const po = poolOf[k]; if(po) needExp[po[0]] += m[k] * po[1]; });
+      needExp.forEach((n, j) => {
+        if(!n) return;
+        const take = Math.min(n, poolLeft[j]); poolLeft[j] -= take;
+        if(n > take){ st.poolShort[j] = n - take; res.poolShort[j] += n - take; }
+      });
+      Object.keys(m).forEach(k => {
+        if(poolOf[k]) return;
+        if(k.charAt(0) === "?"){ st.short[k] = m[k]; res.short[k] = (res.short[k] || 0) + m[k]; return; }   // неизвестное заранее не запасёшь
+        const have = left[k] || 0, take = Math.min(have, m[k]);
+        left[k] = have - take;
+        if(m[k] > take){ st.short[k] = m[k] - take; res.short[k] = (res.short[k] || 0) + m[k] - take; }
+      });
+      st.lack = Object.keys(st.short).filter(k => k.charAt(0) !== "?").length + st.poolShort.filter(Boolean).length;
+      st.unknown = Object.keys(st.short).some(k => k.charAt(0) === "?");
+    }
+    res.per[i] = st;
+  });
+  res.poolOf = poolOf;
+  return res;
+}
 function plIcon(game, id, kind, fallback){
   const it = plDbItem(game, id);
   const letter = '<span>' + esc((fallback || "?").charAt(0).toUpperCase()) + '</span>';
@@ -306,17 +351,29 @@ function plItemIcon(game, id){
   return '<span>' + esc(ch) + '</span>' + (urls.length ? '<img alt="" loading="lazy" referrerpolicy="no-referrer" src="' + esc(urls[0]) + '" data-alt="' + esc(urls.slice(1).join("|")) + '" onerror="plImgErr(this)">' : "");
 }
 function plFmt(n){ return n >= 1e6 ? (Math.round(n / 1e5) / 10).toLocaleString("ru-RU") + " млн" : fmt(n); }
-function plItemsHtml(game, m){
+function plRarCls(game, r){ return (game === "nap" ? " zr" : " r") + r; }
+function plItemsHtml(game, m, st, poolOf){
   const C = COST[game], money = PLC[game].money;
   const books = new Set([].concat(game === "hkrpg" ? (C.exp.avatar_books || []).concat(C.exp.lc_books || []) : ((C.books || {}).agent || []).concat((C.books || {}).weapon || [])).map(b => String(b[0])));
   const rank = id => id === money ? 0 : books.has(id) ? 1 : id.charAt(0) === "?" ? 3 : 2;
   const ids = Object.keys(m).filter(id => m[id] > 0).sort((a, b) => rank(a) - rank(b) ||
     (rank(a) === 1 || rank(a) === 2 ? Number(a) - Number(b) : 0) || ((C.items[b] || {}).r || 0) - ((C.items[a] || {}).r || 0) || a.localeCompare(b));
-  if(!ids.length) return '<p class="hint" style="margin:0">Ничего не нужно — всё уже прокачано.</p>';
+  if(!ids.length) return '<p class="hint plnone">Ничего не нужно — всё уже прокачано.</p>';
   return ids.map(id => {
     const it = C.items[id] || {}, r = id.charAt(0) === "?" ? Number(id.slice(1)) : it.r || 0;
     const name = plItemName(game, id) + (id.charAt(0) === "?" ? " (" + (r ? r + "★" : "редкость неизвестна") + ")" : "");
-    return '<div class="pli r' + r + (id.charAt(0) === "?" ? " unk" : "") + '" title="' + esc(name + " — " + fmt(m[id])) + '"><i>' + plItemIcon(game, id) + '</i><b class="num">' + esc(plFmt(m[id])) + '</b><small>' + esc(name) + '</small></div>';
+    let cls = "", lack = "", tip = name + " — нужно " + fmt(m[id]);
+    if(st){
+      const po = poolOf && poolOf[id];
+      const sh = po ? st.poolShort[po[0]] : st.short[id] || 0;
+      if(id.charAt(0) === "?") cls = " lack";
+      else if(sh){
+        cls = " lack";
+        if(po){ lack = '<em>опыта −' + esc(plFmt(sh)) + '</em>'; tip += "; не хватает опыта: " + fmt(sh) + " (≈ " + fmt(Math.ceil(sh / po[1])) + " шт. этой книги)"; }
+        else { lack = '<em>−' + esc(plFmt(sh)) + '</em>'; tip += "; не хватает " + fmt(sh); }
+      } else { cls = " ok"; tip += "; хватает"; }
+    }
+    return '<div class="pli' + plRarCls(game, r) + (id.charAt(0) === "?" ? " unk" : "") + cls + '" title="' + esc(tip) + '"><i>' + plItemIcon(game, id) + '</i><b class="num">' + esc(plFmt(m[id])) + '</b>' + lack + '<small>' + esc(name) + '</small></div>';
   }).join("");
 }
 function plSel(f, opts, val){
@@ -329,7 +386,7 @@ function plLvRow(game, label, f, cur, tgt){
 }
 function plRange(n, from){ const a = []; for(let i = from || 1; i <= n; i++) a.push([i, String(i)]); return a; }
 
-function plCardHtml(game, p, i){
+function plCardHtml(game, p, i, st, poolOf){
   const C = COST[game], cfg = PLC[game];
   const c = plChar(game, p);
   const name = p.ph ? (p.ph.n || "Будущий персонаж") : plCharName(game, p.id);
@@ -337,8 +394,13 @@ function plCardHtml(game, p, i){
   const type = p.ph ? p.ph.t : c ? plTypeOf(game, c) : null;
   const sub = [cfg.star(r), type != null ? plTypeLabel(game, type) : "", p.ph ? "ещё не вышел" : c && c.new ? "новый" : ""].filter(Boolean).join(" · ");
   const cost = plCost(game, p);
+  const hasInv = Object.keys(plInv(game)).some(k => plInv(game)[k] > 0);
+  const done = !Object.keys(cost.m).some(k => cost.m[k] > 0);
+  const badge = done ? '<span class="plst ok">прокачан</span>' : !p.on || !hasInv ? "" : st.lack ? '<span class="plst bad" title="Материалы распределяются по порядку списка: персонажи выше получают их первыми">не хватает: ' + st.lack + '</span>'
+    : st.unknown ? '<span class="plst unk">известное — есть</span>' : '<span class="plst ok">всё есть</span>';
   let h = '<div class="plc' + (p.on ? "" : " off") + (r === cfg.rarities[0] ? " top" : "") + '" data-i="' + i + '">';
-  h += '<div class="plh"><div class="colpic">' + (p.ph ? '<span>?</span>' : plIcon(game, p.id, "c", name)) + '</div><div class="pln"><b>' + esc(name) + '</b><small>' + esc(sub) + '</small></div>' +
+  h += '<div class="plh"><div class="colpic">' + (p.ph ? '<span>?</span>' : plIcon(game, p.id, "c", name)) + '</div><div class="pln"><b>' + esc(name) + '</b><small>' + esc(sub) + '</small>' + badge + '</div>' +
+    (i > 0 ? '<button class="ghost sm plup" data-act="up" title="Выше — получает материалы раньше" aria-label="Выше">↑</button>' : "") +
     '<label class="synccheck plon" title="Учитывать в общем итоге"><input type="checkbox" data-f="on"' + (p.on ? " checked" : "") + '> в итоге</label>' +
     '<button class="ghost sm pldel" data-act="del" title="Убрать из плана" aria-label="Убрать">✕</button></div>';
   if(p.ph){
@@ -374,7 +436,7 @@ function plCardHtml(game, p, i){
   if(w.id || w.ph) h += plLvRow(game, cfg.wShort + ": уровень", "wlv", w.cur || [1, 0], w.tgt || [cfg.max, cfg.breaks.length]);
   h += '</div>';
   const open = PS.open[p.id] !== false;
-  h += '<details class="plmat"' + (open ? " open" : "") + '><summary>Нужно на этого персонажа' + (cost.notes.length ? ' <small>· ' + esc(cost.notes.join(", ")) + '</small>' : "") + '</summary><div class="plitems">' + plItemsHtml(game, cost.m) + '</div></details>';
+  h += '<details class="plmat"' + (open ? " open" : "") + '><summary>Нужно на этого персонажа' + (cost.notes.length ? ' <small>· ' + esc(cost.notes.join(", ")) + '</small>' : "") + '</summary><div class="plitems">' + plItemsHtml(game, cost.m, p.on && hasInv ? st : null, poolOf) + '</div></details>';
   if(p.fromBuild && !p.ph) h += '<p class="hint plsrc">Текущие значения взяты из сборки витрины. <button class="linkbtn" data-act="rebuild">Обновить из витрины</button></p>';
   return h + '</div>';
 }
@@ -382,18 +444,28 @@ function plCardHtml(game, p, i){
 function renderPlanner(){
   const box = document.getElementById("planView");
   const game = plGame();
+  document.getElementById("hTitle").childNodes[0].nodeValue = "Планировщик";
+  document.getElementById("hSub").textContent = game ? gameInfo(game).name : "";
+  const seg = document.getElementById("plMode");
+  seg.innerHTML = "";
+  [["plan", "План"], ["inv", "Инвентарь"]].forEach(([v, label]) => {
+    const b = document.createElement("button");
+    b.textContent = label; b.className = v === plMode() ? "on" : "";
+    b.onclick = () => { ui.plMode = v; saveUI(); renderPlanner(); };
+    seg.appendChild(b);
+  });
   if(!game){ box.innerHTML = '<p class="hint">Планировщик работает для Star Rail и Zenless Zone Zero.</p>'; return; }
   if(!COST[game]){
     box.innerHTML = '<p class="hint">' + (costFail[game] ? "Не удалось загрузить стоимость прокачки (items/data/cost_" + game + ".json). Она появится после ближайшего обновления данных на сайте." : "Загружаю стоимость прокачки…") + '</p>';
-    if(!costFail[game]) ensureCost(game, () => { if(document.body.classList.contains("tab-collection") && colMode() === "plan") renderPlanner(); });
+    if(!costFail[game]) ensureCost(game, () => { if(document.body.classList.contains("tab-planner")) renderPlanner(); });
     return;
   }
-  if(!itemsDb[game]) ensureItems(game, () => { if(colMode() === "plan") renderPlanner(); });
-  const C = COST[game], cfg = PLC[game], list = plList(game);
+  if(!itemsDb[game]) ensureItems(game, () => { if(document.body.classList.contains("tab-planner")) renderPlanner(); });
   const keepY = window.scrollY;
-  // общий итог
-  const total = {};
-  list.forEach(p => { if(p.on) { const m = plCost(game, p).m; Object.keys(m).forEach(k => { total[k] = (total[k] || 0) + m[k]; }); } });
+  if(plMode() === "inv"){ renderInventory(game, box); if(Math.abs(window.scrollY - keepY) > 2) window.scrollTo(0, keepY); return; }
+  const C = COST[game], cfg = PLC[game], list = plList(game);
+  const al = plAlloc(game), total = al.total;
+  const hasInv = Object.keys(plInv(game)).some(k => plInv(game)[k] > 0);
   let h = '<div class="pltop"><div class="pladd"><input id="plAddName" list="plCList" placeholder="Добавить персонажа — начните вводить имя" autocomplete="off">' +
     '<button class="mark sm" id="plAddBtn">Добавить</button><button class="ghost sm" id="plPhBtn">Будущий персонаж</button></div>';
   if(PS.phOpen){
@@ -407,12 +479,15 @@ function renderPlanner(){
   h += '</div>';
   if(list.length){
     const on = list.filter(p => p.on).length;
+    const lackN = Object.keys(al.short).filter(k => k.charAt(0) !== "?").length + al.poolShort.filter(Boolean).length;
     h += '<div class="card pltotal"><div class="plth"><h2>Всего нужно</h2><small class="hint" style="margin:0">' + on + ' из ' + list.length + ' в итоге' +
-      (game === "hkrpg" ? " · кредиты за опыт персонажей не учтены" : " · денни за опыт не учтены") + '</small></div><div class="plitems">' + plItemsHtml(game, total) + '</div></div>';
+      (game === "hkrpg" ? " · кредиты за опыт персонажей не учтены" : " · денни за опыт не учтены") + '</small>' +
+      (hasInv ? (lackN ? '<span class="plst bad">не хватает: ' + lackN + '</span>' : '<span class="plst ok">всего хватает</span>') : '<button class="linkbtn" id="plGoInv">внесите инвентарь — подсвечу, чего не хватает</button>') +
+      '</div><div class="plitems">' + plItemsHtml(game, total, hasInv ? { short: al.short, poolShort: al.poolShort } : null, al.poolOf) + '</div></div>';
   } else {
     h += '<p class="hint">План пуст. Добавьте персонажа — текущие уровни подтянутся из витрины, если его сборка загружалась, — или заглушку будущего персонажа для префарма.</p>';
   }
-  h += '<div class="plgrid">' + list.map((p, i) => plCardHtml(game, p, i)).join("") + '</div>';
+  h += '<div class="plgrid">' + list.map((p, i) => plCardHtml(game, p, i, al.per[i], al.poolOf)).join("") + '</div>';
   // списки для поиска
   const cl = Object.keys(C.chars).filter(id => !list.some(p => p.id === id)).sort((a, b) => Number(b) - Number(a))
     .map(id => '<option value="' + esc(plCharName(game, id)) + '">' + (C.chars[id].new ? "новый" : "") + '</option>').join("");
@@ -424,6 +499,41 @@ function renderPlanner(){
   box.innerHTML = h;
   if(Math.abs(window.scrollY - keepY) > 2) window.scrollTo(0, keepY);
 }
+
+/* ── инвентарь ── */
+function renderInventory(game, box){
+  const C = COST[game], inv = plInv(game), al = plAlloc(game);
+  const need = al.total;
+  const money = PLC[game].money;
+  const books = new Set(plPools(game).flat().map(b => String(b[0])));
+  const all = !!PS.invAll;
+  const rank = id => id === money ? 0 : books.has(id) ? 1 : 2;
+  const ids = Object.keys(C.items).filter(id => all || need[id] || (inv[id] > 0) || id === money || books.has(id))
+    .sort((a, b) => rank(a) - rank(b) || Number(a) - Number(b));
+  let h = '<div class="plinvtop"><p class="hint" style="margin:0">Внесите, сколько материалов у вас есть в игре. Планировщик отдаст их персонажам по порядку списка (кто выше, получает раньше) и подсветит, чего не хватает. Книги опыта считаются общим запасом опыта.</p>' +
+    '<div class="plinvtools"><label class="synccheck" style="margin:0"><input type="checkbox" id="plInvAll"' + (all ? " checked" : "") + '> все материалы игры</label>' +
+    '<button class="ghost sm" id="plInvClear">Очистить</button></div></div>';
+  h += '<div class="plinv">' + ids.map(id => {
+    const it = C.items[id] || {}, n = Number(inv[id]) || 0, nd = need[id] || 0;
+    const po = al.poolOf[id];
+    const sh = po ? 0 : Math.max(0, nd - n);
+    const st = !nd ? "" : po ? (al.poolShort[po[0]] ? " lack" : " ok") : sh ? " lack" : " ok";
+    const sub = nd ? (po ? "в плане " + fmt(nd) : sh ? "нужно " + fmt(nd) + " · −" + fmt(sh) : "нужно " + fmt(nd) + " ✓") : "";
+    return '<label class="pli plinvi' + plRarCls(game, it.r || 0) + st + '" title="' + esc(plItemName(game, id)) + '"><i>' + plItemIcon(game, id) + '</i>' +
+      '<input type="number" min="0" step="1" inputmode="numeric" data-inv="' + esc(id) + '" value="' + (n || "") + '" placeholder="0">' +
+      '<small>' + esc(plItemName(game, id)) + '</small>' + (sub ? '<em>' + esc(sub) + '</em>' : "") + '</label>';
+  }).join("") + '</div>';
+  const ps = al.poolShort;
+  if(ps[0] || ps[1]) h += '<p class="hint">Не хватает опыта: ' + [ps[0] ? "персонажам " + fmt(ps[0]) : "", ps[1] ? (game === "hkrpg" ? "конусам " : "амплификаторам ") + fmt(ps[1]) : ""].filter(Boolean).join(", ") + '.</p>';
+  box.innerHTML = h;
+}
+document.getElementById("planView").addEventListener("input", e => {
+  const t = e.target; if(!t.getAttribute || !t.getAttribute("data-inv")) return;
+  const game = plGame(), inv = plInv(game), id = t.getAttribute("data-inv");
+  const n = Math.max(0, Math.floor(Number(t.value) || 0));
+  if(n) inv[id] = n; else delete inv[id];
+  plSave();
+});
 
 /* ── действия ── */
 function plFindByName(game, name, kind){
@@ -445,13 +555,20 @@ function plAddFor(game, id){
   ensureCost(game, C => {
     if(!C || !C.chars[id]) return;
     if(!plList(game).some(p => p.id === String(id))){ plList(game).unshift(plNew(game, String(id))); plSave(); }
-    setColMode("plan");
+    ui.plMode = "plan";
+    const g = navByHist(game);
+    setNav(g ? g.id : ui.game, "planner");
   });
 }
 document.getElementById("planView").addEventListener("click", e => {
   const game = plGame(); if(!game) return;
   const t = e.target;
   if(t.id === "plAddBtn") return plAddByName();
+  if(t.id === "plGoInv"){ ui.plMode = "inv"; saveUI(); renderPlanner(); return; }
+  if(t.id === "plInvClear"){
+    if(t.textContent !== "Точно очистить?"){ t.textContent = "Точно очистить?"; setTimeout(() => { if(t.isConnected) t.textContent = "Очистить"; }, 2500); return; }
+    hdata.inv[game] = {}; plSave(); renderPlanner(); return;
+  }
   if(t.id === "plPhBtn"){ PS.phOpen = !PS.phOpen; renderPlanner(); return; }
   if(t.id === "plPhAdd"){
     const ph = { n: document.getElementById("plPhName").value.trim(), r: Number(document.getElementById("plPhR").value), t: document.getElementById("plPhT").value };
@@ -463,7 +580,9 @@ document.getElementById("planView").addEventListener("click", e => {
   if(!act || !card) return;
   const list = plList(game), i = Number(card.getAttribute("data-i")), p = list[i];
   if(!p) return;
-  if(act === "del"){
+  if(act === "up"){
+    list.splice(i - 1, 0, list.splice(i, 1)[0]);
+  } else if(act === "del"){
     if(!card.classList.contains("confirm")){ card.classList.add("confirm"); t.textContent = "Убрать?"; setTimeout(() => { if(card.isConnected){ card.classList.remove("confirm"); t.textContent = "✕"; } }, 2500); return; }
     list.splice(i, 1);
   } else if(act === "bind"){
@@ -491,6 +610,16 @@ document.getElementById("planView").addEventListener("toggle", e => {
 document.getElementById("planView").addEventListener("change", e => {
   const game = plGame(); if(!game) return;
   const t = e.target, f = t.getAttribute("data-f");
+  if(t.id === "plInvAll"){ PS.invAll = t.checked; renderPlanner(); return; }
+  if(t.getAttribute("data-inv")){
+    // перерисовка после ввода; фокус возвращаем туда, куда пользователь перешёл (Tab)
+    setTimeout(() => {
+      const a = document.activeElement, id = a && a.getAttribute && a.getAttribute("data-inv");
+      renderPlanner();
+      if(id){ const el = document.querySelector('#planView [data-inv="' + id + '"]'); if(el){ el.focus(); try { el.select(); } catch(_){} } }
+    }, 0);
+    return;
+  }
   const card = t.closest(".plc");
   if(!f || !card || f === "bindSel") return;
   const list = plList(game), p = list[Number(card.getAttribute("data-i"))], cfg = PLC[game];
@@ -529,6 +658,3 @@ document.getElementById("planView").addEventListener("change", e => {
   plSave(); renderPlanner();
 });
 
-/* ── режим вкладки «Коллекция»: сетка или планировщик ── */
-function colMode(){ return ui.colMode === "plan" && plGame() ? "plan" : "grid"; }
-function setColMode(m){ ui.colMode = m; saveUI(); renderCollection(); }
