@@ -1904,8 +1904,17 @@ input.bad{outline:2px solid var(--crimson)}
 .plinvtools{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
 .plinv{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:6px}
 .plinvi{cursor:text}
-.plinvi input{width:100%;max-width:90px;padding:4px 6px;font-size:13px;text-align:center;font-family:var(--display)}
+.plinvi input{width:100%;padding:4px 4px;font-size:13px;text-align:center;font-family:var(--display);font-variant-numeric:tabular-nums;-moz-appearance:textfield;appearance:textfield}
+.plinvi input::-webkit-outer-spin-button,.plinvi input::-webkit-inner-spin-button,#plItemAmt::-webkit-outer-spin-button,#plItemAmt::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.pli.pick{cursor:pointer;transition:border-color .15s,transform .15s}
+.pli.pick:hover{border-color:var(--edge);transform:translateY(-1px)}
+.plitemhead{display:flex;gap:14px;align-items:center;margin-bottom:14px}
+.plitemhead .pli{padding:0;background:none;border:none}
+.plitemhead .pli i{width:64px;height:64px}
+#plItemAmt{width:100%;font-size:18px;text-align:center;font-family:var(--display);-moz-appearance:textfield;appearance:textfield;margin-bottom:6px}
+.lackt{color:#ff9aac}.okt{color:#9fe0b0}
 .plinvi em{color:var(--muted)}
 .plinvi.lack em{color:var(--crimson)}
 .plinvi.ok em{color:#9fe0b0}
 .plnone{grid-column:1/-1;margin:0}
+.plitemsheet .row button{white-space:nowrap;padding:11px 8px}

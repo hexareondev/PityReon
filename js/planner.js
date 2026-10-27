@@ -402,7 +402,7 @@ function plItemsHtml(game, m, st, poolOf){
         else { lack = '<em>−' + esc(plFmt(sh)) + '</em>'; tip += "; не хватает " + fmt(sh); }
       } else { cls = " ok"; tip += "; хватает"; }
     }
-    return '<div class="pli' + plRarCls(game, r) + (id.charAt(0) === "?" ? " unk" : "") + cls + '" title="' + esc(tip) + '"><i>' + plItemIcon(game, id) + '</i><b class="num">' + esc(plFmt(m[id])) + '</b>' + lack + '<small>' + esc(name) + '</small></div>';
+    return '<div class="pli' + plRarCls(game, r) + (id.charAt(0) === "?" ? " unk" : " pick") + cls + '"' + (id.charAt(0) === "?" ? "" : ' data-item="' + esc(id) + '"') + ' title="' + esc(tip + (id.charAt(0) === "?" ? "" : " · нажмите, чтобы начислить")) + '"><i>' + plItemIcon(game, id) + '</i><b class="num">' + esc(plFmt(m[id])) + '</b>' + lack + '<small>' + esc(name) + '</small></div>';
   }).join("");
 }
 function plSel(f, opts, val){
@@ -564,6 +564,44 @@ document.getElementById("planView").addEventListener("input", e => {
   plSave();
 });
 
+/* ── начисление ресурса из плана: нажатие на плитку материала ── */
+let plItemCur = null;
+function plItemOpen(game, id){
+  plItemCur = { game, id };
+  document.getElementById("plItemOv").classList.add("on");
+  plItemShow();
+  const inp = document.getElementById("plItemAmt");
+  inp.value = ""; setTimeout(() => inp.focus(), 30);
+}
+function plItemShow(){
+  const { game, id } = plItemCur, C = COST[game], it = C.items[id] || {};
+  const have = Number(plInv(game)[id]) || 0, need = plAlloc(game).total[id] || 0;
+  const pic = document.getElementById("plItemPic");
+  pic.className = "pli" + plRarCls(game, it.r || 0); pic.innerHTML = "<i>" + plItemIcon(game, id) + "</i>";
+  document.getElementById("plItemName").textContent = plItemName(game, id);
+  document.getElementById("plItemHave").innerHTML = "Есть: <b class=\"num\">" + fmt(have) + "</b>" + (need ? " · нужно по плану: <b class=\"num\">" + fmt(need) + "</b>" +
+    (need > have ? ' · <span class="lackt">не хватает ' + fmt(need - have) + "</span>" : ' · <span class="okt">хватает</span>') : "");
+}
+function plItemApply(kind){
+  const { game, id } = plItemCur, inv = plInv(game);
+  const inp = document.getElementById("plItemAmt");
+  const v = Math.max(0, Math.floor(Number(String(inp.value).replace(/\s+/g, "")) || 0));
+  if(!v && kind !== "set"){ inp.focus(); return; }
+  const cur = Number(inv[id]) || 0;
+  const n = kind === "add" ? cur + v : kind === "sub" ? Math.max(0, cur - v) : v;
+  if(n) inv[id] = n; else delete inv[id];
+  plSave(); inp.value = "";
+  plItemShow(); renderPlanner(); inp.focus();
+}
+function plItemClose(){ document.getElementById("plItemOv").classList.remove("on"); plItemCur = null; }
+document.getElementById("plItemAdd").onclick = () => plItemApply("add");
+document.getElementById("plItemSub").onclick = () => plItemApply("sub");
+document.getElementById("plItemSet").onclick = () => plItemApply("set");
+document.getElementById("plItemClose").onclick = plItemClose;
+document.getElementById("plItemAmt").addEventListener("keydown", e => { if(e.key === "Enter") plItemApply("add"); });
+document.getElementById("plItemOv").addEventListener("mousedown", e => { if(e.target.id === "plItemOv") plItemClose(); });
+document.addEventListener("keydown", e => { if(e.key === "Escape" && plItemCur) plItemClose(); });
+
 /* ── действия ── */
 function plFindByName(game, name, kind){
   const C = COST[game], q = normName(name);
@@ -592,6 +630,8 @@ function plAddFor(game, id){
 document.getElementById("planView").addEventListener("click", e => {
   const game = plGame(); if(!game) return;
   const t = e.target;
+  const tile = t.closest && t.closest(".pli.pick");
+  if(tile && tile.getAttribute("data-item")) return plItemOpen(game, tile.getAttribute("data-item"));
   if(t.id === "plAddBtn") return plAddByName();
   if(t.id === "plGoInv"){ ui.plMode = "inv"; saveUI(); renderPlanner(); return; }
   if(t.id === "plInvClear"){
