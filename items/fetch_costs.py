@@ -44,29 +44,41 @@ def icon_urls(game, iid, base):
     return [f"{NANO}/assets/zzz/{base}.webp", f"{NANO}/zzz/UI/{base}.webp", f"{ENKA}/ui/zzz/{base}.png", f"{ENKA}/ui/{base}.png"]
 
 
-def _grid(img):
-    """Сетка спрайт-листа: (столбцов, строк). Граница кадров — почти прозрачная линия; берём самое мелкое деление,
-    при котором все границы пустые (деление посередине предмета не пройдёт — там картинка)."""
-    a = img.getchannel("A")
+def _cells(img):
+    """Клетки спрайт-листа: [(x0, y0, x1, y1), …] по строкам. Кадры ищутся по прозрачным промежуткам между ними —
+    размер листа не обязан делиться на число кадров (у ZZZ 2048 px на 13 столбцов)."""
+    a = img.getchannel("A").point(lambda v: 255 if v > 16 else 0)
     w, h = img.size
-    px = a.load()
 
-    def empty_col(x):
-        return sum(px[x, y] for y in range(0, h, 2)) / (255 * ((h + 1) // 2)) < 0.03
+    def runs(mask):
+        out, st = [], None
+        for i, v in enumerate(mask + [False]):
+            if v and st is None:
+                st = i
+            elif not v and st is not None:
+                out.append([st, i]); st = None
+        # слить разрывы в пару пикселей (тонкие прозрачные места внутри кадра)
+        merged = []
+        for r in out:
+            if merged and r[0] - merged[-1][1] <= 3:
+                merged[-1][1] = r[1]
+            else:
+                merged.append(r)
+        return [r for r in merged if r[1] - r[0] >= 24]
 
-    def empty_row(y):
-        return sum(px[x, y] for x in range(0, w, 2)) / (255 * ((w + 1) // 2)) < 0.03
-
-    def best(size, empty):
-        res = 1
-        for n in range(2, 33):
-            if size % n or size // n < 24:
-                continue
-            step = size // n
-            if all(empty(min(size - 1, i * step)) and empty(i * step - 1) for i in range(1, n)):
-                res = n
-        return res
-    return best(w, empty_col), best(h, empty_row)
+    cols = runs([a.crop((x, 0, x + 1, h)).getbbox() is not None for x in range(w)])
+    rows = runs([a.crop((0, y, w, y + 1)).getbbox() is not None for y in range(h)])
+    if len(cols) * len(rows) < 4:
+        return []
+    # одинаковый размер клетки: самый широкий кадр + немного поля, по центру каждого промежутка
+    cw = max(c[1] - c[0] for c in cols) + 4
+    rh = max(r[1] - r[0] for r in rows) + 4
+    cells = []
+    for r in rows:
+        for c in cols:
+            x0 = max(0, (c[0] + c[1]) // 2 - cw // 2); y0 = max(0, (r[0] + r[1]) // 2 - rh // 2)
+            cells.append((x0, y0, min(w, x0 + cw), min(h, y0 + rh)))
+    return cells, len(cols), len(rows)
 
 
 def animate_sheet(path):
@@ -83,25 +95,29 @@ def animate_sheet(path):
         img = img.convert("RGBA")
     except Exception:
         return None
-    cols, rows = _grid(img)
-    if cols * rows < 4:
+    if max(img.size) < 400:                 # обычная иконка, не лист
         return None
-    fw, fh = img.width // cols, img.height // rows
+    res = _cells(img)
+    if not res:
+        return None
+    cells, cols, rows = res
     frames = []
-    for r in range(rows):
-        for c in range(cols):
-            f = img.crop((c * fw, r * fh, (c + 1) * fw, (r + 1) * fh))
-            if f.getchannel("A").getbbox() is None:      # пустые клетки в конце листа
-                continue
-            if max(fw, fh) > 128:
-                f = f.resize((round(fw * 128 / max(fw, fh)), round(fh * 128 / max(fw, fh))), Image.LANCZOS)
-            frames.append(f)
+    for box in cells:
+        f = img.crop(box)
+        if f.getchannel("A").getbbox() is None:      # пустые клетки в конце листа
+            continue
+        fw, fh = f.size
+        if max(fw, fh) > 96:                         # на сайте плитка 44 px — 96 хватает и для чётких экранов
+            f = f.resize((round(fw * 96 / max(fw, fh)), round(fh * 96 / max(fw, fh))), Image.LANCZOS)
+        frames.append(f)
+    if len(frames) > 60:                             # каждый второй кадр: вращение остаётся плавным, файл вдвое легче
+        frames = frames[::2]
     if len(frames) < 4:
         return None
     out = os.path.splitext(path)[0] + ".webp"
     tmp = out + ".tmp"
     frames[0].save(tmp, "WEBP", save_all=True, append_images=frames[1:], loop=0,
-                   duration=max(25, round(2400 / len(frames))), quality=85, method=4)
+                   duration=max(25, round(4000 / len(frames))), quality=80, method=6)
     if os.path.abspath(path) != os.path.abspath(out):
         os.remove(path)
     os.replace(tmp, out)
