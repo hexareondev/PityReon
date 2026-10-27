@@ -51,10 +51,20 @@ def save_icons(game, items, bases):
     os.makedirs(d, exist_ok=True)
     have = {os.path.splitext(f)[0]: f for f in os.listdir(d)}
     got = new = 0
-    for iid, it in items.items():
-        if iid in have:
-            it["loc"] = "items/icons/%s/%s" % (game, have[iid]); got += 1
-            continue
+    # заглушки: если источник отдаёт одну и ту же картинку разным предметам, это «нет картинки», а не иконка
+    import hashlib
+    seen = {}
+    for f in os.listdir(d):
+        with open(os.path.join(d, f), "rb") as fh:
+            seen.setdefault(hashlib.md5(fh.read()).hexdigest(), []).append(f)
+    for h, fs in seen.items():
+        if len(fs) >= 3:
+            for f in fs:
+                os.remove(os.path.join(d, f)); have.pop(os.path.splitext(f)[0], None)
+            print("  ! удалено %d одинаковых картинок-заглушек" % len(fs))
+    bad = {h for h, fs in seen.items() if len(fs) >= 3}
+    def fetch(iid):
+        """Первая настоящая картинка из источников; заглушки (одна картинка на многие предметы) пропускаются."""
         for u in icon_urls(game, iid, bases.get(iid, "")):
             try:
                 req = urllib.request.Request(u, headers={"User-Agent": "PityReon-costs"})
@@ -63,13 +73,45 @@ def save_icons(game, items, bases):
             except Exception:
                 continue
             ext = ".webp" if data[:4] == b"RIFF" and data[8:12] == b"WEBP" else ".png" if data[:8] == b"\x89PNG\r\n\x1a\n" else ""
-            if not ext or len(data) < 100:
+            hd = hashlib.md5(data).hexdigest()
+            if not ext or len(data) < 100 or hd in bad:
                 continue
-            fn = iid + ext
+            return data, ext, hd
+        return None
+
+    todo = []
+    for iid, it in items.items():
+        if iid in have:
+            it["loc"] = "items/icons/%s/%s" % (game, have[iid])
+        else:
+            todo.append(iid)
+    # два прохода: после первого видно, какие картинки на деле заглушки, и для них пробуются другие источники
+    for _ in range(2):
+        got_now = {}
+        for iid in todo:
+            r = fetch(iid)
+            if r:
+                got_now[iid] = r
+        counts = {}
+        for iid, (_, _, hd) in got_now.items():
+            counts[hd] = counts.get(hd, 0) + 1
+        fresh_bad = {hd for hd, n in counts.items() if n >= 3}
+        if fresh_bad:
+            print("  ! найдены картинки-заглушки: %d шт." % sum(counts[h] for h in fresh_bad))
+        bad |= fresh_bad
+        rest = []
+        for iid in todo:
+            r = got_now.get(iid)
+            if not r or r[2] in bad:
+                rest.append(iid); continue
+            fn = iid + r[1]
             with open(os.path.join(d, fn), "wb") as f:
-                f.write(data)
-            it["loc"] = "items/icons/%s/%s" % (game, fn); got += 1; new += 1
+                f.write(r[0])
+            items[iid]["loc"] = "items/icons/%s/%s" % (game, fn); new += 1
+        todo = rest
+        if not fresh_bad:
             break
+    got = sum(1 for it in items.values() if it.get("loc"))
     print("  иконки: есть %d из %d (новых %d)" % (got, len(items), new))
 
 
