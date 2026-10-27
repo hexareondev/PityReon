@@ -2,10 +2,10 @@
    Свои файлы берутся из сети, если она есть (так всегда открывается свежая версия),
    и сохраняются в кеш; без сети страница открывается из кеша. Шрифты — из кеша
    с фоновым обновлением. Остальные внешние адреса (портреты, базы) не трогаем. */
-const CACHE = "gacha-tracker-v78";
+const CACHE = "gacha-tracker-v79";
 const SHELL = [
   "./", "index.html", "css/style.css",
-  "js/core.js", "js/calendar.js", "js/history.js", "js/pools.js", "js/collection.js", "js/desc.js", "js/showcase-alt.js", "js/showcase.js", "js/hoyolab.js", "js/showcase-extra.js", "js/backup.js", "js/settings.js",
+  "js/core.js", "js/calendar.js", "js/history.js", "js/pools.js", "js/collection.js", "js/desc.js", "js/showcase-alt.js", "js/showcase.js", "js/hoyolab.js", "js/showcase-extra.js", "js/planner.js", "js/backup.js", "js/settings.js",
   "js/pulls.js", "js/achievements.js", "js/odds.js", "js/share.js", "js/sync.js", "js/nav.js",
   "manifest.webmanifest", "favicon.svg",
   "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-512.png", "icons/apple-touch-icon.png"

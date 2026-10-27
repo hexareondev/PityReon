@@ -30,6 +30,9 @@ jobs:
         run: |
           python -m pip install --quiet pillow
           python items/art_focus.py
+      - name: Стоимость прокачки HSR и ZZZ (для планировщика)
+        continue-on-error: true
+        run: python items/fetch_costs.py
       - name: Рекомендуемые характеристики из HoYoLAB (для витрины)
         id: hoyo
         continue-on-error: true

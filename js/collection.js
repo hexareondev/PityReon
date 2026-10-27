@@ -141,6 +141,14 @@ function renderCollection(){
     box.appendChild(b);
   });
 
+  // режим: сетка коллекции или планировщик (Star Rail и ZZZ)
+  const canPlan = typeof PLC === "object" && !!PLC[game];
+  const mode = canPlan && typeof colMode === "function" ? colMode() : "grid";
+  colSeg("colMode", canPlan ? [["grid", "Коллекция"], ["plan", "Планировщик"]] : [], mode, v => { ui.colMode = v; saveUI(); });
+  document.getElementById("colMain").classList.toggle("hidden", mode === "plan");
+  document.getElementById("planView").classList.toggle("hidden", mode !== "plan");
+  if(mode === "plan"){ renderPlanner(); return; }
+
   const g = gameInfo(game);
   const all = colItems(game, acc);
   const kinds = COL_KIND[game] || COL_KIND.hk4e;
@@ -208,6 +216,13 @@ function renderCollection(){
     sub.className = "sb";
     sub.textContent = x.copies ? (x.first ? "с " + x.first.split("-").reverse().join(".") : "дата неизвестна") : "нет";
     c.appendChild(sub);
+    if(x.t === "c"){
+      const sk = built[String(x.id)] ? colSkillLevels(game, acc, String(x.id)) : null;
+      const sl = document.createElement("div");
+      sl.className = "sk num";
+      if(sk){ sl.textContent = sk.map(s => s[1]).join(" · "); sl.title = "Уровни навыков из сборки витрины (без бонуса " + (game === "nap" ? "кинограмм" : game === "hkrpg" ? "эйдолонов" : "созвездий") + "): " + sk.map(s => s[0] + " " + s[1]).join(", "); }
+      c.appendChild(sl);
+    }
     c.onclick = () => openColItem(game, acc, x.id);
     grid.appendChild(c);
   });
@@ -246,6 +261,7 @@ function renderColItem(){
       (x.first ? " · впервые " + x.first.split("-").reverse().join(".") : "") + '</span>'
     : '<span>Пока не получено.</span>';
   colBuildLink(game, acc, x);
+  colSkillsBox(game, acc, x);
   document.getElementById("colExtra").textContent = x.extra;
   document.getElementById("colMinus").disabled = !x.extra;
   document.getElementById("colExtraDate").value = x.extraDate || "";
@@ -257,6 +273,43 @@ function renderColItem(){
     return '<div class="colev"><span class="d">' + esc((r.t || "").slice(0, 16).replace(/^(\d{4})-(\d\d)-(\d\d)/, "$3.$2.$1")) + '</span><span class="b">' +
       esc(bannerInfo(game, r.k).n) + '</span><i>' + esc(lv) + '</i></div>';
   }).join("");
+}
+// уровни навыков из сборки (как в игре, без бонусов от копий): [[название, уровень]]
+function colSkillLevels(game, acc, id){
+  const b = colFindBuild(game, acc, id);
+  const a = b && ((enkaData[game + ":" + b.uid] || {}).agents || {})[id];
+  if(!a || !a.a || typeof scList !== "function") return null;
+  const av = a.a;
+  if(game === "hkrpg"){
+    const names = { 1:"Обычная атака", 2:"Навык", 3:"Абсолютная техника", 4:"Талант" };
+    const r = scList(av.skillTreeList).filter(t => Math.floor(t.pointId / 1000) === Number(id) && names[t.pointId % 1000])
+      .sort((x, y) => x.pointId - y.pointId).map(t => [names[t.pointId % 1000], t.level || 0]);
+    return r.length ? r : null;
+  }
+  if(game === "nap"){
+    const names = { 0:"Обычная атака", 2:"Уклонение", 6:"Поддержка", 1:"Особая атака", 3:"Цепная атака" };
+    const lv = {}; scList(av.SkillLevelList).forEach(s => { lv[s.Index] = s.Level || 0; });
+    const r = [0, 2, 6, 1, 3].filter(k => lv[k] !== undefined).map(k => [names[k], lv[k]]);
+    if(!r.length) return null;
+    r.push(["Ядро", av.CoreSkillEnhancement ? "ABCDEF".charAt(av.CoreSkillEnhancement - 1) : "—"]);
+    return r;
+  }
+  if(game === "hk4e"){
+    const sl = av.skillLevelMap || {};
+    const r = Object.keys(sl).sort((x, y) => Number(x) - Number(y)).map((k, i) => [["Обычная атака", "Элементальный навык", "Взрыв стихии"][i] || "Навык", sl[k]]);
+    return r.length ? r.slice(0, 3) : null;
+  }
+  return null;
+}
+function colSkillsBox(game, acc, x){
+  const box = document.getElementById("colSkills");
+  const sk = x.t === "c" ? colSkillLevels(game, acc, String(x.id)) : null;
+  const canPlan = x.t === "c" && typeof PLC === "object" && PLC[game];
+  box.hidden = !sk && !canPlan;
+  box.innerHTML = (sk ? '<div class="colsk">' + sk.map(s => '<span><b class="num">' + esc(s[1]) + '</b><small>' + esc(s[0]) + '</small></span>').join("") + '</div>' : "") +
+    (canPlan ? '<button class="ghost sm" id="colToPlan">' + (plList(game).some(p => p.id === String(x.id)) ? "Открыть в планировщике" : "Добавить в планировщик") + '</button>' : "");
+  const btn = document.getElementById("colToPlan");
+  if(btn) btn.onclick = () => { closeColItem(); plAddFor(game, String(x.id)); };
 }
 // сборка из витрины: если этот персонаж загружался через Enka — кнопка, открывающая его карточку
 function colFindBuild(game, acc, id){
