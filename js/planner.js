@@ -55,6 +55,8 @@ function plTypeOf(game, c){ return game === "hkrpg" ? c.path : c.type; }
 function plTypeLabel(game, t){
   if(game === "hkrpg") return (typeof HSR_PATH === "object" && HSR_PATH[t]) || t || "?";
   if(typeof ZZZ_PRO === "object" && ZZZ_PRO[t]) return ZZZ_PRO[t];
+  const num = { 1:"Нападение", 2:"Устрашение", 3:"Аномалия", 4:"Поддержка", 5:"Оборона", 6:"Разрушение" }[t];
+  if(num) return num;
   // в данных ZZZ специальность может прийти числом — подписываем примерами агентов
   const C = COST[game]; if(!C) return String(t);
   const names = Object.keys(C.chars).filter(id => String(C.chars[id].type) === String(t) && !C.chars[id].new).slice(-2).map(id => plCharName(game, id));
@@ -89,6 +91,7 @@ function plSkillSteps(cost, max){
   const ks = Object.keys(cost || {}).sort((a, b) => a - b);
   let a = ks.map(k => cost[k] || []);
   while(a.length && !a[0].length) a.shift();
+  while(a.length && !a[a.length - 1].length) a.pop();     // ZZZ: последний уровень — без стоимости (ключ = уровень, с которого повышаем)
   if(max && a.length > max - 1) a = a.slice(a.length - (max - 1));
   return a;
 }
@@ -150,7 +153,7 @@ function plWeaponCost(game, w, wd){
   const steps = plAscSteps(wd.asc, cfg.breaks.length);
   for(let i = cur[1]; i < tgt[1]; i++) plAdd(m, steps[i]);
   if(cur[0] < tgt[0]){
-    const table = game === "hkrpg" ? (C.exp.lc[wd.exp] || C.exp.lc[Object.keys(C.exp.lc)[0]] || []) : (wd.exp || []);
+    const table = game === "hkrpg" ? (C.exp.lc[wd.exp] || C.exp.lc[Object.keys(C.exp.lc)[0]] || []) : (wd.exp || []).slice((wd.exp || []).length > PLC.nap.max ? 1 : 0);   // у амплификатора таблица с уровня 0
     const exp = plExpSum(table, cur[0], tgt[0]);
     plBooks(exp, game === "hkrpg" ? C.exp.lc_books : (C.books || {}).weapon).forEach(b => {
       plAdd(m, [[b[0], b[1]]]);
@@ -276,10 +279,31 @@ function plIcon(game, id, kind, fallback){
   if(!it || !it.i || iconMode() === "off") return letter;
   return letter + '<img alt="" loading="lazy" referrerpolicy="no-referrer" src="' + esc(ENKA_HOST + it.i) + '" onerror="this.remove()">';
 }
+// иконки материалов: у Hakushin картинки лежат в /assets/<игра>/; запасные — StarRailRes (HSR) и Enka
+function plIconUrls(game, id, icon){
+  const base = String(icon || "").split("/").pop().replace(/\.\w+$/, "");
+  const out = [];
+  if(game === "hkrpg"){
+    out.push("https://static.nanoka.cc/assets/hsr/itemfigures/" + id + ".webp",
+      "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/item/" + id + ".png",
+      ENKA_HOST + "/ui/hsr/SpriteOutput/ItemIcon/" + id + ".png");
+  } else if(base){
+    out.push("https://static.nanoka.cc/assets/zzz/" + base + ".webp", ENKA_HOST + "/ui/zzz/" + base + ".png", ENKA_HOST + "/ui/" + base + ".png");
+  }
+  if(icon && out.indexOf(icon) === -1) out.push(icon);
+  return out;
+}
+function plImgErr(img){
+  const rest = (img.getAttribute("data-alt") || "").split("|").filter(Boolean);
+  if(!rest.length){ img.remove(); return; }
+  img.setAttribute("data-alt", rest.slice(1).join("|"));
+  img.src = rest[0];
+}
 function plItemIcon(game, id){
   const it = COST[game] && COST[game].items[String(id)];
   const ch = String(id).charAt(0) === "?" ? "?" : plItemName(game, id).charAt(0);
-  return '<span>' + esc(ch) + '</span>' + (it && it.icon ? '<img alt="" loading="lazy" referrerpolicy="no-referrer" src="' + esc(it.icon) + '" onerror="this.remove()">' : "");
+  const urls = String(id).charAt(0) === "?" || iconMode() === "off" ? [] : (it && it.loc ? [it.loc] : []).concat(plIconUrls(game, id, it && it.icon));
+  return '<span>' + esc(ch) + '</span>' + (urls.length ? '<img alt="" loading="lazy" referrerpolicy="no-referrer" src="' + esc(urls[0]) + '" data-alt="' + esc(urls.slice(1).join("|")) + '" onerror="plImgErr(this)">' : "");
 }
 function plFmt(n){ return n >= 1e6 ? (Math.round(n / 1e5) / 10).toLocaleString("ru-RU") + " млн" : fmt(n); }
 function plItemsHtml(game, m){
@@ -407,7 +431,7 @@ function plFindByName(game, name, kind){
   if(!q) return null;
   const src = kind === "c" ? C.chars : (game === "hkrpg" ? C.lcs : C.weapons);
   const nm = kind === "c" ? id => plCharName(game, id) : id => plWeaponName(game, id);
-  return Object.keys(src).find(id => normName(nm(id)) === q || normName(src[id].n) === q || normName((plDbItem(game, id) || {}).en) === q) || null;
+  return Object.keys(src).find(id => normName(nm(id)) === q || normName(src[id].n) === q || normName((plDbItem(game, id) || {}).en) === q || normName((plDbItem(game, id) || {}).n) === q) || null;
 }
 function plAddByName(){
   const game = plGame(), inp = document.getElementById("plAddName");

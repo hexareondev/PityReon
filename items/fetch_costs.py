@@ -29,6 +29,50 @@ def get(url, tries=3):
             time.sleep(1.5)
 
 
+ICONS = os.path.join(HERE, "icons")
+ENKA = "https://enka.network"
+
+
+def icon_urls(game, iid, base):
+    """Где искать картинку предмета: Hakushin, затем запасные источники."""
+    if game == "hkrpg":
+        return [f"{NANO}/assets/hsr/itemfigures/{iid}.webp", f"{NANO}/hsr/UI/itemfigures/{iid}.webp",
+                f"https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/item/{iid}.png",
+                f"{ENKA}/ui/hsr/SpriteOutput/ItemIcon/{iid}.png"]
+    if not base:
+        return []
+    return [f"{NANO}/assets/zzz/{base}.webp", f"{NANO}/zzz/UI/{base}.webp", f"{ENKA}/ui/zzz/{base}.png", f"{ENKA}/ui/{base}.png"]
+
+
+def save_icons(game, items, bases):
+    """Скачивает иконки материалов в items/icons/<игра>/ (уже скачанные не трогает).
+    В предмет записывается "loc" — путь от корня сайта; где скачать не вышло, сайт пробует ссылки сам."""
+    d = os.path.join(ICONS, game)
+    os.makedirs(d, exist_ok=True)
+    have = {os.path.splitext(f)[0]: f for f in os.listdir(d)}
+    got = new = 0
+    for iid, it in items.items():
+        if iid in have:
+            it["loc"] = "items/icons/%s/%s" % (game, have[iid]); got += 1
+            continue
+        for u in icon_urls(game, iid, bases.get(iid, "")):
+            try:
+                req = urllib.request.Request(u, headers={"User-Agent": "PityReon-costs"})
+                with urllib.request.urlopen(req, timeout=30) as r:
+                    data = r.read()
+            except Exception:
+                continue
+            ext = ".webp" if data[:4] == b"RIFF" and data[8:12] == b"WEBP" else ".png" if data[:8] == b"\x89PNG\r\n\x1a\n" else ""
+            if not ext or len(data) < 100:
+                continue
+            fn = iid + ext
+            with open(os.path.join(d, fn), "wb") as f:
+                f.write(data)
+            it["loc"] = "items/icons/%s/%s" % (game, fn); got += 1; new += 1
+            break
+    print("  иконки: есть %d из %d (новых %d)" % (got, len(items), new))
+
+
 def pairs(lst):
     """[{item_id, item_num}] или {id: num} → [[id, num]]"""
     out = []
@@ -140,7 +184,8 @@ def hsr(ver):
         it = items_all.get(str(i)) or {}
         icon = os.path.splitext(os.path.basename(it.get("item_figure_icon_path") or ""))[0]
         items[str(i)] = {"n": it.get("item_name") or "", "r": rarity_num({"Normal": 1, "NotNormal": 2, "Rare": 3, "VeryRare": 4, "SuperRare": 5}.get(it.get("rarity"), 0)),
-                         "t": it.get("item_sub_type") or "", "icon": (NANO + "/hsr/UI/itemfigures/" + icon + ".webp") if icon else ""}
+                         "t": it.get("item_sub_type") or "", "icon": (NANO + "/assets/hsr/itemfigures/" + icon + ".webp") if icon else ""}
+    save_icons("hkrpg", items, {})
     exp = {"avatar": {g: [t.get(l, 0) for l in range(1, max(t) + 1)] for g, t in exp_av.items()},
            "lc": {g: [t.get(l, 0) for l in range(1, max(t) + 1)] for g, t in exp_lc.items()},
            "avatar_books": av_books, "lc_books": lc_books}
@@ -214,11 +259,13 @@ def zzz(ver, new_ids):
         ids_in(list(c["core"].values()), used)
         for s in c["skills"].values():
             ids_in(list(s.values()), used)
-    items = {}
+    items, bases = {}, {}
     for i in sorted(used):
         it = items_all.get(str(i)) or {}
         icon = os.path.splitext(os.path.basename(it.get("icon") or ""))[0]
-        items[str(i)] = {"n": it.get("name") or "", "r": it.get("rank") or 0, "icon": (NANO + "/zzz/UI/" + icon + ".webp") if icon else ""}
+        bases[str(i)] = icon
+        items[str(i)] = {"n": it.get("name") or "", "r": it.get("rank") or 0, "icon": (NANO + "/assets/zzz/" + icon + ".webp") if icon else ""}
+    save_icons("nap", items, bases)
     print("  агентов %d, амплификаторов %d, предметов %d, ошибок %d" % (len(chars), len(weapons), len(items), fails))
     print("  без возвышений: %d, без навыков: %d, амплификаторов без возвышений: %d, предметов без названия: %d" % (
         sum(1 for c in chars.values() if not any(c["asc"])), sum(1 for c in chars.values() if not c["skills"]),
