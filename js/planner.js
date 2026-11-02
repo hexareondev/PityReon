@@ -313,14 +313,48 @@ function plPools(game){
   return game === "hkrpg" ? [C.exp.avatar_books || [], (C.exp.lc_books || []).map(b => [b[0], b[1]])]
     : [(C.books || {}).agent || [], (C.books || {}).weapon || []];
 }
+/* ── крафт: 3 предмета младшего ранга → 1 старшего ──
+   Star Rail: материалы следов и общие материалы с врагов, 20 кредитов за крафт.
+   ZZZ: чипы, жетоны и компоненты; 100 денни за средний, 300 — за высший. */
+function plCraftOn(){ return ui.plCraft !== false; }
+function plLower(game, id){
+  const C = COST[game], n = Number(id);
+  if(!C || !n) return null;
+  if(game === "nap"){
+    const tier = Math.floor(n / 10) % 10;
+    const ok = (n >= 100110 && n <= 100139) || (n >= 100210 && n <= 100239) || (n >= 101010 && n <= 101039);
+    return ok && tier >= 2 && C.items[String(n - 10)] ? String(n - 10) : null;
+  }
+  const it = C.items[String(id)], lo = C.items[String(n - 1)];
+  if(!it || !lo || !/^(TracePath|CommonMonsterDrop)$/.test(it.t || "") || lo.t !== it.t || (lo.r || 0) !== (it.r || 0) - 1) return null;
+  return String(n - 1);
+}
+function plCraftPrice(game, id){ return game === "nap" ? (Math.floor(Number(id) / 10) % 10 >= 3 ? 300 : 100) : 20; }
+
 function plAlloc(game){
   const inv = plInv(game), left = {}, pools = plPools(game);
   Object.keys(inv).forEach(k => { left[k] = Number(inv[k]) || 0; });
   const poolLeft = pools.map(pb => pb.reduce((a, b) => a + (left[String(b[0])] || 0) * b[1], 0));
   const poolOf = {}; pools.forEach((pb, i) => pb.forEach(b => { poolOf[String(b[0])] = [i, b[1]]; }));
-  const res = { per:[], total:{}, short:{}, poolShort:[0, 0] };
+  const res = { per:[], total:{}, short:{}, poolShort:[0, 0], craft:{}, craftCost:0 };
+  const money = PLC[game].money, craftOn = plCraftOn();
+  // сделать до n штук id из младших (рекурсивно); готовое кладётся в left[id]
+  const make = (id, n, st) => {
+    const lo = plLower(game, id);
+    if(!lo || n <= 0) return 0;
+    const want = 3 * n;
+    if((left[lo] || 0) < want) make(lo, want - (left[lo] || 0), st);
+    const k = Math.min(n, Math.floor((left[lo] || 0) / 3));
+    if(k <= 0) return 0;
+    left[lo] -= 3 * k; left[id] = (left[id] || 0) + k;
+    const cost = k * plCraftPrice(game, id);
+    left[money] = (left[money] || 0) - cost;
+    st.craft[id] = (st.craft[id] || 0) + k; st.craftCost += cost;
+    res.craft[id] = (res.craft[id] || 0) + k; res.craftCost += cost;
+    return k;
+  };
   plList(game).forEach((p, i) => {
-    const m = plCost(game, p).m, st = { m, short:{}, poolShort:[0, 0], lack:0 };
+    const m = plCost(game, p).m, st = { m, short:{}, poolShort:[0, 0], lack:0, craft:{}, craftCost:0 };
     if(p.on){
       Object.keys(m).forEach(k => { res.total[k] = (res.total[k] || 0) + m[k]; });
       // опыт: сначала весь опыт персонажа из запаса
@@ -331,13 +365,22 @@ function plAlloc(game){
         const take = Math.min(n, poolLeft[j]); poolLeft[j] -= take;
         if(n > take){ st.poolShort[j] = n - take; res.poolShort[j] += n - take; }
       });
-      Object.keys(m).forEach(k => {
-        if(poolOf[k]) return;
+      // младшие ранги раньше старших (свои нужды младшего ранга не уходят в крафт), валюта — последней: крафт тоже её тратит
+      const keys = Object.keys(m).filter(k => !poolOf[k] && k !== money).sort((a, b) => Number(a) - Number(b));
+      keys.forEach(k => {
         if(k.charAt(0) === "?"){ st.short[k] = m[k]; res.short[k] = (res.short[k] || 0) + m[k]; return; }   // неизвестное заранее не запасёшь
-        const have = left[k] || 0, take = Math.min(have, m[k]);
-        left[k] = have - take;
+        if(craftOn && (left[k] || 0) < m[k]) make(k, m[k] - (left[k] || 0), st);
+        const have = Math.max(0, left[k] || 0), take = Math.min(have, m[k]);
+        left[k] = (left[k] || 0) - take;
         if(m[k] > take){ st.short[k] = m[k] - take; res.short[k] = (res.short[k] || 0) + m[k] - take; }
       });
+      // валюта: по плану плюс на крафт (крафт уже вычел её из запаса, запас мог уйти в минус)
+      const needM = m[money] || 0, avail = left[money] || 0;
+      if(needM || st.craftCost){
+        const sh = Math.max(0, needM - avail);
+        if(sh){ st.short[money] = sh; res.short[money] = (res.short[money] || 0) + sh; }
+        left[money] = Math.max(0, avail - needM);
+      }
       st.lack = Object.keys(st.short).filter(k => k.charAt(0) !== "?").length + st.poolShort.filter(Boolean).length;
       st.unknown = Object.keys(st.short).some(k => k.charAt(0) === "?");
     }
@@ -385,6 +428,7 @@ function plItemsHtml(game, m, st, poolOf){
   const books = new Set([].concat(game === "hkrpg" ? (C.exp.avatar_books || []).concat(C.exp.lc_books || []) : ((C.books || {}).agent || []).concat((C.books || {}).weapon || [])).map(b => String(b[0])));
   // как в игре: валюта, материалы (включая боссов), затем книги опыта персонажей и оружия, в конце неизвестные
   const rank = id => id === money ? 0 : id.charAt(0) === "?" ? 3 : books.has(id) ? 2 : 1;
+  if(st && st.craftCost){ m = Object.assign({}, m); m[money] = (m[money] || 0) + st.craftCost; }   // валюта — вместе с тратами на крафт
   const ids = Object.keys(m).filter(id => m[id] > 0).sort((a, b) => rank(a) - rank(b) ||
     (rank(a) === 1 || rank(a) === 2 ? Number(a) - Number(b) : 0) || ((C.items[b] || {}).r || 0) - ((C.items[a] || {}).r || 0) || a.localeCompare(b));
   if(!ids.length) return '<p class="hint plnone">Ничего не нужно — всё уже прокачано.</p>';
@@ -392,6 +436,8 @@ function plItemsHtml(game, m, st, poolOf){
     const it = C.items[id] || {}, r = id.charAt(0) === "?" ? Number(id.slice(1)) : it.r || 0;
     const name = plItemName(game, id) + (id.charAt(0) === "?" ? " (" + (r ? r + "★" : "редкость неизвестна") + ")" : "");
     let cls = "", lack = "", tip = name + " — нужно " + fmt(m[id]);
+    if(st && id === money && st.craftCost) tip += " (из них на крафт " + fmt(st.craftCost) + ")";
+    const cr = st && st.craft && st.craft[id];
     if(st){
       const po = poolOf && poolOf[id];
       const sh = po ? st.poolShort[po[0]] : st.short[id] || 0;
@@ -401,6 +447,7 @@ function plItemsHtml(game, m, st, poolOf){
         if(po){ lack = '<em>опыта −' + esc(plFmt(sh)) + '</em>'; tip += "; не хватает опыта: " + fmt(sh) + " (≈ " + fmt(Math.ceil(sh / po[1])) + " шт. этой книги)"; }
         else { lack = '<em>−' + esc(plFmt(sh)) + '</em>'; tip += "; не хватает " + fmt(sh); }
       } else { cls = " ok"; tip += "; хватает"; }
+      if(cr){ lack += '<em class="cr">⚒ скрафтить ' + esc(plFmt(cr)) + '</em>'; tip += "; скрафтить " + fmt(cr) + " из младшего ранга (3 → 1)" + " — сюда входит и то, что пойдёт на крафт следующего ранга"; }
     }
     return '<div class="pli' + plRarCls(game, r) + (id.charAt(0) === "?" ? " unk" : " pick") + cls + '"' + (id.charAt(0) === "?" ? "" : ' data-item="' + esc(id) + '"') + ' title="' + esc(tip + (id.charAt(0) === "?" ? "" : " · нажмите, чтобы начислить")) + '"><i>' + plItemIcon(game, id) + '</i><b class="num">' + esc(plFmt(m[id])) + '</b>' + lack + '<small>' + esc(name) + '</small></div>';
   }).join("");
@@ -511,8 +558,10 @@ function renderPlanner(){
     const lackN = Object.keys(al.short).filter(k => k.charAt(0) !== "?").length + al.poolShort.filter(Boolean).length;
     h += '<div class="card pltotal"><div class="plth"><h2>Всего нужно</h2><small class="hint" style="margin:0">' + on + ' из ' + list.length + ' в итоге' +
       (game === "hkrpg" ? " · кредиты за опыт персонажей не учтены" : " · денни за опыт не учтены") + '</small>' +
-      (hasInv ? (lackN ? '<span class="plst bad">не хватает: ' + lackN + '</span>' : '<span class="plst ok">всего хватает</span>') : '<button class="linkbtn" id="plGoInv">внесите инвентарь — подсвечу, чего не хватает</button>') +
-      '</div><div class="plitems">' + plItemsHtml(game, total, hasInv ? { short: al.short, poolShort: al.poolShort } : null, al.poolOf) + '</div></div>';
+      (hasInv ? (lackN ? '<span class="plst bad">не хватает: ' + lackN + '</span>' : '<span class="plst ok">всего хватает</span>') +
+        '<label class="synccheck plcraft" title="Недостающее старшего ранга собирается из лишних младших: 3 → 1' + (game === "nap" ? ", 100 или 300 денни за крафт" : ", 20 кредитов за крафт") + '"><input type="checkbox" id="plCraft"' + (plCraftOn() ? " checked" : "") + '> с крафтом</label>'
+        : '<button class="linkbtn" id="plGoInv">внесите инвентарь — подсвечу, чего не хватает</button>') +
+      '</div><div class="plitems">' + plItemsHtml(game, total, hasInv ? { short: al.short, poolShort: al.poolShort, craft: al.craft, craftCost: al.craftCost } : null, al.poolOf) + '</div></div>';
   } else {
     h += '<p class="hint">План пуст. Добавьте персонажа — текущие уровни подтянутся из витрины, если его сборка загружалась, — или заглушку будущего персонажа для префарма.</p>';
   }
@@ -680,6 +729,7 @@ document.getElementById("planView").addEventListener("change", e => {
   const game = plGame(); if(!game) return;
   const t = e.target, f = t.getAttribute("data-f");
   if(t.id === "plInvAll"){ PS.invAll = t.checked; renderPlanner(); return; }
+  if(t.id === "plCraft"){ ui.plCraft = t.checked; saveUI(); renderPlanner(); return; }
   if(t.getAttribute("data-inv")){
     // перерисовка после ввода; фокус возвращаем туда, куда пользователь перешёл (Tab)
     setTimeout(() => {

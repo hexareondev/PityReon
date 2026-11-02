@@ -1918,3 +1918,5 @@ input.bad{outline:2px solid var(--crimson)}
 .plinvi.ok em{color:#9fe0b0}
 .plnone{grid-column:1/-1;margin:0}
 .plitemsheet .row button{white-space:nowrap;padding:11px 8px}
+.pli em.cr{color:var(--gold-hot)}
+.plcraft{margin:0 0 0 auto;font-size:12px}
