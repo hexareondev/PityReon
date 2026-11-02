@@ -132,6 +132,7 @@ function zzzVM(av){
     subs.forEach(s => { if(s[0] === "20103") cv += 2 * s[1]; if(s[0] === "21103") cv += s[1]; });
     slots.push({ pos: slot.Slot || e.Slot || slots.length + 1, label: String(slot.Slot || slots.length + 1), set: scLoc(su), icon: su.icon, lvl: e.Level || 0, top: rar === 4, rank: rar === 4 ? "S" : rar === 3 ? "A" : "B",
       main: mains[0] ? [zProp(mains[0][0]), zVal(mains[0][0], mains[0][1]), zIc(mains[0][0]), mains[0][0].slice(0, 3)] : null,
+      mainVal: !!(mains[0] && valuable[mains[0][0]]),
       subs: subs.map(s => ({ n: zProp(s[0]), v: zVal(s[0], s[1]), up: s[2] - 1, val: !!valuable[s[0]], ic: zIc(s[0]), key: s[0], raw: s[1], fmt: v => zVal(s[0], v) })) });
   });
   const sets = Object.keys(cnt).filter(s => s && cnt[s] >= 2).sort((a, b) => cnt[b] - cnt[a]).map(s => {
@@ -258,7 +259,8 @@ function hsrVM(av){
     const [rar, type, mg, sg, setId, icon] = it;
     cnt[setId] = (cnt[setId] || 0) + 1;
     const ma = ((B.main[String(mg)] || {})[String(r.mainAffixId)]) || null;
-    let main = null;
+    let main = null, mainVal = false;
+    if(ma){ mainVal = isVal(hProp(ma.Property).k, hProp(ma.Property).pct); }
     if(ma){ const v = ma.BaseValue + ma.LevelAdd * (r.level || 0), pp = hProp(ma.Property); put(ma.Property, v); main = [hLabel(pp.k), hVal(pp.pct, v, pp.k === "Speed"), hIc(pp.k)]; }
     const subs = scList(r.subAffixList).map(s => {
       const x = (B.sub[String(sg)] || {})[String(s.affixId)]; if(!x) return null;
@@ -269,7 +271,7 @@ function hsrVM(av){
     }).filter(Boolean);
     const pos = typeof r.type === "number" ? r.type : (HSR_SLOT[type] || slots.length + 1);
     const st = B.sets[String(setId)] || {};
-    slots.push({ pos, label: HSR_SLOT[pos] || String(pos), set: scLoc(st), icon, lvl: r.level || 0, top: rar === 5, main, subs });
+    slots.push({ pos, label: HSR_SLOT[pos] || String(pos), set: scLoc(st), icon, lvl: r.level || 0, top: rar === 5, main, mainVal, subs });
   });
   const sets = Object.keys(cnt).filter(s => cnt[s] >= 2).sort((a, b) => cnt[b] - cnt[a]).map(s => {
     const st = B.sets[s] || {};
@@ -412,7 +414,7 @@ function giVM(av){
     const ids = (eq.reliquary.appendPropIdList || []).map(x => GI_FP[B.affix[String(x)]]);
     const ms = fl.reliquaryMainstat || {};
     slots.push({ pos: sl[0], label: sl[1], set: scLoc(B.sets[hash]) || fl.setName || "", icon: giIcon(fl.icon), lvl: Math.max(0, (eq.reliquary.level || 1) - 1), top: fl.rankLevel === 5,
-      main: ms.mainPropId ? [gLabel(ms.mainPropId), gVal(ms.mainPropId, ms.statValue), gIc(ms.mainPropId)] : null, mainKey: ms.mainPropId || "",
+      main: ms.mainPropId ? [gLabel(ms.mainPropId), gVal(ms.mainPropId, ms.statValue), gIc(ms.mainPropId)] : null, mainKey: ms.mainPropId || "", mainVal: !!(ms.mainPropId && valuable[ms.mainPropId]),
       subs: (fl.reliquarySubstats || []).map(s => {
         if(s.appendPropId === "FIGHT_PROP_CRITICAL") cv += 2 * s.statValue;
         if(s.appendPropId === "FIGHT_PROP_CRITICAL_HURT") cv += s.statValue;

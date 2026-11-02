@@ -74,6 +74,9 @@ const GX_FLAT = { FIGHT_PROP_ATTACK:"FIGHT_PROP_ATTACK_PERCENT", FIGHT_PROP_HP:"
 const HX_FLAT = { Attack:"Attack%", MaxHP:"MaxHP%", Defence:"Defence%" };
 // n — сколько раз выпадали полезные характеристики; максимум — на каждый предмет (k + 5): по одному разу каждой из k полезных и 5 усилений.
 // Простые числа (атака, HP, защита) засчитываются на треть, если полезен их процент.
+// максимум полезных усилений предмета: каждая полезная доп. характеристика (до 4) даёт 1 + все 5 повышений.
+// Если основная характеристика сама полезная, в доп. её не будет — на одну полезную меньше
+function slotMax(k, d){ return Math.max(1, Math.min(4, k - (d && d.mainVal ? 1 : 0))) + 5; }
 function gxGrade(vm, slotsN, flatMap){
   const val = vm.valuable || {}, useful = {}, FLAT = flatMap || GX_FLAT;
   let n = 0;
@@ -83,8 +86,10 @@ function gxGrade(vm, slotsN, flatMap){
     else if(FLAT[s.key] && val[FLAT[s.key]]) n += r / 3;
   }));
   n = Math.round(n * 10) / 10;
-  const k = Math.min(4, Object.keys(val).filter(x => val[x]).length);
-  const max = (slotsN || 5) * (k + 5), p = n / max;
+  const k = Object.keys(val).filter(x => val[x]).length;
+  let max = 0;
+  for(let i = 0; i < (slotsN || 5); i++) max += slotMax(k, vm.slots[i] && !vm.slots[i].empty ? vm.slots[i] : null);
+  const p = n / max;
   return { n, max, useful, g: p >= .7 ? "SS" : p >= .56 ? "S" : p >= .42 ? "A" : p >= .28 ? "B" : "C" };
 }
 // короткие подписи для узких карточек артефактов (полное название — во всплывающей подсказке)
@@ -212,17 +217,19 @@ const ZX_FLAT = { "12103":"12102", "11103":"11102", "13103":"13102" };
 // из возможных на одном предмете (по разу каждой из k полезных, k ≤ 4, и 5 усилений); лучший и худший отмечаются
 function pcScores(vm, game){
   const val = vm.valuable || {}, FLAT = game === "nap" ? ZX_FLAT : game === "hkrpg" ? HX_FLAT : GX_FLAT;
-  const k = Math.min(4, Object.keys(val).filter(x => val[x]).length) || 4, max = k + 5;
+  const k = Object.keys(val).filter(x => val[x]).length || 4;
   const out = vm.slots.map(d => {
     if(d.empty || !(d.subs || []).length) return null;
+    const max = slotMax(k, d);
     let n = 0;
     d.subs.forEach(s => { const r = (s.up || 0) + 1; if(s.val) n += r; else if(FLAT[String(s.key)] && val[FLAT[String(s.key)]]) n += r / 3; });
     return { n: Math.round(n * 10) / 10, max };
   });
   const xs = out.filter(Boolean);
   if(xs.length >= 3){
-    const hi = Math.max(...xs.map(x => x.n)), lo = Math.min(...xs.map(x => x.n));
-    if(hi > lo){ xs.forEach(x => { if(x.n === hi) x.best = true; if(x.n === lo) x.worst = true; }); }
+    // сравниваем долю от возможного: у предмета с полезной основной характеристикой максимум ниже
+    const q = x => x.n / x.max, hi = Math.max(...xs.map(q)), lo = Math.min(...xs.map(q));
+    if(hi > lo){ xs.forEach(x => { if(q(x) === hi) x.best = true; if(q(x) === lo) x.worst = true; }); }
   }
   return out;
 }
@@ -240,8 +247,9 @@ function zxGrade(vm){
     if(val[k]) n += r; else if(ZX_FLAT[k] && val[ZX_FLAT[k]]) n += r / 3;
   }));
   n = Math.round(n * 10) / 10;
-  const k = Math.min(4, Object.keys(val).filter(x => val[x]).length);
-  const max = k ? 6 * (k + 5) : 48;
+  const k = Object.keys(val).filter(x => val[x]).length;
+  let max = 0;
+  for(let i = 0; i < 6; i++) max += k ? slotMax(k, vm.slots[i] && !vm.slots[i].empty ? vm.slots[i] : null) : 8;
   const p = n / max;
   return { n, max, g: p >= .7 ? "SS" : p >= .56 ? "S" : p >= .42 ? "A" : p >= .28 ? "B" : "C" };
 }
