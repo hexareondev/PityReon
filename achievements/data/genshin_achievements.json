@@ -4,15 +4,15 @@
   "game_title": "Genshin Impact",
   "lang": "ru",
   "source": "stardb.gg",
-  "generated_at": "2026-10-08T17:19:29Z",
+  "generated_at": "2026-11-04T10:58:23Z",
   "currency": "primogem",
-  "total": 1854,
-  "total_reward": 14085,
+  "total": 1878,
+  "total_reward": 14290,
   "series": [
     {
       "id": 0,
       "name": "Чудеса света",
-      "count": 994
+      "count": 995
     },
     {
       "id": 17,
@@ -370,9 +370,19 @@
       "count": 21
     },
     {
+      "id": 73,
+      "name": "Снежная: Святой город льда и Бледной звезды II",
+      "count": 16
+    },
+    {
       "id": 70,
-      "name": "Край пробудившихся теней",
+      "name": "Край пробудившихся теней I",
       "count": 15
+    },
+    {
+      "id": 74,
+      "name": "Край пробудившихся теней II",
+      "count": 7
     }
   ],
   "achievements": [
@@ -8575,6 +8585,17 @@
       "gacha": false,
       "missable": false,
       "impossible": false
+    },
+    {
+      "id": 81755,
+      "series_id": 0,
+      "name": "Прибытие посланника",
+      "description": "Завершите «Тайные приказы ледяного дворца II».",
+      "reward": 5,
+      "hidden": false,
+      "gacha": false,
+      "missable": false,
+      "impossible": true
     },
     {
       "id": 82008,
@@ -25331,6 +25352,182 @@
       "impossible": false
     },
     {
+      "id": 86092,
+      "series_id": 73,
+      "name": "Исследование мира: Страна вечных снегов II",
+      "description": "Откройте карты Новокитежграда и Крылатого пика в области Снежной.",
+      "reward": 5,
+      "hidden": false,
+      "gacha": false,
+      "missable": false,
+      "impossible": true
+    },
+    {
+      "id": 86093,
+      "series_id": 73,
+      "name": "Покорение ледяных пустошей II",
+      "description": "Активируйте все точки телепортации в Новокитежграде и на Крылатом пике в области Снежной.",
+      "reward": 5,
+      "hidden": false,
+      "gacha": false,
+      "missable": false,
+      "impossible": true
+    },
+    {
+      "id": 86094,
+      "series_id": 73,
+      "name": "Паломник святилища: Страна вечных снегов II",
+      "description": "Снимите печати со всех Усыпальниц глубин в Новокитежграде и на Крылатом пике в области Снежной.",
+      "reward": 10,
+      "hidden": false,
+      "gacha": false,
+      "missable": false,
+      "impossible": true
+    },
+    {
+      "id": 86095,
+      "series_id": 73,
+      "name": "Дары Сферы теней: Страна вечных снегов II",
+      "description": "Снимите печати со всех Хранилищ реликвий Сферы теней в Новокитежграде и на Крылатом пике в области Снежной.",
+      "reward": 10,
+      "hidden": false,
+      "gacha": false,
+      "missable": false,
+      "impossible": true
+    },
+    {
+      "id": 86096,
+      "series_id": 73,
+      "name": "Проводник морозных равнин II",
+      "description": "Доведите фей (4) до их садов в Новокитежграде и на Крылатом пике.",
+      "reward": 5,
+      "hidden": false,
+      "gacha": false,
+      "missable": false,
+      "impossible": true
+    },
+    {
+      "id": 86097,
+      "series_id": 73,
+      "name": "Проводник морозных равнин II",
+      "description": "Доведите фей (9) до их садов в Новокитежграде и на Крылатом пике.",
+      "reward": 10,
+      "hidden": false,
+      "gacha": false,
+      "missable": false,
+      "impossible": true
+    },
+    {
+      "id": 86098,
+      "series_id": 73,
+      "name": "Проводник морозных равнин II",
+      "description": "Доведите фей (18) до их садов в Новокитежграде и на Крылатом пике.",
+      "reward": 20,
+      "hidden": false,
+      "gacha": false,
+      "missable": false,
+      "impossible": true
+    },
+    {
+      "id": 86099,
+      "series_id": 73,
+      "name": "Охотник за сокровищами зимы II",
+      "description": "Откройте сундуки ×45 в Новокитежграде и на Крылатом пике.",
+      "reward": 5,
+      "hidden": false,
+      "gacha": false,
+      "missable": false,
+      "impossible": true
+    },
+    {
+      "id": 86100,
+      "series_id": 73,
+      "name": "Охотник за сокровищами зимы II",
+      "description": "Откройте сундуки ×90 в Новокитежграде и на Крылатом пике.",
+      "reward": 10,
+      "hidden": false,
+      "gacha": false,
+      "missable": false,
+      "impossible": true
+    },
+    {
+      "id": 86101,
+      "series_id": 73,
+      "name": "Охотник за сокровищами зимы II",
+      "description": "Откройте сундуки ×180 в Новокитежграде и на Крылатом пике.",
+      "reward": 20,
+      "hidden": false,
+      "gacha": false,
+      "missable": false,
+      "impossible": true
+    },
+    {
+      "id": 86102,
+      "series_id": 73,
+      "name": "Искатель приключений в зимних краях II",
+      "description": "Завершите ограниченные по времени испытания открытого мира (3) в Новокитежграде и на Крылатом пике.",
+      "reward": 5,
+      "hidden": false,
+      "gacha": false,
+      "missable": false,
+      "impossible": true
+    },
+    {
+      "id": 86103,
+      "series_id": 73,
+      "name": "Искатель приключений в зимних краях II",
+      "description": "Завершите ограниченные по времени испытания открытого мира (7) в Новокитежграде и на Крылатом пике.",
+      "reward": 10,
+      "hidden": false,
+      "gacha": false,
+      "missable": false,
+      "impossible": true
+    },
+    {
+      "id": 86104,
+      "series_id": 73,
+      "name": "Искатель приключений в зимних краях II",
+      "description": "Завершите ограниченные по времени испытания открытого мира (14) в Новокитежграде и на Крылатом пике.",
+      "reward": 20,
+      "hidden": false,
+      "gacha": false,
+      "missable": false,
+      "impossible": true
+    },
+    {
+      "id": 86105,
+      "series_id": 73,
+      "name": "Не восстанем, не увидим друг друга",
+      "description": "Станьте свидетелем судьбы великого князя-домового Альвиса и его дочери Фруд.",
+      "reward": 10,
+      "hidden": false,
+      "gacha": false,
+      "missable": false,
+      "impossible": true
+    },
+    {
+      "id": 86106,
+      "series_id": 73,
+      "name": "Глубокий канфар",
+      "description": "Повысьте уровень совместного развития «Места встречи: Оазис Тепло» до максимального.",
+      "reward": 5,
+      "hidden": false,
+      "gacha": false,
+      "missable": false,
+      "impossible": true
+    },
+    {
+      "id": 86107,
+      "series_id": 73,
+      "name": "Чёрное эхо",
+      "description": "Повысьте уровень совместного развития «Места встречи: Королевское управление железнодорожного транспорта» до максимального.",
+      "reward": 5,
+      "hidden": false,
+      "gacha": false,
+      "missable": false,
+      "impossible": true
+    },
+    {
       "id": 86059,
       "series_id": 70,
       "name": "Восстановитель тундры",
@@ -25509,6 +25706,83 @@
       "gacha": false,
       "missable": false,
       "impossible": false
+    },
+    {
+      "id": 86108,
+      "series_id": 74,
+      "name": "Сосруко здесь!",
+      "description": "Получить дробовик «Пламя Сосруко».",
+      "reward": 5,
+      "hidden": false,
+      "gacha": false,
+      "missable": false,
+      "impossible": true
+    },
+    {
+      "id": 86109,
+      "series_id": 74,
+      "name": "Рекомендую вот это. Что скажете?",
+      "description": "Получите дробовик «Горная охота Апсата».",
+      "reward": 5,
+      "hidden": false,
+      "gacha": false,
+      "missable": false,
+      "impossible": true
+    },
+    {
+      "id": 86110,
+      "series_id": 74,
+      "name": "Эксперт городского боя",
+      "description": "На этапах «Перекрёстная наковальня», «Укреплённый порт» и «Старый город бедствий» режима «Горнило безысходности» получите не менее 1 боевой медали на каждом этапе.",
+      "reward": 5,
+      "hidden": false,
+      "gacha": false,
+      "missable": false,
+      "impossible": true
+    },
+    {
+      "id": 86111,
+      "series_id": 74,
+      "name": "Дыхание Кул-Дарагона",
+      "description": "Установите 4 модуля на «Пламя Сосруко».",
+      "reward": 10,
+      "hidden": false,
+      "gacha": false,
+      "missable": false,
+      "impossible": true
+    },
+    {
+      "id": 86112,
+      "series_id": 74,
+      "name": "Супердробовик",
+      "description": "Установите 4 модуля на «Горную охоту Апсата».",
+      "reward": 10,
+      "hidden": false,
+      "gacha": false,
+      "missable": false,
+      "impossible": true
+    },
+    {
+      "id": 86113,
+      "series_id": 74,
+      "name": "Стреляй и кромсай. До самого конца",
+      "description": "Сделайте 10 выстрелов подряд из «Пламени Сосруко» за 15 сек.",
+      "reward": 5,
+      "hidden": false,
+      "gacha": false,
+      "missable": false,
+      "impossible": true
+    },
+    {
+      "id": 86114,
+      "series_id": 74,
+      "name": "Хотя он и не великан...",
+      "description": "Попадите тяжёлым снарядом из «Горной охоты Апсата» в противника с расстояния более 30 м.",
+      "reward": 5,
+      "hidden": false,
+      "gacha": false,
+      "missable": false,
+      "impossible": true
     }
   ]
 }
