@@ -786,6 +786,11 @@
   "CriticalChance",
   "CriticalDamage"
  ],
+ "hkrpg:1511": [
+  "Speed",
+  "CriticalChance",
+  "CriticalDamage"
+ ],
  "hkrpg:1512": [
   "MaxHP%",
   "Speed",

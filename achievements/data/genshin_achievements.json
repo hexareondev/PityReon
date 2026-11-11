@@ -4,15 +4,15 @@
   "game_title": "Genshin Impact",
   "lang": "ru",
   "source": "stardb.gg",
-  "generated_at": "2026-11-04T10:58:23Z",
+  "generated_at": "2026-11-11T11:01:34Z",
   "currency": "primogem",
-  "total": 1878,
-  "total_reward": 14290,
+  "total": 1909,
+  "total_reward": 14455,
   "series": [
     {
       "id": 0,
       "name": "Чудеса света",
-      "count": 995
+      "count": 1026
     },
     {
       "id": 17,
@@ -8587,15 +8587,220 @@
       "impossible": false
     },
     {
+      "id": 81733,
+      "series_id": 0,
+      "name": "Бродячие слова",
+      "description": "Запишите в Полевых заметках истории прошлого восточной части Снежной.",
+      "reward": 5,
+      "hidden": true,
+      "version": "7.2",
+      "gacha": false,
+      "missable": false,
+      "impossible": false
+    },
+    {
+      "id": 81734,
+      "series_id": 0,
+      "name": "Треск кристалла",
+      "description": "Запишите в Полевых заметках все сведения о событиях в Новокитежграде.",
+      "reward": 5,
+      "hidden": true,
+      "version": "7.2",
+      "gacha": false,
+      "missable": false,
+      "impossible": false
+    },
+    {
+      "id": 81735,
+      "series_id": 0,
+      "name": "Золотой шахтёр",
+      "description": "Впервые разрушьте каменную породу, окружающую кристаллическую руду.",
+      "reward": 5,
+      "hidden": true,
+      "version": "7.2",
+      "gacha": false,
+      "missable": false,
+      "impossible": false
+    },
+    {
+      "id": 81736,
+      "series_id": 0,
+      "name": "Творец пустот в земной коре",
+      "description": "Разрушьте огромное количество каменной породы, окружающей кристаллическую руду.",
+      "reward": 5,
+      "hidden": true,
+      "version": "7.2",
+      "gacha": false,
+      "missable": false,
+      "impossible": false
+    },
+    {
+      "id": 81738,
+      "series_id": 0,
+      "name": "Мьёльнир?",
+      "description": "Бросьте создание вечного льда: кирку, чтобы разрушить каменную породу вдали.",
+      "reward": 5,
+      "hidden": true,
+      "version": "7.2",
+      "gacha": false,
+      "missable": false,
+      "impossible": false
+    },
+    {
+      "id": 81739,
+      "series_id": 0,
+      "name": "Гораздо эффективнее волшебной палочки...",
+      "description": "Впервые воспользуйтесь скорострельной автопушкой.",
+      "reward": 5,
+      "hidden": true,
+      "version": "7.2",
+      "gacha": false,
+      "missable": false,
+      "impossible": false
+    },
+    {
+      "id": 81740,
+      "series_id": 0,
+      "name": "Два героя Старого города",
+      "description": "Победите двух защитников Старого Китежграда, поражённых разложением.",
+      "reward": 5,
+      "hidden": true,
+      "version": "7.2",
+      "gacha": false,
+      "missable": false,
+      "impossible": false
+    },
+    {
+      "id": 81741,
+      "series_id": 0,
+      "name": "Поблекшая ледяная тень",
+      "description": "Возможно, у этого способа воссоздать всё сущее уже давно был прообраз...",
+      "reward": 5,
+      "hidden": true,
+      "version": "7.2",
+      "gacha": false,
+      "missable": false,
+      "impossible": false
+    },
+    {
+      "id": 81742,
+      "series_id": 0,
+      "name": "Легенда о стремительном перемещении",
+      "description": "Быстро перемещайтесь по Новокитежграду.",
+      "reward": 5,
+      "hidden": true,
+      "version": "7.2",
+      "gacha": false,
+      "missable": false,
+      "impossible": false
+    },
+    {
+      "id": 81743,
+      "series_id": 0,
+      "name": "Истории покрытого пылью жемчуга",
+      "description": "Продайте все найденные предметы, выставленные на комиссию...",
+      "reward": 5,
+      "hidden": true,
+      "version": "7.2",
+      "gacha": false,
+      "missable": false,
+      "impossible": false
+    },
+    {
+      "id": 81744,
+      "series_id": 0,
+      "name": "Тайна раскрыта",
+      "description": "Найдите и активируйте все тайные письмена древних альвов.",
+      "reward": 5,
+      "hidden": true,
+      "version": "7.2",
+      "gacha": false,
+      "missable": false,
+      "impossible": false
+    },
+    {
+      "id": 81745,
+      "series_id": 0,
+      "name": "Город, где кристаллическая руда течёт рекой",
+      "description": "Доберитесь до Новокитежграда - города альвов и кристаллической руды.",
+      "reward": 5,
+      "hidden": true,
+      "version": "7.2",
+      "gacha": false,
+      "missable": false,
+      "impossible": false
+    },
+    {
+      "id": 81746,
+      "series_id": 0,
+      "name": "И вода стала здоровою",
+      "description": "Помогите возобновить течение подземных вод Новокитежграда.",
+      "reward": 5,
+      "hidden": true,
+      "version": "7.2",
+      "gacha": false,
+      "missable": false,
+      "impossible": false
+    },
+    {
+      "id": 81747,
+      "series_id": 0,
+      "name": "Виртуальный коп...",
+      "description": "Выберитесь из Сферы теней на вагонетке.",
+      "reward": 5,
+      "hidden": true,
+      "version": "7.2",
+      "gacha": false,
+      "missable": false,
+      "impossible": false
+    },
+    {
+      "id": 81749,
+      "series_id": 0,
+      "name": "Бедствие тает, словно чёрный снег",
+      "description": "Уничтожьте кристаллы погибели в двух ущельях ледяной равнины.",
+      "reward": 5,
+      "hidden": true,
+      "version": "7.2",
+      "gacha": false,
+      "missable": false,
+      "impossible": false
+    },
+    {
+      "id": 81753,
+      "series_id": 0,
+      "name": "Чертог, отражающий смерть",
+      "description": "Доберитесь до подножия останков гигантского зверя в глубине Крылатого пика.",
+      "reward": 5,
+      "hidden": true,
+      "version": "7.2",
+      "gacha": false,
+      "missable": false,
+      "impossible": false
+    },
+    {
       "id": 81755,
       "series_id": 0,
       "name": "Прибытие посланника",
       "description": "Завершите «Тайные приказы ледяного дворца II».",
       "reward": 5,
       "hidden": false,
+      "version": "7.2",
       "gacha": false,
       "missable": false,
-      "impossible": true
+      "impossible": false
+    },
+    {
+      "id": 81756,
+      "series_id": 0,
+      "name": "И железное дерево зацвело",
+      "description": "Помогите дереву кристаллической руды вырасти там, куда не проникает солнечный свет.",
+      "reward": 5,
+      "hidden": true,
+      "version": "7.2",
+      "gacha": false,
+      "missable": false,
+      "impossible": false
     },
     {
       "id": 82008,
@@ -10008,6 +10213,18 @@
       "reward": 5,
       "hidden": true,
       "version": "7.1",
+      "gacha": false,
+      "missable": false,
+      "impossible": false
+    },
+    {
+      "id": 82313,
+      "series_id": 0,
+      "name": "Напиток ещё тёплый...",
+      "description": "Победите Удерживающего волны, пока он находится в состоянии Отваги...",
+      "reward": 5,
+      "hidden": true,
+      "version": "7.2",
       "gacha": false,
       "missable": false,
       "impossible": false
@@ -13881,6 +14098,114 @@
       "impossible": false
     },
     {
+      "id": 84407,
+      "series_id": 0,
+      "name": "День гнева",
+      "description": "Исследуйте аномальную активность Шипа наказания.",
+      "reward": 5,
+      "hidden": true,
+      "version": "7.2",
+      "gacha": false,
+      "missable": false,
+      "impossible": false
+    },
+    {
+      "id": 84408,
+      "series_id": 0,
+      "name": "Причина быть здесь",
+      "description": "Получите необходимые сведения от Терминала запросов с переменным откликом.",
+      "reward": 5,
+      "hidden": true,
+      "version": "7.2",
+      "gacha": false,
+      "missable": false,
+      "impossible": false
+    },
+    {
+      "id": 84409,
+      "series_id": 0,
+      "name": "Час погибели",
+      "description": "Завершите задание «Час погибели».",
+      "reward": 10,
+      "hidden": true,
+      "version": "7.2",
+      "gacha": false,
+      "missable": false,
+      "impossible": false
+    },
+    {
+      "id": 84410,
+      "series_id": 0,
+      "name": "Ветра свободы",
+      "description": "Завершите Испытание узурпации, посвящённое свободе.",
+      "reward": 5,
+      "hidden": true,
+      "version": "7.2",
+      "gacha": false,
+      "missable": false,
+      "impossible": false
+    },
+    {
+      "id": 84411,
+      "series_id": 0,
+      "name": "Воля, хранящая вечность",
+      "description": "Завершите Испытание узурпации, посвящённое вечности.",
+      "reward": 5,
+      "hidden": true,
+      "version": "7.2",
+      "gacha": false,
+      "missable": false,
+      "impossible": false
+    },
+    {
+      "id": 84412,
+      "series_id": 0,
+      "name": "У «мудрости» нет ответа",
+      "description": "Завершите Испытание узурпации, посвящённое мудрости.",
+      "reward": 5,
+      "hidden": true,
+      "version": "7.2",
+      "gacha": false,
+      "missable": false,
+      "impossible": false
+    },
+    {
+      "id": 84413,
+      "series_id": 0,
+      "name": "Сокровище, рождённое победой",
+      "description": "Завершите Испытание узурпации, посвящённое войне.",
+      "reward": 5,
+      "hidden": true,
+      "version": "7.2",
+      "gacha": false,
+      "missable": false,
+      "impossible": false
+    },
+    {
+      "id": 84414,
+      "series_id": 0,
+      "name": "Это не проклятие любви",
+      "description": "Завершите Испытание узурпации, посвящённое любви.",
+      "reward": 5,
+      "hidden": true,
+      "version": "7.2",
+      "gacha": false,
+      "missable": false,
+      "impossible": false
+    },
+    {
+      "id": 84415,
+      "series_id": 0,
+      "name": "Вчерашний день с другого берега",
+      "description": "Завершите «Вчерашний день с другого берега».",
+      "reward": 10,
+      "hidden": true,
+      "version": "7.2",
+      "gacha": false,
+      "missable": false,
+      "impossible": false
+    },
+    {
       "id": 84155,
       "series_id": 0,
       "name": "Истории по пути",
@@ -13888,6 +14213,54 @@
       "reward": 5,
       "hidden": true,
       "version": "6.0",
+      "gacha": false,
+      "missable": false,
+      "impossible": false
+    },
+    {
+      "id": 86115,
+      "series_id": 0,
+      "name": "Пёстрый дудочник",
+      "description": "Я-хо, я-хо, я-хо, я-хо...",
+      "reward": 5,
+      "hidden": true,
+      "version": "7.2",
+      "gacha": false,
+      "missable": false,
+      "impossible": false
+    },
+    {
+      "id": 86116,
+      "series_id": 0,
+      "name": "Источник Мимира",
+      "description": "Берите всё, что пожелаете, если сможете заплатить цену...",
+      "reward": 5,
+      "hidden": true,
+      "version": "7.2",
+      "gacha": false,
+      "missable": false,
+      "impossible": false
+    },
+    {
+      "id": 86117,
+      "series_id": 0,
+      "name": "Король кулаков",
+      "description": "Одержите финальную победу в игре «Камень, ножницы, бумага».",
+      "reward": 5,
+      "hidden": true,
+      "version": "7.2",
+      "gacha": false,
+      "missable": false,
+      "impossible": false
+    },
+    {
+      "id": 86118,
+      "series_id": 0,
+      "name": "Нашёл - верни",
+      "description": "Верните каждому то, что ему принадлежит.",
+      "reward": 5,
+      "hidden": true,
+      "version": "7.2",
       "gacha": false,
       "missable": false,
       "impossible": false
@@ -25358,9 +25731,10 @@
       "description": "Откройте карты Новокитежграда и Крылатого пика в области Снежной.",
       "reward": 5,
       "hidden": false,
+      "version": "7.2",
       "gacha": false,
       "missable": false,
-      "impossible": true
+      "impossible": false
     },
     {
       "id": 86093,
@@ -25369,9 +25743,10 @@
       "description": "Активируйте все точки телепортации в Новокитежграде и на Крылатом пике в области Снежной.",
       "reward": 5,
       "hidden": false,
+      "version": "7.2",
       "gacha": false,
       "missable": false,
-      "impossible": true
+      "impossible": false
     },
     {
       "id": 86094,
@@ -25380,9 +25755,10 @@
       "description": "Снимите печати со всех Усыпальниц глубин в Новокитежграде и на Крылатом пике в области Снежной.",
       "reward": 10,
       "hidden": false,
+      "version": "7.2",
       "gacha": false,
       "missable": false,
-      "impossible": true
+      "impossible": false
     },
     {
       "id": 86095,
@@ -25391,9 +25767,10 @@
       "description": "Снимите печати со всех Хранилищ реликвий Сферы теней в Новокитежграде и на Крылатом пике в области Снежной.",
       "reward": 10,
       "hidden": false,
+      "version": "7.2",
       "gacha": false,
       "missable": false,
-      "impossible": true
+      "impossible": false
     },
     {
       "id": 86096,
@@ -25402,9 +25779,10 @@
       "description": "Доведите фей (4) до их садов в Новокитежграде и на Крылатом пике.",
       "reward": 5,
       "hidden": false,
+      "version": "7.2",
       "gacha": false,
       "missable": false,
-      "impossible": true
+      "impossible": false
     },
     {
       "id": 86097,
@@ -25413,9 +25791,10 @@
       "description": "Доведите фей (9) до их садов в Новокитежграде и на Крылатом пике.",
       "reward": 10,
       "hidden": false,
+      "version": "7.2",
       "gacha": false,
       "missable": false,
-      "impossible": true
+      "impossible": false
     },
     {
       "id": 86098,
@@ -25424,9 +25803,10 @@
       "description": "Доведите фей (18) до их садов в Новокитежграде и на Крылатом пике.",
       "reward": 20,
       "hidden": false,
+      "version": "7.2",
       "gacha": false,
       "missable": false,
-      "impossible": true
+      "impossible": false
     },
     {
       "id": 86099,
@@ -25435,9 +25815,10 @@
       "description": "Откройте сундуки ×45 в Новокитежграде и на Крылатом пике.",
       "reward": 5,
       "hidden": false,
+      "version": "7.2",
       "gacha": false,
       "missable": false,
-      "impossible": true
+      "impossible": false
     },
     {
       "id": 86100,
@@ -25446,9 +25827,10 @@
       "description": "Откройте сундуки ×90 в Новокитежграде и на Крылатом пике.",
       "reward": 10,
       "hidden": false,
+      "version": "7.2",
       "gacha": false,
       "missable": false,
-      "impossible": true
+      "impossible": false
     },
     {
       "id": 86101,
@@ -25457,9 +25839,10 @@
       "description": "Откройте сундуки ×180 в Новокитежграде и на Крылатом пике.",
       "reward": 20,
       "hidden": false,
+      "version": "7.2",
       "gacha": false,
       "missable": false,
-      "impossible": true
+      "impossible": false
     },
     {
       "id": 86102,
@@ -25468,9 +25851,10 @@
       "description": "Завершите ограниченные по времени испытания открытого мира (3) в Новокитежграде и на Крылатом пике.",
       "reward": 5,
       "hidden": false,
+      "version": "7.2",
       "gacha": false,
       "missable": false,
-      "impossible": true
+      "impossible": false
     },
     {
       "id": 86103,
@@ -25479,9 +25863,10 @@
       "description": "Завершите ограниченные по времени испытания открытого мира (7) в Новокитежграде и на Крылатом пике.",
       "reward": 10,
       "hidden": false,
+      "version": "7.2",
       "gacha": false,
       "missable": false,
-      "impossible": true
+      "impossible": false
     },
     {
       "id": 86104,
@@ -25490,9 +25875,10 @@
       "description": "Завершите ограниченные по времени испытания открытого мира (14) в Новокитежграде и на Крылатом пике.",
       "reward": 20,
       "hidden": false,
+      "version": "7.2",
       "gacha": false,
       "missable": false,
-      "impossible": true
+      "impossible": false
     },
     {
       "id": 86105,
@@ -25501,9 +25887,10 @@
       "description": "Станьте свидетелем судьбы великого князя-домового Альвиса и его дочери Фруд.",
       "reward": 10,
       "hidden": false,
+      "version": "7.2",
       "gacha": false,
       "missable": false,
-      "impossible": true
+      "impossible": false
     },
     {
       "id": 86106,
@@ -25512,9 +25899,10 @@
       "description": "Повысьте уровень совместного развития «Места встречи: Оазис Тепло» до максимального.",
       "reward": 5,
       "hidden": false,
+      "version": "7.2",
       "gacha": false,
       "missable": false,
-      "impossible": true
+      "impossible": false
     },
     {
       "id": 86107,
@@ -25523,9 +25911,10 @@
       "description": "Повысьте уровень совместного развития «Места встречи: Королевское управление железнодорожного транспорта» до максимального.",
       "reward": 5,
       "hidden": false,
+      "version": "7.2",
       "gacha": false,
       "missable": false,
-      "impossible": true
+      "impossible": false
     },
     {
       "id": 86059,
@@ -25714,9 +26103,10 @@
       "description": "Получить дробовик «Пламя Сосруко».",
       "reward": 5,
       "hidden": false,
+      "version": "7.2",
       "gacha": false,
       "missable": false,
-      "impossible": true
+      "impossible": false
     },
     {
       "id": 86109,
@@ -25725,9 +26115,10 @@
       "description": "Получите дробовик «Горная охота Апсата».",
       "reward": 5,
       "hidden": false,
+      "version": "7.2",
       "gacha": false,
       "missable": false,
-      "impossible": true
+      "impossible": false
     },
     {
       "id": 86110,
@@ -25736,9 +26127,10 @@
       "description": "На этапах «Перекрёстная наковальня», «Укреплённый порт» и «Старый город бедствий» режима «Горнило безысходности» получите не менее 1 боевой медали на каждом этапе.",
       "reward": 5,
       "hidden": false,
+      "version": "7.2",
       "gacha": false,
       "missable": false,
-      "impossible": true
+      "impossible": false
     },
     {
       "id": 86111,
@@ -25747,9 +26139,10 @@
       "description": "Установите 4 модуля на «Пламя Сосруко».",
       "reward": 10,
       "hidden": false,
+      "version": "7.2",
       "gacha": false,
       "missable": false,
-      "impossible": true
+      "impossible": false
     },
     {
       "id": 86112,
@@ -25758,9 +26151,10 @@
       "description": "Установите 4 модуля на «Горную охоту Апсата».",
       "reward": 10,
       "hidden": false,
+      "version": "7.2",
       "gacha": false,
       "missable": false,
-      "impossible": true
+      "impossible": false
     },
     {
       "id": 86113,
@@ -25769,9 +26163,10 @@
       "description": "Сделайте 10 выстрелов подряд из «Пламени Сосруко» за 15 сек.",
       "reward": 5,
       "hidden": false,
+      "version": "7.2",
       "gacha": false,
       "missable": false,
-      "impossible": true
+      "impossible": false
     },
     {
       "id": 86114,
@@ -25780,9 +26175,10 @@
       "description": "Попадите тяжёлым снарядом из «Горной охоты Апсата» в противника с расстояния более 30 м.",
       "reward": 5,
       "hidden": false,
+      "version": "7.2",
       "gacha": false,
       "missable": false,
-      "impossible": true
+      "impossible": false
     }
   ]
 }
