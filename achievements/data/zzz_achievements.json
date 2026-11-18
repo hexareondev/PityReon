@@ -4,7 +4,7 @@
   "game_title": "Zenless Zone Zero",
   "lang": "ru",
   "source": "stardb.gg",
-  "generated_at": "2026-10-24T19:52:19Z",
+  "generated_at": "2026-11-18T11:46:33Z",
   "currency": "polychrome",
   "total": 987,
   "total_reward": 7295,
@@ -1141,7 +1141,7 @@
       "version": "3.3",
       "gacha": true,
       "missable": false,
-      "impossible": true
+      "impossible": false
     },
     {
       "id": 1005001,
@@ -10837,7 +10837,7 @@
       "version": "3.3",
       "gacha": false,
       "missable": false,
-      "impossible": true
+      "impossible": false
     },
     {
       "id": 4006033,
